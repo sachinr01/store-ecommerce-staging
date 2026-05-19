@@ -52,24 +52,24 @@ export default function EditAccountPage() {
       return;
     }
 
-    const wantsPasswordChange = !!(form.currentPassword || form.newPassword || form.confirmPassword);
-    if (wantsPasswordChange) {
-      if (!form.currentPassword) {
-        setError('Current password is required to change your password.');
-        setSuccess('');
-        return;
-      }
-      if (!form.newPassword) {
-        setError('Enter a new password.');
-        setSuccess('');
-        return;
-      }
-      if (form.newPassword !== form.confirmPassword) {
-        setError('New password and confirmation do not match.');
-        setSuccess('');
-        return;
-      }
-    }
+    // const wantsPasswordChange = !!(form.currentPassword || form.newPassword || form.confirmPassword);
+    // if (wantsPasswordChange) {
+    //   if (!form.currentPassword) {
+    //     setError('Current password is required to change your password.');
+    //     setSuccess('');
+    //     return;
+    //   }
+    //   if (!form.newPassword) {
+    //     setError('Enter a new password.');
+    //     setSuccess('');
+    //     return;
+    //   }
+    //   if (form.newPassword !== form.confirmPassword) {
+    //     setError('New password and confirmation do not match.');
+    //     setSuccess('');
+    //     return;
+    //   }
+    // }
 
     setSaving(true);
     setError('');
@@ -80,8 +80,8 @@ export default function EditAccountPage() {
         email: form.email.trim(),
         firstName: form.firstName,
         lastName: form.lastName,
-        currentPassword: form.currentPassword || undefined,
-        newPassword: form.newPassword || undefined,
+        // currentPassword: form.currentPassword || undefined,
+        // newPassword: form.newPassword || undefined,
       });
 
       if (!result.success) {
@@ -168,7 +168,7 @@ export default function EditAccountPage() {
 
                         <div className="account-edit-field">
                           <label className="account-edit-label required">Display name</label>
-                          <input className="account-edit-input" type="text" value={form.displayName} onChange={setField('displayName')} />
+                          <input className="account-edit-input" type="text" value={form.displayName} readOnly />
                           <p className="account-edit-note">
                             This will be how your name will be displayed in the account section and in reviews.
                           </p>
@@ -176,9 +176,10 @@ export default function EditAccountPage() {
 
                         <div className="account-edit-field">
                           <label className="account-edit-label required">Email address</label>
-                          <input className="account-edit-input" type="email" value={form.email} onChange={setField('email')} />
+                          <input className="account-edit-input" type="email" value={form.email} readOnly />
                         </div>
 
+                        {/* Password change — commented out
                         <h4 className="account-edit-subheading">Password change</h4>
 
                         <div className="account-edit-field">
@@ -195,6 +196,7 @@ export default function EditAccountPage() {
                           <label className="account-edit-label">Confirm new password</label>
                           <input className="account-edit-input" type="password" value={form.confirmPassword} onChange={setField('confirmPassword')} />
                         </div>
+                        */}
 
                         <div className="account-edit-actions">
                           <button type="submit" className="btn-view-product btn-view-product--inline" disabled={saving}>

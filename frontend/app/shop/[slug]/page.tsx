@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { ShopGridSkeleton, ShopSidebarSkeleton } from '../ShopSkeleton';
 import { getCategoryChildren, getCategoryProducts, getImageUrl, type ProductCategory, type Product } from '../../lib/api';
 import { formatPrice, formatPriceRange, CURRENCY } from '../../lib/price';
 import { getDiscountPercent, isSaleDateActive } from '../../lib/helpers/pricing';
@@ -314,7 +315,9 @@ export default function CategoryPage() {
       </nav>
 
       <div className="csp-body">
-        <aside className="csp-sidebar" aria-label="Product filters">{SidebarContent}</aside>
+        <aside className="csp-sidebar" aria-label="Product filters">
+          {loading ? <ShopSidebarSkeleton /> : SidebarContent}
+        </aside>
 
         {sidebarOpen && <div className="csp-sidebar-overlay" onClick={() => setSidebarOpen(false)} aria-hidden="true"/>}
         <div className={`csp-sidebar-drawer${sidebarOpen ? ' open' : ''}`}
@@ -402,7 +405,7 @@ export default function CategoryPage() {
             </div>
           )}
 
-          {loading && <div className="csp-state-wrap" role="status"><div className="csp-spinner"/><p className="csp-state-text">Loading...</p></div>}
+          {loading && <ShopGridSkeleton listMode={viewMode === 'list'} />}
 
           {!loading && filtered.length === 0 && (
             <div className="csp-state-wrap">

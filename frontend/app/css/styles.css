@@ -5106,6 +5106,144 @@ input[type="checkbox"] {
   gap: 20px;
 }
 
+.csp-skeleton-sidebar {
+  background: var(--cs-white);
+}
+
+.csp-skeleton-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--cs-border-light);
+}
+
+.csp-skeleton-filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--cs-border-light);
+}
+
+.csp-skeleton-grid {
+  min-height: 420px;
+}
+
+.csp-skeleton-card {
+  pointer-events: none;
+  cursor: default;
+  animation: none;
+}
+
+.csp-skeleton-card:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.csp-skeleton-card,
+.csp-skeleton-img,
+.csp-skeleton-line,
+.csp-skeleton-dot {
+  position: relative;
+  overflow: hidden;
+}
+
+.csp-skeleton-img,
+.csp-skeleton-line,
+.csp-skeleton-dot {
+  background: #eef0ed;
+}
+
+.csp-skeleton-img::after,
+.csp-skeleton-line::after,
+.csp-skeleton-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.78), transparent);
+  animation: cspSkeletonShimmer 1.35s ease-in-out infinite;
+}
+
+.csp-skeleton-info {
+  gap: 9px;
+}
+
+.csp-skeleton-line {
+  display: block;
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+}
+
+.csp-skeleton-line-sm {
+  width: 86px;
+}
+
+.csp-skeleton-line-xs {
+  width: 54px;
+}
+
+.csp-skeleton-dot {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  border-radius: 50%;
+}
+
+.csp-skeleton-title {
+  width: 88%;
+  height: 14px;
+}
+
+.csp-skeleton-title-short {
+  width: 62%;
+}
+
+.csp-skeleton-price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+}
+
+.csp-skeleton-price {
+  width: 72px;
+  height: 15px;
+}
+
+.csp-skeleton-badge {
+  width: 54px;
+  height: 12px;
+}
+
+.csp-skeleton-desc {
+  width: 92%;
+  margin-top: 4px;
+}
+
+.csp-skeleton-desc-short {
+  width: 74%;
+}
+
+@keyframes cspSkeletonShimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .csp-skeleton-img::after,
+  .csp-skeleton-line::after,
+  .csp-skeleton-dot::after {
+    animation: none;
+  }
+}
+
 .csp-grid.list-mode {
   grid-template-columns: 1fr;
   gap: 12px;
@@ -7170,13 +7308,13 @@ input[type="checkbox"] {
 .wl-wrap {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 0 16px 60px;
+  padding: 40px 16px 60px;
   width: 100%;
 }
 
 @media (max-width: 600px) {
   .wl-wrap {
-    padding: 0 12px 40px;
+    padding: 12px 12px 40px;
   }
 
   .wl-section-bg .container {
@@ -14149,6 +14287,10 @@ input[type="checkbox"] {
 
 .checkout-login-actions .lost-pass:hover {
   color: #22311d;
+}
+
+.field.last .lost-pass {
+  margin-left: 20px;
 }
 
 .checkout-google-hint {

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { ShopGridSkeleton, ShopSidebarSkeleton } from './ShopSkeleton';
 import { getProducts, getAllAttributeGroups, getImageUrl, type Product, type AttributeGroup, getProductCategories, getCategoryProducts, type ProductCategory } from '../lib/api';
 import { formatPrice, formatPriceRange, CURRENCY } from '../lib/price';
 import { getDiscountPercent, isSaleDateActive } from '../lib/helpers/pricing';
@@ -630,7 +631,7 @@ function ShopInner({ heading, subheading }: { heading: string; subheading: strin
 
       <div className="csp-body">
         <aside className="csp-sidebar" aria-label="Product filters">
-          {SidebarContent}
+          {loading ? <ShopSidebarSkeleton /> : SidebarContent}
         </aside>
 
         {sidebarOpen && (
@@ -776,10 +777,7 @@ function ShopInner({ heading, subheading }: { heading: string; subheading: strin
           )}
 
           {loading && (
-            <div className="csp-state-wrap" role="status">
-              <div className="csp-spinner" />
-              <p className="csp-state-text">Loading products...</p>
-            </div>
+            <ShopGridSkeleton listMode={viewMode === 'list'} />
           )}
 
           {error && (
