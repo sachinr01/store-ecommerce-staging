@@ -130,7 +130,7 @@ function ShopProductCard({ product, idx, listMode }: { product: Product; idx: nu
           <span className="csp-stock-label out">Out of Stock</span>
         )}
         {listMode && product.short_description && (
-          <p className="csp-list-desc">{product.short_description.replace(/<[^>]+>/g, '').slice(0, 300)}</p>
+          <p className="csp-list-desc">{product.short_description.replace(/<[^>]+>/g, '')}</p>
         )}
       </div>
     </div>
