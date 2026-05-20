@@ -340,17 +340,21 @@ function ProductDetailsInner({ id, slug }: { id?: string; slug?: string }) {
     }
   };
 
-  const toggleWishlist = () => {
-    if (inWishlist(product.ID)) {
-      removeFromWishlist(product.ID);
-    } else {
-      addToWishlist({
-        id: product.ID,
-        title: product.title,
-        price: Number(displayPrice) || 0,
-        image: productImage,
-        inStock,
-      });
+  const toggleWishlist = async () => {
+    try {
+      if (inWishlist(product.ID)) {
+        await removeFromWishlist(product.ID);
+      } else {
+        await addToWishlist({
+          id: product.ID,
+          title: product.title,
+          price: Number(displayPrice) || 0,
+          image: productImage,
+          inStock,
+        });
+      }
+    } catch {
+      // optimistic update already rolled back by context
     }
   };
 

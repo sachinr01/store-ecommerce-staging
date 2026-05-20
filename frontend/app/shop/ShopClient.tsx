@@ -86,18 +86,22 @@ function ShopProductCard({ product, idx, listMode }: { product: Product; idx: nu
         <button
           className={`csp-wishlist${inWishlist ? ' active' : ''}`}
           aria-label={inWishlist ? `Remove ${product.title} from wishlist` : `Add ${product.title} to wishlist`}
-          onClick={e => {
+          onClick={async e => {
             e.preventDefault();
-            if (inWishlist) {
-              removeItem(product.ID);
-            } else {
-              addItem({
-                id: product.ID,
-                title: product.title,
-                price: displayPrice ?? 0,
-                image: getImageUrl(product.thumbnail_url, PLACEHOLDER),
-                inStock: !isOutOfStock,
-              });
+            try {
+              if (inWishlist) {
+                await removeItem(product.ID);
+              } else {
+                await addItem({
+                  id: product.ID,
+                  title: product.title,
+                  price: displayPrice ?? 0,
+                  image: getImageUrl(product.thumbnail_url, PLACEHOLDER),
+                  inStock: !isOutOfStock,
+                });
+              }
+            } catch {
+              // optimistic update already rolled back by context
             }
           }}
         >

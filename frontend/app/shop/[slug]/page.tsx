@@ -134,7 +134,7 @@ function ProductCard({ product, idx, listMode }: { product: Product; idx: number
         </div>
         <button className={`csp-wishlist${inWishlist ? ' active' : ''}`}
           aria-label={inWishlist ? `Remove ${product.title} from wishlist` : `Add ${product.title} to wishlist`}
-          onClick={e => { e.preventDefault(); inWishlist ? removeItem(product.ID) : addItem({ id: product.ID, title: product.title, price: displayPrice ?? 0, image: getImageUrl(product.thumbnail_url, PLACEHOLDER), inStock: !isOutOfStock }); }}>
+          onClick={async e => { e.preventDefault(); try { inWishlist ? await removeItem(product.ID) : await addItem({ id: product.ID, title: product.title, price: displayPrice ?? 0, image: getImageUrl(product.thumbnail_url, PLACEHOLDER), inStock: !isOutOfStock }); } catch {} }}>
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"
             fill={inWishlist ? '#e74c3c' : 'none'} stroke={inWishlist ? '#e74c3c' : 'currentColor'} strokeWidth="1.8">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>

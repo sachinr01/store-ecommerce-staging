@@ -715,7 +715,7 @@ const updateProfile = async (req, res) => {
       if (taken) return res.status(409).json({ success: false, message: 'Email already in use.' });
     }
 
-    // Password change
+    // Password reset
     let newHash = null;
     if (newPassword) {
       if (!currentPassword) {
@@ -833,16 +833,16 @@ const requestPasswordReset = async (req, res) => {
                     <h2 style="margin:0 0 12px; font-size:24px; color:#22311d;">Reset your password</h2>
                     <p style="margin:0 0 14px; color:#343434; font-size:15px; line-height:1.7;">Hi ${escapeHtml(displayName)},</p>
                     <p style="margin:0 0 18px; color:#343434; font-size:15px; line-height:1.7;">
-                      We received a request to reset your password. Click the button below to open the password change page and choose a new password.
+                      We received a request to reset your password. Click the button below to open the password reset page and choose a new password.
                       This link will expire in 1 hour.
                     </p>
                     <p style="margin:0 0 24px;">
                       <a href="${resetUrl}" style="display:inline-block; background:#22311d; color:#ffffff; text-decoration:none; padding:14px 22px; border-radius:8px; font-size:14px; font-weight:700; letter-spacing:0.04em;">
-                        Change password
+                        Reset password
                       </a>
                     </p>
                     <p style="margin:0; color:#6f6459; font-size:13px; line-height:1.7;">
-                      If you did not request this change, you can safely ignore this email.
+                      If you did not request this reset, you can safely ignore this email.
                     </p>
                   </td>
                 </tr>

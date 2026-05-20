@@ -12,26 +12,31 @@ import { formatPrice } from '../lib/price';
 import { usePlaceholderImage } from '../lib/siteSettingsContext';
 
 export default function WishlistPage() {
-  const { items, removeItem } = useWishlist();
+  const { items, removeItem, loading: wishlistLoading } = useWishlist();
   const PLACEHOLDER = usePlaceholderImage();
   const [products, setProducts] = useState<Record<number, ProductDetail>>({});
-  const [loading, setLoading] = useState(true);
+  const [productLoading, setProductLoading] = useState(false);
   const toSlug = (text: string) =>
     text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  // FIX: use real slug from API; only fall back to title-derived slug if missing
+  const getProductSlug = (item: { id: number; title: string }) => {
+    const p = products[item.id];
+    return p?.slug ? p.slug : toSlug(item.title);
+  };
 
   // Fetch full product data for each wishlist item
   useEffect(() => {
-    if (items.length === 0) { setLoading(false); return; }
+    if (items.length === 0) { setProductLoading(false); return; }
     const missing = items.filter(i => !products[i.id]).map(i => i.id);
-    if (missing.length === 0) { setLoading(false); return; }
-    setLoading(true);
+    if (missing.length === 0) { setProductLoading(false); return; }
+    setProductLoading(true);
     Promise.all(missing.map(id => getProductById(id).then(p => ({ id, p })).catch(() => null)))
       .then(results => {
         const map: Record<number, ProductDetail> = { ...products };
         results.forEach(r => { if (r) map[r.id] = r.p; });
         setProducts(map);
       })
-      .finally(() => setLoading(false));
+      .finally(() => setProductLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
@@ -75,7 +80,10 @@ export default function WishlistPage() {
             <div className="container">
               <div className="wl-wrap">
 
-                {items.length === 0 ? (
+                {/* FIX: check wishlistLoading first — prevents empty-state flash while DB fetch is in-flight */}
+                {(wishlistLoading || productLoading) ? (
+                  <p style={{ padding: '40px 0', textAlign: 'center', color: '#6b7280' }}>Loading...</p>
+                ) : items.length === 0 ? (
                   <div className="wl-empty">
                     <svg width="56" height="56" fill="none" stroke="#d1d5db" strokeWidth="1.2" viewBox="0 0 24 24">
                       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -83,8 +91,6 @@ export default function WishlistPage() {
                     <p>Your wishlist is empty.</p>
                     <Link href="/shop" className="wl-empty-btn">Go to Shop</Link>
                   </div>
-                ) : loading ? (
-                  <p style={{ padding: '40px 0', textAlign: 'center', color: '#6b7280' }}>Loading...</p>
                 ) : (
                   <div className="wl-table-wrap">
                     <table className="wl-table">
@@ -107,10 +113,10 @@ export default function WishlistPage() {
                             <tr key={item.id}>
                               <td>
                                 <div className="wl-product-cell">
-                                  <Link href={`/shop/product/${toSlug(title)}`}>
+                                  <Link href={`/shop/product/${getProductSlug(item)}`}>
                                     <img src={item.image || PLACEHOLDER} alt={title}/>
                                   </Link>
-                                  <Link href={`/shop/product/${toSlug(title)}`} className="wl-product-name">{title}</Link>
+                                  <Link href={`/shop/product/${getProductSlug(item)}`} className="wl-product-name">{title}</Link>
                                 </div>
                               </td>
                               <td data-label="Price">{formatPrice(price)}</td>
@@ -121,7 +127,7 @@ export default function WishlistPage() {
                               </td>
                               <td>
                                 <button className="wl-remove-btn" aria-label={`Remove ${title}`}
-                                  onClick={() => removeItem(item.id)}>
+                                  onClick={async () => { try { await removeItem(item.id); } catch {} }}>
                                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                                     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                                   </svg>
