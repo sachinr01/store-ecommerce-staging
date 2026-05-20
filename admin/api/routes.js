@@ -19,8 +19,7 @@ router.use(sessionMiddleware());
 router.get('/health', (_req, res) => res.json({ success: true, message: 'API is running' }));
 
 // ── Contact Forms ─────────────────────────────────────────────────────────────
-router.post('/contact',     contact.submitContact);
-router.post('/b2b-contact', contact.submitB2BContact);
+router.post('/contact', contact.submitContact);
 
 // ── Products ──────────────────────────────────────────────────────────────────
 router.get('/products/featured',      ctrl.getFeaturedProducts);

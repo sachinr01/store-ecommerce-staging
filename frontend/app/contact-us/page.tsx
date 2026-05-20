@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import ContactForm from "./ContactForm";
+import EnquiryForm from "../components/EnquiryForm";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "NESTCASE";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001";
@@ -104,7 +104,7 @@ export default function ContactUsPage() {
               Fill out the form below and our team will get in touch with you.<br />
               Response Time: We usually respond within 24-48 business hours.
             </p>
-            <ContactForm />
+            <EnquiryForm type="contact-us" buttonLabel="Send Message" />
           </section>
         </section>
       </main>

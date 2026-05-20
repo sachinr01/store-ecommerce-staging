@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import Slider from "../components/Slider";
 import Footer from "../components/Footer";
 import { getProductCategories, type ProductCategory } from "../lib/api";
-import B2BForm from "./B2BForm";
+import EnquiryForm from "../components/EnquiryForm";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "NESTCASE";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001";
@@ -138,7 +138,7 @@ export default async function B2BConnectPage() {
               with you.
             </p>
           </div>
-          <B2BForm />
+          <EnquiryForm type="b2b" buttonLabel="Request Callback" />
         </section>
       </main>
       <Footer />

@@ -1,4 +1,5 @@
 const https = require("https");
+const db = require("../config/db");
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY || "";
 const BREVO_SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || "";
@@ -95,17 +96,36 @@ function emailTemplate(title, rows) {
   `;
 }
 
-// POST /contact
+// POST /contact  (handles both general contact and B2B enquiries via `type` field)
 async function submitContact(req, res) {
-  const { name, business, email, phone, message } = req.body || {};
-  if (!name || !email || !message) {
-    return res.status(400).json({ success: false, message: "Name, email and message are required." });
+  const { name, business, email, phone, message, type } = req.body || {};
+  const isB2B = type === "b2b";
+
+  if (!name || !email || !phone || !message) {
+    return res.status(400).json({ success: false, message: "Name, email, phone and message are required." });
   }
   if (!RECEIVED_EMAIL) {
     return res.status(500).json({ success: false, message: "Recipient email not configured." });
   }
 
-  const html = emailTemplate("New Contact Us Enquiry", [
+  // Save to database
+  try {
+    await db.execute(
+      `INSERT INTO tbl_enquiries (type, name, business_name, email, phone, message)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [isB2B ? "b2b" : "contact-us", name, business || null, email, phone || null, message]
+    );
+  } catch (dbErr) {
+    console.error("Failed to save enquiry to DB:", dbErr);
+    // Non-fatal — still attempt to send email
+  }
+
+  const title   = isB2B ? "New B2B Connect Enquiry" : "New Contact Us Enquiry";
+  const subject = isB2B
+    ? `B2B Enquiry: ${name}${business ? ` — ${business}` : ""}`
+    : `Contact Us: ${name}${business ? ` — ${business}` : ""}`;
+
+  const html = emailTemplate(title, [
     ["Name", name],
     ["Business Name", business],
     ["Email", email],
@@ -116,7 +136,7 @@ async function submitContact(req, res) {
   const sent = await sendBrevoEmail({
     toEmail: RECEIVED_EMAIL,
     toName: "Store Admin",
-    subject: `Contact Us: ${name}${business ? ` — ${business}` : ""}`,
+    subject,
     html,
   });
 
@@ -126,35 +146,4 @@ async function submitContact(req, res) {
   return res.json({ success: true, message: "Message sent successfully." });
 }
 
-// POST /b2b-contact
-async function submitB2BContact(req, res) {
-  const { name, business, email, phone, requirements } = req.body || {};
-  if (!name || !email || !requirements) {
-    return res.status(400).json({ success: false, message: "Name, email and requirements are required." });
-  }
-  if (!RECEIVED_EMAIL) {
-    return res.status(500).json({ success: false, message: "Recipient email not configured." });
-  }
-
-  const html = emailTemplate("New B2B Connect Enquiry", [
-    ["Name", name],
-    ["Business Name", business],
-    ["Email", email],
-    ["Phone", phone],
-    ["Requirements", requirements],
-  ]);
-
-  const sent = await sendBrevoEmail({
-    toEmail: RECEIVED_EMAIL,
-    toName: "Store Admin",
-    subject: `B2B Enquiry: ${name}${business ? ` — ${business}` : ""}`,
-    html,
-  });
-
-  if (!sent) {
-    return res.status(500).json({ success: false, message: "Failed to send email. Please try again." });
-  }
-  return res.json({ success: true, message: "Request sent successfully." });
-}
-
-module.exports = { submitContact, submitB2BContact };
+module.exports = { submitContact };
