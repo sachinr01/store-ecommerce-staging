@@ -89,55 +89,59 @@ export default function WishlistPage() {
                       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                     </svg>
                     <p>Your wishlist is empty.</p>
-                    <Link href="/shop" className="wl-empty-btn">Go to Shop</Link>
+                    <Link href="/shop" className="btn-view-product btn-view-product--inline">Go to Shop</Link>
                   </div>
                 ) : (
-                  <div className="wl-table-wrap">
-                    <table className="wl-table">
-                      <thead>
-                        <tr>
-                          <th>Product</th>
-                          <th>Unit Price</th>
-                          <th>Stock Status</th>
-                          <th></th>
-                          <th></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {items.map(item => {
-                          const p = products[item.id];
-                          const price   = p ? getPrice(p) : item.price;
-                          const inStock = p ? getStock(p) : item.inStock;
-                          const title   = p ? p.title : item.title;
-                          return (
-                            <tr key={item.id}>
-                              <td>
-                                <div className="wl-product-cell">
-                                  <Link href={`/shop/product/${getProductSlug(item)}`}>
-                                    <img src={item.image || PLACEHOLDER} alt={title}/>
-                                  </Link>
-                                  <Link href={`/shop/product/${getProductSlug(item)}`} className="wl-product-name">{title}</Link>
-                                </div>
-                              </td>
-                              <td data-label="Price">{formatPrice(price)}</td>
-                              <td data-label="Stock">
-                                <span className={`wl-stock ${inStock ? 'in' : 'out'}`}>
-                                  {inStock ? 'In Stock' : 'Out of Stock'}
-                                </span>
-                              </td>
-                              <td>
-                                <button className="wl-remove-btn" aria-label={`Remove ${title}`}
-                                  onClick={async () => { try { await removeItem(item.id); } catch {} }}>
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                                  </svg>
-                                </button>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                  <div className="wl-layout">
+                    {/* 70% — product table */}
+                    <div className="wl-table-wrap">
+                      <table className="wl-table">
+                        <thead>
+                          <tr>
+                            <th>Product</th>
+                            <th>Unit Price</th>
+                            <th>Stock Status</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {items.map(item => {
+                            const p = products[item.id];
+                            const price   = p ? getPrice(p) : item.price;
+                            const inStock = p ? getStock(p) : item.inStock;
+                            const title   = p ? p.title : item.title;
+                            return (
+                              <tr key={item.id}>
+                                <td>
+                                  <div className="wl-product-cell">
+                                    <Link href={`/shop/product/${getProductSlug(item)}`}>
+                                      <img src={item.image || PLACEHOLDER} alt={title}/>
+                                    </Link>
+                                    <Link href={`/shop/product/${getProductSlug(item)}`} className="wl-product-name">{title}</Link>
+                                  </div>
+                                </td>
+                                <td data-label="Price">{formatPrice(price)}</td>
+                                <td data-label="Stock">
+                                  <span className={`wl-stock ${inStock ? 'in' : 'out'}`}>
+                                    {inStock ? 'In Stock' : 'Out of Stock'}
+                                  </span>
+                                </td>
+                                <td>
+                                  <button className="wl-remove-btn" aria-label={`Remove ${title}`}
+                                    onClick={async () => { try { await removeItem(item.id); } catch {} }}>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                                    </svg>
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+
                   </div>
                 )}
 

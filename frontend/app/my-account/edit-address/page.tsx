@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import AccountSidebar from '../../components/AccountSidebar';
 import { getProfileAddresses, type ProfileAddressForm } from '../../lib/api';
 import { useAuth } from '../../lib/authContext';
 
@@ -89,29 +90,9 @@ export default function EditAddressPage() {
                   </div>
                 </div>
               ) : (
-                <div className="account-address-shell">
-                  <div className="account-address-layout">
-                    <aside className="account-address-sidebar">
-                      <div className="account-address-sidebar-inner">
-                        <div className="account-address-avatar" aria-hidden="true">
-                          <svg width="78" height="78" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                            <circle cx="12" cy="7" r="4" />
-                          </svg>
-                        </div>
-                        <h3 className="account-address-hello">Hello</h3>
-                        <p className="account-address-handle">{accountHandle}</p>
-
-                        <nav className="account-address-nav" aria-label="Account navigation">
-                          <Link href="/my-account" className="account-address-link">Dashboard</Link>
-                          <Link href="/my-account/edit-account" className="account-address-link">Edit Profile</Link>
-                          <Link href="/my-account/edit-address" className="account-address-link active">My Addresses</Link>
-                          <Link href="/orders" className="account-address-link">My Orders</Link>
-                          <Link href="/wishlist" className="account-address-link">Wishlist</Link>
-                          <button className="account-address-button" onClick={logout}>Logout</button>
-                        </nav>
-                      </div>
-                    </aside>
+                <div className="account-shell">
+                  <div className="account-layout">
+                    <AccountSidebar accountHandle={accountHandle} activeLink="edit-address" onLogout={logout} />
 
                     <div className="account-address-main">
                       <div className="account-address-top">

@@ -1429,19 +1429,21 @@ const getMyOrderById = async (req, res) => {
                   NULLIF((SELECT oim3.meta_value FROM tbl_order_itemmeta oim3
                           WHERE oim3.order_item_id = oi.order_item_id
                             AND oim3.meta_key = '_item_image' LIMIT 1), ''),
-                  -- 2. Variation image (parent_id = variation_id)
-                  (SELECT mm1.meta_value FROM tbl_media m1
-                   JOIN tbl_mediameta mm1 ON mm1.media_id = m1.media_id AND mm1.meta_key = '_wp_attached_file'
-                   WHERE m1.parent_id = CAST(NULLIF(
+                  -- 2. Variation thumbnail via _thumbnail_id productmeta
+                  (SELECT m1.media_path FROM tbl_productmeta pm1
+                   JOIN tbl_media m1 ON m1.media_id = CAST(pm1.meta_value AS UNSIGNED)
+                   WHERE pm1.product_id = CAST(NULLIF(
                      (SELECT oim2.meta_value FROM tbl_order_itemmeta oim2
                       WHERE oim2.order_item_id = oi.order_item_id AND oim2.meta_key = '_variation_id' LIMIT 1
                      ), '0') AS UNSIGNED)
-                   ORDER BY m1.media_id ASC LIMIT 1),
-                  -- 3. Product image (parent_id = product_id)
-                  (SELECT mm2.meta_value FROM tbl_media m2
-                   JOIN tbl_mediameta mm2 ON mm2.media_id = m2.media_id AND mm2.meta_key = '_wp_attached_file'
-                   WHERE m2.parent_id = oi.product_id
-                   ORDER BY m2.media_id ASC LIMIT 1)
+                     AND pm1.meta_key = '_thumbnail_id'
+                   ORDER BY pm1.meta_id DESC LIMIT 1),
+                  -- 3. Product thumbnail via _thumbnail_id productmeta
+                  (SELECT m2.media_path FROM tbl_productmeta pm2
+                   JOIN tbl_media m2 ON m2.media_id = CAST(pm2.meta_value AS UNSIGNED)
+                   WHERE pm2.product_id = oi.product_id
+                     AND pm2.meta_key = '_thumbnail_id'
+                   ORDER BY pm2.meta_id DESC LIMIT 1)
                 )
               ) AS thumbnail_url
        FROM tbl_order_items oi

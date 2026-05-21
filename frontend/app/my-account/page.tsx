@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Script from 'next/script';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import AccountSidebar from '../components/AccountSidebar';
 import { authGoogleLogin, authLogin, authRegister, authForgotPassword, type AuthUser } from '../lib/api';
 import { useCart } from '../lib/cartContext';
 import { useAuth } from '../lib/authContext';
@@ -334,24 +335,7 @@ export default function MyAccountPage() {
               ) : isLoggedIn && user ? (
                 <div className="account-shell">
                   <div className="account-layout">
-                    <aside className="account-sidebar">
-                      <div className="account-sidebar-inner">
-                        <div className="account-avatar" aria-hidden="true">
-                          <i className="fa-regular fa-user"></i>
-                        </div>
-                        <h3 className="account-hello">Hello</h3>
-                        <p className="account-handle">{accountHandle}</p>
-
-                        <nav className="account-nav" aria-label="Account navigation">
-                          <Link href="/my-account" className="account-nav-link">Dashboard</Link>
-                          <Link href="/my-account/edit-account" className="account-nav-link">Edit Profile</Link>
-                          <Link href="/my-account/edit-address" className="account-nav-link">My Addresses</Link>
-                          <Link href="/orders" className="account-nav-link">My Orders</Link>
-                          <Link href="/wishlist" className="account-nav-link">Wishlist</Link>
-                          <button className="account-nav-button" onClick={logout}>Logout</button>
-                        </nav>
-                      </div>
-                    </aside>
+                    <AccountSidebar accountHandle={accountHandle} activeLink="dashboard" onLogout={logout} />
 
                     <div className="account-main">
                       <div className="account-top">

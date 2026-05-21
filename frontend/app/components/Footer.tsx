@@ -125,7 +125,7 @@ export default function Footer() {
             <h4>Contact Us</h4>
             <ul className="footer-nav-list" role="list">
               <li><a href="#" className="link-faded">Mon-Sat 10AM - 6PM IST</a></li>
-              <li><a href="#" className="link-faded">Email: support@nestcase.in</a></li>
+              <li><a href="mailto:support@nestcase.in" className="link-faded">Email: support@nestcase.in</a></li>
               <li className="footer-social-list">
                 <a href="#" className="footer-social-icon footer-social-icon--instagram" aria-label="Instagram">
                   <Image src="/store/images/icons/instagram.png" alt="Instagram" width={24} height={24} />
