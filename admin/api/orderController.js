@@ -28,6 +28,7 @@ const BREVO_SENDER_EMAIL =
   process.env.BREVO_SENDER_EMAIL ;
 const BREVO_SENDER_NAME = process.env.BREVO_SENDER_NAME || "NESTCASE";
 const DEFAULT_COUNTRY = process.env.DEFAULT_COUNTRY || "India";
+
 const axios = require("axios");
 const SHIPROCKET_EMAIL = process.env.SHIPROCKET_EMAIL;
 const SHIPROCKET_PASSWORD = process.env.SHIPROCKET_PASSWORD;
@@ -222,7 +223,6 @@ return res.json({
     });
   }
 }
-let cachedLogoDataUri = "";
 
 function formatMoney(amount) {
   const value = Number(amount);
