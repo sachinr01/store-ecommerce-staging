@@ -6,6 +6,7 @@ const cart = require('./cartController');
 const orders = require('./orderController');
 const media = require('./mediaController');
 const coupon = require('./couponController');
+const wishlist = require('./wishlistController');
 const { sessionMiddleware } = require('./session');
 const { guestCookieMiddleware } = require('./guestCookie');
 const { requireAdmin, requireAgentOrAdmin, requireLogin } = require('./authMiddleware');
@@ -18,8 +19,7 @@ router.use(sessionMiddleware());
 router.get('/health', (_req, res) => res.json({ success: true, message: 'API is running' }));
 
 // ── Contact Forms ─────────────────────────────────────────────────────────────
-router.post('/contact',     contact.submitContact);
-router.post('/b2b-contact', contact.submitB2BContact);
+router.post('/contact', contact.submitContact);
 
 // ── Products ──────────────────────────────────────────────────────────────────
 router.get('/products/featured',      ctrl.getFeaturedProducts);
@@ -79,6 +79,12 @@ router.post('/cart/add',              cart.addToCart);
 router.put('/cart/update/:itemId',    cart.updateCartItem);
 router.delete('/cart/remove/:itemId', cart.removeCartItem);
 router.delete('/cart/clear',          cart.clearCart);
+
+// ── Wishlist ──────────────────────────────────────────────────────────────────
+router.get   ('/wishlist',                    requireLogin, wishlist.getWishlist);
+router.post  ('/wishlist/add',                requireLogin, wishlist.addToWishlist);
+router.delete('/wishlist/remove/:productId',  requireLogin, wishlist.removeFromWishlist);
+router.post  ('/wishlist/sync',               requireLogin, wishlist.syncWishlist);
 
 // ── Orders ────────────────────────────────────────────────────────────────────
 // NOTE: /orders/my MUST come before /orders/:orderId to avoid route conflict

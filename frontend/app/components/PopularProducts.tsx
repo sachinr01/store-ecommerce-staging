@@ -22,7 +22,7 @@ const collectionRows = [
       },
       {
         title: 'Drinkware 2',
-        src: '/store/images/collection/tumbler1.png',
+        src: '/store/images/collection/tumbler_1.png',
         alt: 'Drinkware 2 collection',
         href: '/shop/drinkware',
       },

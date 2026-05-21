@@ -1,6 +1,11 @@
 ﻿'use client';
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+
+// How often (ms) to silently re-fetch the cart in the background.
+// This keeps prices/titles in sync if an admin changes them while the
+// user has the page open, without requiring a hard refresh.
+const POLL_INTERVAL_MS = 60_000; // 60 seconds
 
 // Use relative path (via Next.js rewrite proxy) on client to keep cookies same-origin.
 // On server (SSR) fall back to the direct URL.
@@ -24,8 +29,8 @@ export interface CartItem {
 export type AddCartItem = {
   productId: number;
   variationId?: number | null;
-  title: string;
-  price: number;
+  // title and price are intentionally omitted — the backend always fetches
+  // these from the database so clients cannot tamper with them.
   color?: string;
   size?: string;
   quantity?: number;
@@ -97,6 +102,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Tracks whether a background refresh is already running so we don't
+  // stack multiple simultaneous requests (e.g. tab-focus + timer firing together).
+  const refreshingRef = useRef(false);
+
+  // Full refresh — sets loading=true (used on first load and user-triggered actions).
   const refresh = async () => {
     setLoading(true);
     setError(null);
@@ -112,6 +122,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Silent refresh — does NOT set loading=true so there is no UI flicker.
+  // Used for background polling and tab-focus sync.
+  const silentRefresh = async () => {
+    if (refreshingRef.current) return; // already in-flight
+    refreshingRef.current = true;
+    try {
+      const res = await apiRequest<{ items: any[]; count: number; total: number }>('/cart');
+      const nextItems = (res.data?.items || []).map(normalizeItem);
+      setItems(nextItems);
+    } catch {
+      // Ignore network errors during background refresh — don't disrupt the user.
+    } finally {
+      refreshingRef.current = false;
+    }
+  };
+
+  // ── Initial load ────────────────────────────────────────────────────────────
   useEffect(() => {
     let active = true;
     refresh().catch(() => {
@@ -122,6 +149,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // ── Re-fetch when the user switches back to this tab ────────────────────────
+  // This is the primary mechanism: if an admin changes a price while the user
+  // has the tab open in the background, they'll see the update the moment they
+  // come back — no hard refresh needed.
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void silentRefresh();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
+  // ── Periodic background poll ─────────────────────────────────────────────
+  // Catches price/name changes while the tab stays continuously visible
+  // (e.g. user filling in the checkout form for a few minutes).
+  useEffect(() => {
+    const timer = setInterval(() => void silentRefresh(), POLL_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, []);
+
   const addItem = async (item: AddCartItem) => {
     setError(null);
     const payload = {
@@ -130,8 +179,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       quantity: item.quantity ?? 1,
       color: item.color ?? null,
       size: item.size ?? null,
-      title: item.title,
-      price: item.price,
+      // title and price are NOT sent — backend fetches them from DB
       image: item.image ?? null,
     };
     await apiRequest('/cart/add', {

@@ -264,6 +264,8 @@ export interface OrderDetailResponse {
     subtotal: string | number | null;
     shipping: string | number | null;
     payment_method: string | null;
+    coupon_code: string | null;
+    coupon_discount: string | number | null;
     billing_email?: string | null;
     billing_first_name?: string | null;
     billing_last_name?: string | null;

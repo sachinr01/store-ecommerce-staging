@@ -1,7 +1,5 @@
 const db = require("../config/db");
 const https = require("https");
-const fs = require("fs");
-const path = require("path");
 const { getSessionUser } = require("./session");
 const { getCartIdentity } = require("./cartController");
 const {
@@ -26,215 +24,10 @@ const toInt = (val, fallback = 0) => {
 
 const BREVO_API_KEY =
   process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY || "";
-const BREVO_SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL;
+const BREVO_SENDER_EMAIL =
+  process.env.BREVO_SENDER_EMAIL ;
 const BREVO_SENDER_NAME = process.env.BREVO_SENDER_NAME || "NESTCASE";
-const BREVO_LOGO_URL = process.env.BREVO_LOGO_URL || "";
-const DEFAULT_LOGO_PATH = path.join(
-  __dirname,
-  "..",
-  "..",
-  "frontend",
-  "public",
-  "images",
-  "logo-white.png",
-);
 const DEFAULT_COUNTRY = process.env.DEFAULT_COUNTRY || "India";
-
-const axios = require("axios");
-const SHIPROCKET_EMAIL = process.env.SHIPROCKET_EMAIL;
-const SHIPROCKET_PASSWORD = process.env.SHIPROCKET_PASSWORD;
-
-// ================================
-// GET SHIPROCKET TOKEN
-// ================================
-
-async function getShiprocketToken() {
-  try {
-    const response = await axios.post(
-      "https://apiv2.shiprocket.in/v1/external/auth/login",
-      {
-        email: SHIPROCKET_EMAIL,
-        password: SHIPROCKET_PASSWORD,
-      },
-    );
-
-    return response.data.token;
-  } catch (error) {
-    console.log(
-      "Shiprocket Auth Error:",
-      error.response?.data || error.message,
-    );
-
-    throw new Error("Unable to authenticate Shiprocket");
-  }
-}
-
-// ================================
-// CREATE SHIPROCKET ORDER
-// ================================
-
-async function createShiprocketOrder(orderData) {
-  try {
-    const token = await getShiprocketToken();
-
-    const response = await axios.post(
-      "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
-      orderData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-
-    return response.data;
-  } catch (error) {
-    console.log(
-      "Shiprocket Order Error:",
-      error.response?.data || error.message,
-    );
-
-    throw new Error("Failed to create Shiprocket order");
-  }
-}
-
-// ================================
-// ASSIGN COURIER + GENERATE AWB
-// ================================
-
-async function generateAWB(shipment_id) {
-  try {
-    const token = await getShiprocketToken();
-
-    const response = await axios.post(
-      "https://apiv2.shiprocket.in/v1/external/courier/assign/awb",
-      {
-        shipment_id,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-
-    return response.data;
-  } catch (error) {
-    console.log("Shiprocket AWB Error:", error.response?.data || error.message);
-
-    throw new Error("Failed to generate AWB");
-  }
-}
-
-
-async function getShippingRate(req, res) {
-  try {
-    const token = await getShiprocketToken();
-
-    const {
-      pincode,
-      cod = 0,
-      weight,
-      length,
-      breadth,
-      height,
-      declared_value = 599
-    } = req.body;
-
-    const response = await axios.get(
-      "https://apiv2.shiprocket.in/v1/external/courier/serviceability",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
-          pickup_postcode: "411017",
-          delivery_postcode: pincode,
-          cod: cod ? 1 : 0,
-          weight,
-          length: length || 10,
-          breadth: breadth || 10,
-          height: height || 10,
-          declared_value
-        }
-      }
-    );
-
-    const couriers =
-      response.data?.data?.available_courier_companies || [];
-
-    if (!couriers.length) {
-      return res.json({
-        success:false,
-        message:"No courier available"
-      });
-    }
-
-    // Prefer Shiprocket recommended courier
-let selected =
-    couriers.find(
-        c => c.recommended_by_shiprocket === true
-    );
-
-if (!selected) {
-    couriers.sort((a,b)=>
-        Number(
-            a.courier_charge ||
-            a.rate ||
-            a.freight_charge
-        )
-        -
-        Number(
-            b.courier_charge ||
-            b.rate ||
-            b.freight_charge
-        )
-    );
-
-    selected = couriers[0];
-}
-
-const finalRate =
-    Number(
-        selected.courier_charge ||
-        selected.rate ||
-        selected.freight_charge ||
-        0
-    );
-
-return res.json({
-    success:true,
-    rate: finalRate,
-    courier_name:selected.courier_name,
-    etd:selected.etd,
-
-    all_rates:couriers.map(c=>({
-        courier:c.courier_name,
-        rate:Number(
-            c.courier_charge ||
-            c.rate ||
-            c.freight_charge ||
-            0
-        ),
-        etd:c.etd
-    }))
-});
-
-  } catch(error){
-
-    console.log(
-      error.response?.data || error.message
-    );
-
-    return res.status(500).json({
-      success:false,
-      message:"Unable to get shipping rate"
-    });
-  }
-}
-
 
 let cachedLogoDataUri = "";
 
@@ -251,21 +44,6 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
-}
-
-function getLogoDataUri() {
-  if (cachedLogoDataUri) return cachedLogoDataUri;
-  const logoPath =
-    process.env.BREVO_LOGO_PATH || process.env.LOGO_PATH || DEFAULT_LOGO_PATH;
-  try {
-    if (!fs.existsSync(logoPath)) return "";
-    const buffer = fs.readFileSync(logoPath);
-    cachedLogoDataUri = `data:image/png;base64,${buffer.toString("base64")}`;
-    return cachedLogoDataUri;
-  } catch (err) {
-    console.error("Failed to load logo for email:", err);
-    return "";
-  }
 }
 
 async function sendBrevoEmail({ toEmail, toName, subject, html }) {
@@ -708,7 +486,52 @@ const placeOrder = async (req, res) => {
       }
     }
 
-    // ── 2. Calculate totals ───────────────────────────────────────────────────
+    // ── 2. Fetch live prices from DB (never trust cart_items.price) ──────────
+    // This prevents price-tampering via Burp Suite / DevTools and ensures
+    // the customer always pays the current admin-configured price.
+    for (const item of cartItems) {
+      const checkId =
+        item.variation_id && Number(item.variation_id) > 0
+          ? item.variation_id
+          : item.product_id;
+
+      const [[priceRow]] = await conn.query(
+        `SELECT CAST(meta_value AS DECIMAL(10,2)) AS price
+         FROM tbl_productmeta
+         WHERE product_id = ? AND meta_key = '_price'
+         ORDER BY meta_id DESC LIMIT 1`,
+        [checkId],
+      );
+
+      // If variation had no price, fall back to parent product price
+      let livePrice = priceRow ? Number(priceRow.price) : null;
+      if (livePrice === null) {
+        const [[parentPriceRow]] = await conn.query(
+          `SELECT CAST(meta_value AS DECIMAL(10,2)) AS price
+           FROM tbl_productmeta
+           WHERE product_id = ? AND meta_key = '_price'
+           ORDER BY meta_id DESC LIMIT 1`,
+          [item.product_id],
+        );
+        livePrice = parentPriceRow ? Number(parentPriceRow.price) : 0;
+      }
+
+      // Fetch live title from tbl_products
+      const [[titleRow]] = await conn.query(
+        `SELECT product_title FROM tbl_products WHERE ID = ? LIMIT 1`,
+        [item.product_id],
+      );
+
+      // Overwrite the in-memory item — cart_items row is NOT updated here;
+      // getCart already returns live data. We just need the correct value
+      // for this order's subtotal and order_items records.
+      item.price = livePrice;
+      if (titleRow && titleRow.product_title) {
+        item.title = titleRow.product_title;
+      }
+    }
+
+    // ── 2b. Calculate totals with verified live prices ────────────────────────
     const subtotal = cartItems.reduce(
       (sum, item) => sum + toAmount(item.price) * Number(item.quantity || 0),
       0,
@@ -1111,16 +934,6 @@ const placeOrder = async (req, res) => {
     try {
       const toEmail = billing.email;
       const toName = `${billing.first_name} ${billing.last_name}`.trim();
-      const frontendBase = (process.env.FRONTEND_URL || "").replace(/\/+$/, "");
-      const isLocalHost = /localhost|127\.0\.0\.1/.test(frontendBase);
-      let logoSrc = "";
-      if (BREVO_LOGO_URL) {
-        logoSrc = BREVO_LOGO_URL;
-      } else if (frontendBase && !isLocalHost) {
-        logoSrc = `${frontendBase}/store/images/logo-white.png`;
-      } else {
-        logoSrc = getLogoDataUri();
-      }
       const itemRows = cartItems
         .map((item) => {
           const title = escapeHtml(item.title || "Item");
@@ -1153,7 +966,7 @@ const placeOrder = async (req, res) => {
                       <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
                         <tr>
                           <td>
-                            ${logoSrc ? `<img src="${logoSrc}" alt="NESTCASE" style="height:40px; width:auto; display:block;" />` : `<div style="color:#fff; font-size:20px; letter-spacing:2px; font-weight:700;">COFFR</div>`}
+                            <div style="color:#fff; font-size:20px; letter-spacing:2px; font-weight:700; font-family:Arial,sans-serif;">NESTCASE</div>
                           </td>
                           <td style="text-align:right; color:#fff; font-family: Arial, sans-serif; font-size:12px;">
                             <div style="opacity:0.85;">Order Confirmed</div>
@@ -1287,7 +1100,9 @@ const placeOrder = async (req, res) => {
 
     res.status(500).json({
       success: false,
-      message: err.message,
+      message: process.env.NODE_ENV === 'production'
+        ? 'Something went wrong. Please try again.'
+        : err.message,
     });
   } finally {
     conn.release();
@@ -1632,10 +1447,6 @@ const getMyOrderById = async (req, res) => {
     const [orderRows] = await db.query(
       `SELECT o.order_id,
               MAX(o.order_status)      AS order_status,
-              MAX(o.awb_code) AS awb_code,
-              MAX(o.courier_name) AS courier_name,
-              MAX(o.shipping_status) AS shipping_status,
-              MAX(o.shipment_id) AS shipment_id,
               MAX(o.order_date)        AS order_date,
               MAX(om_total.meta_value) AS total,
               MAX(om_sub.meta_value)   AS subtotal,
@@ -1699,6 +1510,10 @@ const getMyOrderById = async (req, res) => {
          ON o.order_id = om_ship.order_id AND om_ship.meta_key = '_order_shipping'
        LEFT JOIN tbl_ordermeta om_pay
          ON o.order_id = om_pay.order_id AND om_pay.meta_key = '_payment_method'
+       LEFT JOIN tbl_ordermeta om_coupon
+         ON o.order_id = om_coupon.order_id AND om_coupon.meta_key = '_coupon_code'
+       LEFT JOIN tbl_ordermeta om_discount
+         ON o.order_id = om_discount.order_id AND om_discount.meta_key = '_coupon_discount'
        WHERE o.order_id = ? AND o.user_id = ? AND o.order_type = 'shop_order'
        GROUP BY o.order_id`,
       [orderId, user.id],
@@ -1727,19 +1542,21 @@ const getMyOrderById = async (req, res) => {
                   NULLIF((SELECT oim3.meta_value FROM tbl_order_itemmeta oim3
                           WHERE oim3.order_item_id = oi.order_item_id
                             AND oim3.meta_key = '_item_image' LIMIT 1), ''),
-                  -- 2. Variation image (parent_id = variation_id)
-                  (SELECT mm1.meta_value FROM tbl_media m1
-                   JOIN tbl_mediameta mm1 ON mm1.media_id = m1.media_id AND mm1.meta_key = '_wp_attached_file'
-                   WHERE m1.parent_id = CAST(NULLIF(
+                  -- 2. Variation thumbnail via _thumbnail_id productmeta
+                  (SELECT m1.media_path FROM tbl_productmeta pm1
+                   JOIN tbl_media m1 ON m1.media_id = CAST(pm1.meta_value AS UNSIGNED)
+                   WHERE pm1.product_id = CAST(NULLIF(
                      (SELECT oim2.meta_value FROM tbl_order_itemmeta oim2
                       WHERE oim2.order_item_id = oi.order_item_id AND oim2.meta_key = '_variation_id' LIMIT 1
                      ), '0') AS UNSIGNED)
-                   ORDER BY m1.media_id ASC LIMIT 1),
-                  -- 3. Product image (parent_id = product_id)
-                  (SELECT mm2.meta_value FROM tbl_media m2
-                   JOIN tbl_mediameta mm2 ON mm2.media_id = m2.media_id AND mm2.meta_key = '_wp_attached_file'
-                   WHERE m2.parent_id = oi.product_id
-                   ORDER BY m2.media_id ASC LIMIT 1)
+                     AND pm1.meta_key = '_thumbnail_id'
+                   ORDER BY pm1.meta_id DESC LIMIT 1),
+                  -- 3. Product thumbnail via _thumbnail_id productmeta
+                  (SELECT m2.media_path FROM tbl_productmeta pm2
+                   JOIN tbl_media m2 ON m2.media_id = CAST(pm2.meta_value AS UNSIGNED)
+                   WHERE pm2.product_id = oi.product_id
+                     AND pm2.meta_key = '_thumbnail_id'
+                   ORDER BY pm2.meta_id DESC LIMIT 1)
                 )
               ) AS thumbnail_url
        FROM tbl_order_items oi

@@ -134,7 +134,7 @@ export default function FAQsPage() {
       <section className="faqs-cta" aria-label="Shop now">
         <h2>Still have a question?</h2>
         <p>We're here to help. Reach out to us at support@nestcase.in</p>
-        <a href="/#" className="faqs-cta-btn">Email Now</a>
+        <a href="mailto:support@nestcase.in" className="faqs-cta-btn">Email Now</a>
       </section>
 
       <Footer />

@@ -14,20 +14,42 @@ async function readCartItems(req, conn) {
   const userId = req.sessionData?.user?.id || 0;
   const { key, value } = getCartIdentity(req);
 
+  // Fetch cart rows — we need product_id, variation_id, quantity to look up live prices.
+  // We intentionally do NOT use cart_items.price here: it is a stale snapshot that can be
+  // tampered by the client (Burp Suite / DevTools) or become outdated after an admin price change.
+  const livePriceSubquery = `
+    CAST(
+      COALESCE(
+        (SELECT meta_value FROM tbl_productmeta
+          WHERE product_id = COALESCE(NULLIF(ci.variation_id, 0), ci.product_id)
+            AND meta_key = '_price'
+          ORDER BY meta_id DESC LIMIT 1),
+        (SELECT meta_value FROM tbl_productmeta
+          WHERE product_id = ci.product_id
+            AND meta_key = '_price'
+          ORDER BY meta_id DESC LIMIT 1),
+        0
+      ) AS DECIMAL(10,2)
+    ) AS price
+  `;
+
   let rows = [];
   if (userId) {
     [rows] = await conn.query(
-      'SELECT product_id, price, quantity FROM cart_items WHERE user_id = ?',
+      `SELECT ci.product_id, ci.variation_id, ci.quantity, ${livePriceSubquery}
+       FROM cart_items ci WHERE ci.user_id = ?`,
       [userId]
     );
   } else if (key === 'cookie_id' && value) {
     [rows] = await conn.query(
-      'SELECT product_id, price, quantity FROM cart_items WHERE cookie_id = ? AND user_id IS NULL',
+      `SELECT ci.product_id, ci.variation_id, ci.quantity, ${livePriceSubquery}
+       FROM cart_items ci WHERE ci.cookie_id = ? AND ci.user_id IS NULL`,
       [value]
     );
   } else if (value) {
     [rows] = await conn.query(
-      'SELECT product_id, price, quantity FROM cart_items WHERE session_id = ? AND user_id IS NULL',
+      `SELECT ci.product_id, ci.variation_id, ci.quantity, ${livePriceSubquery}
+       FROM cart_items ci WHERE ci.session_id = ? AND ci.user_id IS NULL`,
       [value]
     );
   }

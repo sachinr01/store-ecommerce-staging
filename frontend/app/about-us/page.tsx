@@ -68,7 +68,7 @@ export default function AboutUsPage() {
                   <div className="aboutus-usp-icon">
                     <i className={`fa ${item.icon}`} aria-hidden="true" />
                   </div>
-                  <h2>{item.title}</h2>
+                  <h4>{item.title}</h4>
                   <p>{item.body}</p>
                 </article>
               ))}

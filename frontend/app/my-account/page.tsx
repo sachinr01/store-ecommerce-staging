@@ -5,7 +5,8 @@ import Link from 'next/link';
 import Script from 'next/script';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { authGoogleLogin, authLogin, authRegister, type AuthUser } from '../lib/api';
+import AccountSidebar from '../components/AccountSidebar';
+import { authGoogleLogin, authLogin, authRegister, authForgotPassword, type AuthUser } from '../lib/api';
 import { useCart } from '../lib/cartContext';
 import { useAuth } from '../lib/authContext';
 
@@ -48,6 +49,12 @@ export default function MyAccountPage() {
   const [showRegister, setShowRegister] = useState(false);
   const [googleScriptReady, setGoogleScriptReady] = useState(false);
   const [googleError, setGoogleError] = useState('');
+
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotIdentifier, setForgotIdentifier] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState('');
+  const [forgotSuccess, setForgotSuccess] = useState('');
 
   const setL = (k: keyof typeof login) =>
     (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -271,6 +278,45 @@ export default function MyAccountPage() {
     };
   }, [googleScriptReady, renderGoogleButton, showRegister]);
 
+  const openForgotModal = () => {
+    setForgotIdentifier(login.username.trim());
+    setForgotError('');
+    setForgotSuccess('');
+    setShowForgotModal(true);
+  };
+
+  const closeForgotModal = () => {
+    setShowForgotModal(false);
+    setForgotIdentifier('');
+    setForgotLoading(false);
+    setForgotError('');
+    setForgotSuccess('');
+  };
+
+  const handleForgotPassword = async () => {
+    const value = forgotIdentifier.trim();
+    if (!value) {
+      setForgotError('Please enter your username or email address.');
+      return;
+    }
+    setForgotLoading(true);
+    setForgotError('');
+    setForgotSuccess('');
+    try {
+      const res = await authForgotPassword(value);
+      if (res.success) {
+        setForgotSuccess(res.message || 'A password reset link has been sent.');
+        setForgotIdentifier('');
+      } else {
+        setForgotError(res.message || 'Unable to process your request.');
+      }
+    } catch {
+      setForgotError('Could not connect to the server.');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   const accountName = user?.displayName || user?.username || 'Guest';
   const accountHandle = user?.username ? `@${user.username}` : user?.email || '@account';
   const googleNotice = GOOGLE_CLIENT_ID
@@ -285,31 +331,11 @@ export default function MyAccountPage() {
           <div className="page-section-content overflow-hidden">
             <div className="container">
               {isLoading ? (
-                <p style={{ padding: '24px 0', color: '#888', fontSize: 14 }}>Loading...</p>
+                <p className="account-loading">Loading...</p>
               ) : isLoggedIn && user ? (
                 <div className="account-shell">
                   <div className="account-layout">
-                    <aside className="account-sidebar">
-                      <div className="account-sidebar-inner">
-                        <div className="account-avatar" aria-hidden="true">
-                          <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                            <circle cx="12" cy="7" r="4" />
-                          </svg>
-                        </div>
-                        <h3 className="account-hello">Hello</h3>
-                        <p className="account-handle">{accountHandle}</p>
-
-                        <nav className="account-nav" aria-label="Account navigation">
-                          <Link href="/my-account" className="account-nav-link">Dashboard</Link>
-                          <Link href="/my-account/edit-account" className="account-nav-link">Edit Profile</Link>
-                          <Link href="/my-account/edit-address" className="account-nav-link">My Addresses</Link>
-                          <Link href="/orders" className="account-nav-link">My Orders</Link>
-                          <Link href="/wishlist" className="account-nav-link">Wishlist</Link>
-                          <button className="account-nav-button" onClick={logout}>Logout</button>
-                        </nav>
-                      </div>
-                    </aside>
+                    <AccountSidebar accountHandle={accountHandle} activeLink="dashboard" onLogout={logout} />
 
                     <div className="account-main">
                       <div className="account-top">
@@ -345,6 +371,9 @@ export default function MyAccountPage() {
                           <button type="submit" className="btn-view-product btn-view-product--inline" disabled={loginLoading}>
                             {loginLoading ? 'Logging in...' : 'Login'}
                           </button>
+                          <button type="button" className="lost-pass" onClick={openForgotModal}>
+                            Lost Password?
+                          </button>
                         </div>
                       </form>
 
@@ -354,12 +383,12 @@ export default function MyAccountPage() {
                         {googleNotice && <p className="account-err">{googleNotice}</p>}
                       </div>
 
-                      <p style={{ marginTop: '14px', fontSize: '13px', color: '#555' }}>
+                      <p className="account-switch-hint">
                         Don&apos;t have an account?{' '}
                         <button
                           type="button"
                           onClick={() => setShowRegister(true)}
-                          style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', textDecoration: 'underline', cursor: 'pointer', fontSize: 'inherit' }}
+                          className="account-switch-btn"
                         >
                           Create New Account
                         </button>
@@ -396,12 +425,12 @@ export default function MyAccountPage() {
                         {googleNotice && <p className="account-err">{googleNotice}</p>}
                       </div>
 
-                      <p style={{ marginTop: '14px', fontSize: '13px', color: '#555' }}>
+                      <p className="account-switch-hint">
                         Already have an account?{' '}
                         <button
                           type="button"
                           onClick={() => setShowRegister(false)}
-                          style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', textDecoration: 'underline', cursor: 'pointer', fontSize: 'inherit' }}
+                          className="account-switch-btn"
                         >
                           Back to Login
                         </button>
@@ -424,6 +453,42 @@ export default function MyAccountPage() {
             setGoogleError('Google sign-in could not be loaded right now. Please try again later.');
           }}
         />
+      )}
+      {showForgotModal && (
+        <div className="register-modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) closeForgotModal(); }}>
+          <div className="register-modal">
+            <button type="button" className="register-modal-close" onClick={closeForgotModal} aria-label="Close">&#x2715;</button>
+            <p className="register-modal-title">Lost Password?</p>
+            <p className="register-modal-sub">Enter your username or email address and we&apos;ll send a secure reset link to your registered email.</p>
+            <div className="register-modal-field">
+              <label className="register-modal-label">Username or Email <span>*</span></label>
+              <input
+                className="register-modal-input"
+                type="text"
+                placeholder="Username or email"
+                value={forgotIdentifier}
+                onChange={(e) => setForgotIdentifier(e.target.value)}
+                autoComplete="username"
+                onKeyDown={(e) => { if (e.key === 'Enter') void handleForgotPassword(); }}
+              />
+            </div>
+            {forgotError && <p className="register-modal-err">{forgotError}</p>}
+            {forgotSuccess && <p className="register-modal-success">{forgotSuccess}</p>}
+            <button
+              type="button"
+              className="btn-view-product checkout-recovery-submit"
+              onClick={() => void handleForgotPassword()}
+              disabled={forgotLoading}
+            >
+              {forgotLoading ? 'Sending...' : 'Send Reset Link'}
+            </button>
+            <div className="reset-password-foot">
+              <button type="button" className="reset-password-foot-link" onClick={closeForgotModal}>
+                Back to login
+              </button>
+            </div>
+          </div>
+        </div>
       )}
       <Footer />
     </>

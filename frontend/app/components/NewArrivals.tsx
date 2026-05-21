@@ -56,10 +56,14 @@ function ProductCard({ p, idx }: { p: Product; idx: number }) {
         <button
           className={`na-wishlist${inWishlist ? ' active' : ''}`}
           aria-label={inWishlist ? `Remove ${p.title} from wishlist` : `Add ${p.title} to wishlist`}
-          onClick={e => {
+          onClick={async e => {
             e.preventDefault();
-            if (inWishlist) removeItem(p.ID);
-            else addItem({ id: p.ID, title: p.title, price: displayPrice, image: getImageUrl(p.thumbnail_url), inStock: !isOutOfStock });
+            try {
+              if (inWishlist) await removeItem(p.ID);
+              else await addItem({ id: p.ID, title: p.title, price: displayPrice, image: getImageUrl(p.thumbnail_url), inStock: !isOutOfStock });
+            } catch {
+              // optimistic update already rolled back by context
+            }
           }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"

@@ -15,6 +15,7 @@ const CATEGORY_PAGE_SLUGS: Record<string, string> = {
   'drinkware': '/shop/drinkware',
   'glassware': '/shop/glassware',
   'jars-and-containers': '/shop/jars-and-containers',
+  
 };
 const CATEGORY_NAME_TO_SLUG: Record<string, string> = {
   'drinkware': 'drinkware',
@@ -22,7 +23,8 @@ const CATEGORY_NAME_TO_SLUG: Record<string, string> = {
   'jars and containers': 'jars-and-containers',
   'jars & containers': 'jars-and-containers',
   'kitchen organisers': 'jars-and-containers',
-  'kitchen organizers': 'jars-and-containers',
+  'kitchen organizers': 'kitchen-organizers',
+  'cup & mugs': 'cup-and-mugs'
 };
 const getCategoryHref = (slug: string) => {
   const normalized = slug.toLowerCase().trim();
@@ -200,12 +202,12 @@ export default function Header() {
 
   const navLinks: Array<{ label: string; href: string; mega?: MegaMenu }> = [
     ...navCategories.map(cat => ({
-      label: cat.name.toUpperCase(),
+      label: cat.name,
       href: `/shop/${cat.slug}`,
       mega: { columns: [], featured: [], categorySlug: cat.slug } as MegaMenu,
     })),
-    { label: "ABOUT US", href: aboutHref },
-    { label: "B2B CONNECT", href: b2bHref },
+    { label: "About Us", href: aboutHref },
+    { label: "B2B Connect", href: b2bHref },
   ];
 
   const [catProducts, setCatProducts] = useState<Record<string, Array<{ id: number; title: string; price: string; image: string; slug: string }>>>({});
@@ -327,17 +329,17 @@ export default function Header() {
 
               {isLoggedIn && user ? (
                 <Link href="/my-account" className="nh-account-link" onClick={() => setCartOpen(false)}>
-                  <span className="nh-account-avatar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                  <span className="nh-account-avatar"><i className="fa-regular fa-user"></i></span>
                 </Link>
               ) : (
                 <Link href="/my-account" className="nh-account-link nh-login" onClick={() => setCartOpen(false)}>
-                  <span className="nh-account-avatar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                  <span className="nh-account-avatar"><i className="fa-regular fa-user"></i></span>
                 </Link>
               )}
 
               <div className="nh-cart-wrap" ref={cartRef}>
                 <button type="button" className="nh-cart-link" onClick={() => setCartOpen(prev => !prev)} aria-label="Open cart preview" aria-expanded={cartOpen}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                  <i className="fa-solid fa-bag-shopping"></i>
                   {count > 0 && <span className="nh-cart-badge">{count}</span>}
                 </button>
                 <div className={`nh-cart-dropdown${cartOpen ? ' open' : ''}`}>
@@ -388,7 +390,7 @@ export default function Header() {
                           const bestSellers = catBestSellers[slug] ?? [];
                           const shopHref = link.href;
                           const promos = [
-                            { img: `/store/images/category_images/CC_${slug.toUpperCase().replace(/-/g, '_')}.png`, title: `OUR ${link.label} COLLECTION`, sub: '150+ Products Available', badge: false, cta: false },
+                            { img: `/store/images/category_images/CC_${slug.toUpperCase().replace(/-/g, '_')}.png`, title: `OUR ${link.label} COLLECTION`, sub: '150+ Products Available' },
                           ];
                           const placeholder = <span className="nh-km-placeholder"><svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" fill="#e8e8e8"/><path d="M14 34l8-10 6 7 4-5 6 8H14z" fill="#bbb"/><circle cx="30" cy="20" r="4" fill="#bbb"/></svg></span>;
                           return (
@@ -425,10 +427,9 @@ export default function Header() {
                                 {promos.map(promo => (
                                   <Link key={promo.title} href={shopHref} className="nh-km-promo" onClick={closeOverlays}>
                                     <img src={promo.img} alt={promo.title} loading="lazy" />
-                                    {promo.badge && <span className="nh-km-promo-badge">SALE</span>}
                                     <span className="nh-km-promo-overlay">
                                       <span className="nh-km-promo-title">{promo.title}</span>
-                                      <span className={`nh-km-promo-sub${promo.cta ? ' nh-km-promo-cta' : ''}`}>{promo.sub}</span>
+                                      <span className="nh-km-promo-sub">{promo.sub}</span>
                                     </span>
                                   </Link>
                                 ))}

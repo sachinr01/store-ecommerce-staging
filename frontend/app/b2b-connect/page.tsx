@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import Slider from "../components/Slider";
 import Footer from "../components/Footer";
 import { getProductCategories, type ProductCategory } from "../lib/api";
-import B2BForm from "./B2BForm";
+import EnquiryForm from "../components/EnquiryForm";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "NESTCASE";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001";
@@ -20,10 +20,15 @@ export const metadata: Metadata = {
 const COLLECTION_IMAGE_MAP: [string, string][] = [
   ["glassware",  "/store/images/category_images/CC_GLASSWARE.png"],
   ["drinkware",  "/store/images/category_images/CC_DRINKWARE.png"],
-  ["tumbler",    "/store/images/category_images/CC_DRINKWARE.png"],
+  ["tumbler",    "/store/images/category_images/CC_TUMBLERS.png"],
   ["kitchen",    "/store/images/category_images/CC_KITCHEN_ORGANISERS.png"],
   ["organiser",  "/store/images/category_images/CC_KITCHEN_ORGANISERS.png"],
   ["jar",        "/store/images/category_images/CC_KITCHEN_ORGANISERS.png"],
+  ["bowl",       "/store/images/category_images/CC_BOWL_AND_PLATTERS.png"],
+  ["platter",    "/store/images/category_images/CC_BOWL_AND_PLATTERS.png"],
+  ["cup",        "/store/images/category_images/CC_CUP_AND_MUGS.png"],
+  ["mug",        "/store/images/category_images/CC_CUP_AND_MUGS.png"],
+  ["dinner",     "/store/images/category_images/CC_DINNER_SET.png"],
 ];
 
 const DEFAULT_COLLECTION_IMAGE = "/store/images/dummy.jpg";
@@ -117,7 +122,7 @@ export default async function B2BConnectPage() {
                 <div className="b2b-benefit-icon">
                   <i className={`fa ${benefit.iconClass}`} aria-hidden="true" />
                 </div>
-                <h3>{benefit.title}</h3>
+                <h4>{benefit.title}</h4>
                 <p>{benefit.copy}</p>
               </article>
             ))}
@@ -133,7 +138,7 @@ export default async function B2BConnectPage() {
               with you.
             </p>
           </div>
-          <B2BForm />
+          <EnquiryForm type="b2b" buttonLabel="Request Callback" />
         </section>
       </main>
       <Footer />

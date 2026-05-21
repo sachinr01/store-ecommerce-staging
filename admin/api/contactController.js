@@ -1,4 +1,5 @@
 const https = require("https");
+const db = require("../config/db");
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY || "";
 const BREVO_SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || "";
@@ -60,35 +61,30 @@ function sendBrevoEmail({ toEmail, toName, subject, html }) {
   });
 }
 
-// POST /contact
-async function submitContact(req, res) {
-  const { name, email, phone, message } = req.body || {};
-  if (!name || !email || !message) {
-    return res.status(400).json({ success: false, message: "Name, email and message are required." });
-  }
-  if (!RECEIVED_EMAIL) {
-    return res.status(500).json({ success: false, message: "Recipient email not configured." });
-  }
+function emailTemplate(title, rows) {
+  const rowsHtml = rows
+    .map(
+      ([label, value]) =>
+        `<tr><td style="font-weight:700; padding-right:16px; vertical-align:top; white-space:nowrap;">${label}</td><td>${escapeHtml(value || "—")}</td></tr>`
+    )
+    .join("\n");
 
-  const html = `
+  return `
     <div style="margin:0; padding:0; background:#f5efe8;">
       <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#f5efe8; padding:32px 0;">
         <tr>
           <td align="center">
             <table role="presentation" cellpadding="0" cellspacing="0" width="640" style="max-width:640px; background:#ffffff; border-radius:16px; overflow:hidden; border:1px solid #eadfce;">
               <tr>
-                <td style="background:#22311d; color:#ffffff; padding:24px 28px; font-family: Arial, sans-serif; font-size:22px; font-weight:700; letter-spacing:1px;">
+                <td style="background:#22311d; color:#ffffff; padding:24px 28px; font-family:Arial, sans-serif; font-size:22px; font-weight:700; letter-spacing:1px;">
                   NESTCASE
                 </td>
               </tr>
               <tr>
-                <td style="padding:28px; font-family: Arial, sans-serif; color:#1b1b1b;">
-                  <h2 style="margin:0 0 18px; font-size:24px; color:#22311d;">New Contact Us Enquiry</h2>
+                <td style="padding:28px; font-family:Arial, sans-serif; color:#1b1b1b;">
+                  <h2 style="margin:0 0 18px; font-size:24px; color:#22311d;">${title}</h2>
                   <table cellpadding="6" cellspacing="0" style="font-size:15px; color:#343434; line-height:1.7;">
-                    <tr><td style="font-weight:700; padding-right:16px;">Name</td><td>${escapeHtml(name)}</td></tr>
-                    <tr><td style="font-weight:700; padding-right:16px;">Email</td><td>${escapeHtml(email)}</td></tr>
-                    <tr><td style="font-weight:700; padding-right:16px;">Phone</td><td>${escapeHtml(phone || "—")}</td></tr>
-                    <tr><td style="font-weight:700; padding-right:16px; vertical-align:top;">Message</td><td>${escapeHtml(message)}</td></tr>
+                    ${rowsHtml}
                   </table>
                 </td>
               </tr>
@@ -98,11 +94,49 @@ async function submitContact(req, res) {
       </table>
     </div>
   `;
+}
+
+// POST /contact  (handles both general contact and B2B enquiries via `type` field)
+async function submitContact(req, res) {
+  const { name, business, email, phone, message, type } = req.body || {};
+  const isB2B = type === "b2b";
+
+  if (!name || !email || !phone || !message) {
+    return res.status(400).json({ success: false, message: "Name, email, phone and message are required." });
+  }
+  if (!RECEIVED_EMAIL) {
+    return res.status(500).json({ success: false, message: "Recipient email not configured." });
+  }
+
+  // Save to database
+  try {
+    await db.execute(
+      `INSERT INTO tbl_enquiries (type, name, business_name, email, phone, message)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [isB2B ? "b2b" : "contact-us", name, business || null, email, phone || null, message]
+    );
+  } catch (dbErr) {
+    console.error("Failed to save enquiry to DB:", dbErr);
+    // Non-fatal — still attempt to send email
+  }
+
+  const title   = isB2B ? "New B2B Connect Enquiry" : "New Contact Us Enquiry";
+  const subject = isB2B
+    ? `B2B Enquiry: ${name}${business ? ` — ${business}` : ""}`
+    : `Contact Us: ${name}${business ? ` — ${business}` : ""}`;
+
+  const html = emailTemplate(title, [
+    ["Name", name],
+    ["Business Name", business],
+    ["Email", email],
+    ["Phone", phone],
+    ["Message", message],
+  ]);
 
   const sent = await sendBrevoEmail({
     toEmail: RECEIVED_EMAIL,
     toName: "Store Admin",
-    subject: `Contact Us: ${name}`,
+    subject,
     html,
   });
 
@@ -112,57 +146,4 @@ async function submitContact(req, res) {
   return res.json({ success: true, message: "Message sent successfully." });
 }
 
-// POST /b2b-contact
-async function submitB2BContact(req, res) {
-  const { name, business, email, phone, requirements } = req.body || {};
-  if (!name || !email || !requirements) {
-    return res.status(400).json({ success: false, message: "Name, email and requirements are required." });
-  }
-  if (!RECEIVED_EMAIL) {
-    return res.status(500).json({ success: false, message: "Recipient email not configured." });
-  }
-
-  const html = `
-    <div style="margin:0; padding:0; background:#f5efe8;">
-      <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#f5efe8; padding:32px 0;">
-        <tr>
-          <td align="center">
-            <table role="presentation" cellpadding="0" cellspacing="0" width="640" style="max-width:640px; background:#ffffff; border-radius:16px; overflow:hidden; border:1px solid #eadfce;">
-              <tr>
-                <td style="background:#22311d; color:#ffffff; padding:24px 28px; font-family: Arial, sans-serif; font-size:22px; font-weight:700; letter-spacing:1px;">
-                  NESTCASE
-                </td>
-              </tr>
-              <tr>
-                <td style="padding:28px; font-family: Arial, sans-serif; color:#1b1b1b;">
-                  <h2 style="margin:0 0 18px; font-size:24px; color:#22311d;">New B2B Connect Enquiry</h2>
-                  <table cellpadding="6" cellspacing="0" style="font-size:15px; color:#343434; line-height:1.7;">
-                    <tr><td style="font-weight:700; padding-right:16px;">Name</td><td>${escapeHtml(name)}</td></tr>
-                    <tr><td style="font-weight:700; padding-right:16px;">Business</td><td>${escapeHtml(business || "—")}</td></tr>
-                    <tr><td style="font-weight:700; padding-right:16px;">Email</td><td>${escapeHtml(email)}</td></tr>
-                    <tr><td style="font-weight:700; padding-right:16px;">Phone</td><td>${escapeHtml(phone || "—")}</td></tr>
-                    <tr><td style="font-weight:700; padding-right:16px; vertical-align:top;">Requirements</td><td>${escapeHtml(requirements)}</td></tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-    </div>
-  `;
-
-  const sent = await sendBrevoEmail({
-    toEmail: RECEIVED_EMAIL,
-    toName: "Store Admin",
-    subject: `B2B Enquiry: ${name}${business ? ` — ${business}` : ""}`,
-    html,
-  });
-
-  if (!sent) {
-    return res.status(500).json({ success: false, message: "Failed to send email. Please try again." });
-  }
-  return res.json({ success: true, message: "Request sent successfully." });
-}
-
-module.exports = { submitContact, submitB2BContact };
+module.exports = { submitContact };

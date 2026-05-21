@@ -90,6 +90,8 @@ export default function OrderDetailPage() {
       subtotalLabel: order.subtotal ? formatPrice(Number(order.subtotal)) : formatPrice(0),
       shippingLabel: order.shipping ? formatPrice(Number(order.shipping)) : formatPrice(0),
       payment: order.payment_method || 'cod',
+      couponCode: order.coupon_code || null,
+      discountLabel: order.coupon_discount ? formatPrice(Number(order.coupon_discount)) : null,
       name,
       email,
       phone,
@@ -125,12 +127,12 @@ export default function OrderDetailPage() {
     <>
       <Header />
       <div className="dima-main order-detail-page">
-        <nav style={{ padding: '13px 24px', fontSize: 13, color: '#888', display: 'flex', gap: 6, alignItems: 'center', borderBottom: '1px solid #ececec', background: '#fff', flexWrap: 'wrap' as const }}>
-          <Link href="/" style={{ color: '#888', textDecoration: 'none' }}>Home</Link>
-          <span aria-hidden="true">&gt;</span>
-          <Link href="/orders" style={{ color: '#888', textDecoration: 'none' }}>Orders</Link>
-          <span aria-hidden="true">&gt;</span>
-          <span style={{ color: '#1c1c1c', fontWeight: 500 }}>Order #{orderId}</span>
+        <nav className="cart-breadcrumb">
+          <Link href="/" className="cart-breadcrumb-link">Home</Link>
+          <span className="cart-breadcrumb-separator">›</span>
+          <Link href="/orders" className="cart-breadcrumb-link">Orders</Link>
+          <span className="cart-breadcrumb-separator">›</span>
+          <span className="cart-breadcrumb-current">Order #{orderId}</span>
         </nav>
         <div className="order-detail-container">
           <div className="order-detail-wrap">
@@ -266,6 +268,36 @@ export default function OrderDetailPage() {
                 </div>
               </div>
             )}
+
+              <div className="order-detail-side">
+                <div className="order-detail-card">
+                  <h3 className="order-detail-subtitle">Delivery details</h3>
+                  <div className="order-summary-grid">
+                    <div><strong>Name:</strong> {summary.name || '-'}</div>
+                    <div><strong>Phone:</strong> {summary.phone || '-'}</div>
+                    <div><strong>Address:</strong> {summary.address || '-'}</div>
+                    <div><strong>Email:</strong> {summary.email || '-'}</div>
+                  </div>
+                </div>
+
+                <div className="order-detail-card">
+                  <h3 className="order-detail-subtitle">Price details</h3>
+                  <div className="order-summary-grid">
+                    <div><strong>Subtotal:</strong> {summary.subtotalLabel}</div>
+                    {summary.couponCode && summary.discountLabel && (
+                      <div className="order-discount-row">
+                        <strong>Discount ({summary.couponCode}):</strong>
+                        <span>−{summary.discountLabel}</span>
+                      </div>
+                    )}
+                    <div><strong>Shipping:</strong> {summary.shippingLabel}</div>
+                    <div><strong>Total:</strong> {summary.totalLabel}</div>
+                    <div><strong>Payment:</strong> {summary.payment}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           </div>
         </div>
       </div>

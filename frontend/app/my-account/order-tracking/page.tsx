@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import AccountSidebar from '../../components/AccountSidebar';
 import { getMyOrderById } from '../../lib/api';
 import { useAuth } from '../../lib/authContext';
 
@@ -105,30 +106,9 @@ export default function OrderTrackingPage() {
                   </div>
                 </div>
               ) : (
-                <div className="tracking-shell">
-                  <div className="tracking-layout">
-                    <aside className="tracking-sidebar">
-                      <div className="tracking-sidebar-inner">
-                        <div className="tracking-avatar" aria-hidden="true">
-                          <svg width="78" height="78" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                            <circle cx="12" cy="7" r="4" />
-                          </svg>
-                        </div>
-                        <h3 className="tracking-hello">Hello</h3>
-                        <p className="tracking-handle">{accountHandle}</p>
-
-                        <nav className="tracking-nav" aria-label="Account navigation">
-                          <Link href="/my-account" className="tracking-link">Dashboard</Link>
-                          <Link href="/my-account/edit-account" className="tracking-link">Edit Profile</Link>
-                          <Link href="/my-account/edit-address" className="tracking-link">My Addresses</Link>
-                          <Link href="/orders" className="tracking-link">My Orders</Link>
-                          <Link href="/my-account/order-tracking" className="tracking-link active">Order Tracking</Link>
-                          <Link href="/wishlist" className="tracking-link">Wishlist</Link>
-                          <button className="tracking-button" onClick={logout}>Logout</button>
-                        </nav>
-                      </div>
-                    </aside>
+                <div className="account-shell">
+                  <div className="account-layout">
+                    <AccountSidebar accountHandle={accountHandle} activeLink="order-tracking" onLogout={logout} />
 
                     <div className="tracking-main">
                         <div className="tracking-top">

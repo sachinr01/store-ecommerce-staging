@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import AccountSidebar from '../components/AccountSidebar';
 import { getMyOrders, type OrderSummary } from '../lib/api';
 import { useAuth } from '../lib/authContext';
 import { formatPrice } from '../lib/price';
@@ -111,29 +112,9 @@ export default function OrdersPage() {
                   </div>
                 </div>
               ) : (
-                <div className="orders-account-shell">
-                  <div className="orders-account-layout">
-                    <aside className="orders-account-sidebar">
-                      <div className="orders-account-sidebar-inner">
-                        <div className="orders-account-avatar" aria-hidden="true">
-                          <svg width="78" height="78" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                            <circle cx="12" cy="7" r="4" />
-                          </svg>
-                        </div>
-                        <h3 className="orders-account-hello">Hello</h3>
-                        <p className="orders-account-handle">{accountHandle}</p>
-
-                        <nav className="orders-account-nav" aria-label="Account navigation">
-                          <Link href="/my-account" className="orders-account-link">Dashboard</Link>
-                          <Link href="/my-account/edit-account" className="orders-account-link">Edit Profile</Link>
-                          <Link href="/my-account/edit-address" className="orders-account-link">My Addresses</Link>
-                          <Link href="/orders" className="orders-account-link active">My Orders</Link>
-                          <Link href="/wishlist" className="orders-account-link">Wishlist</Link>
-                          <button className="orders-account-button" onClick={logout}>Logout</button>
-                        </nav>
-                      </div>
-                    </aside>
+                <div className="account-shell">
+                  <div className="account-layout">
+                    <AccountSidebar accountHandle={accountHandle} activeLink="orders" onLogout={logout} />
 
                     <div className="orders-account-main">
                       <div className="orders-account-top" />

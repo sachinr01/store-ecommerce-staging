@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import type { Blog } from '../blog/types';
 import { BLOG_HOME_LIMIT } from '../blog/utils/config';
 import { getBlogDetailHref } from '../blog/utils/links';
@@ -23,12 +22,12 @@ export default function LatestPosts({ posts }: { posts: Blog[] }) {
               <Link key={post.slug} href={getBlogDetailHref(post)} className="blog-card">
                 <div className="blog-card-img-wrap">
                   {post.image ? (
-                    <Image
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
                       src={post.image}
                       alt={post.title}
-                      fill
-                      unoptimized
-                      sizes="(max-width: 560px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="blog-card-img"
+                      loading="lazy"
                     />
                   ) : null}
                 </div>

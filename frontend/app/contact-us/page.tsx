@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import ContactForm from "./ContactForm";
+import EnquiryForm from "../components/EnquiryForm";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "NESTCASE";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001";
@@ -27,33 +27,26 @@ const supportItems = [
     iconClass: "fa-whatsapp",
   },
   {
+    label: "Address",
+    value: `nestcase.in Pune, 
+            Maharashtra India`,
+    iconClass: "fa-map-marker",
+  },
+  {
     label: "Business Hours",
-    value: (
-      <>
-        Monday - Saturday
-        <br />
-        10:00 AM - 7:00 PM
-      </>
-    ),
+    value: "Monday - Saturday\n10:00 AM - 7:00 PM",
     iconClass: "fa-clock-o",
   },
-];
-
-const socialItems = [
   {
-    label: "Instagram",
-    value: "@nestcase.in",
-    iconClass: "fa-instagram",
+    label: "Business & B2B Enquiries",
+    value: "For bulk orders, gifting, hospitality partnerships, or collaborations: business@nestcase.in",
+    href: "mailto:business@nestcase.in",
+    iconClass: "fa-clock-o",
   },
   {
-    label: "LinkedIn",
-    value: "nestcase",
-    iconClass: "fa-linkedin",
-  },
-  {
-    label: "Pinterest",
-    value: "@nestcase.in",
-    iconClass: "fa-pinterest",
+    label: "Socials",
+    value: "Instagram @nestcase.in\nLinkedIn nestcase\nPinterest @nestcase.in",
+    iconClass: "fa-clock-o",
   },
 ];
 
@@ -82,91 +75,36 @@ export default function ContactUsPage() {
 
         <section className="contact-layout" aria-label="Contact details and enquiry form">
           <div className="contact-info">
-            <section className="contact-block">
-              <h3>Customer Support</h3>
-              <div className="contact-rule" />
-              <div className="contact-stack">
-                {supportItems.map((item) => (
-                  <div className="contact-row" key={item.label}>
-                    <ContactIcon iconClass={item.iconClass} />
-                    <div>
-                      <h6>{item.label}</h6>
-                      {"href" in item && item.href ? (
-                        <a href={item.href}>{item.value}</a>
-                      ) : (
-                        <p>{item.value}</p>
-                      )}
-                    </div>
+            <h3>Customer Support</h3>
+            <div className="contact-rule" />
+            <div className="contact-stack">
+              {supportItems.map((item) => (
+                <div className="contact-row" key={item.label}>
+                  <ContactIcon iconClass={item.iconClass} />
+                  <div>
+                    <strong className="contact-item-label">{item.label}</strong>
+                    {"href" in item && item.href ? (
+                      <p><a href={item.href}>{item.value}</a></p>
+                    ) : (
+                      <p>{item.value.split("\n").map((line, i) => (
+                        <span key={i}>{line}{i < item.value.split("\n").length - 1 && <br />}</span>
+                      ))}</p>
+                    )}
                   </div>
-                ))}
-              </div>
-            </section>
-
-            <section className="contact-block contact-divider">
-              <h3>Business &amp; B2B Enquiries</h3>
-              <div className="contact-rule" />
-              <p className="contact-copy">
-                For bulk orders, gifting, hospitality partnerships, or collaborations:
-              </p>
-              <a className="contact-email" href="mailto:business@nestcase.in">
-                business@nestcase.in
-              </a>
-            </section>
-
-            <section className="contact-block contact-divider">
-              <h3>Address</h3>
-              <div className="contact-rule" />
-              <div className="contact-row">
-                <ContactIcon iconClass="fa-map-marker" />
-                <p>
-                  nestcase
-                  <br />
-                  Pune, Maharashtra
-                  <br />
-                  India
-                </p>
-              </div>
-            </section>
-
-            <section className="contact-block contact-divider">
-              <h3>Socials</h3>
-              <div className="contact-rule" />
-              <div className="contact-stack contact-socials">
-                {socialItems.map((item) => (
-                  <div className="contact-row" key={item.label}>
-                    <ContactIcon iconClass={item.iconClass} />
-                    <div>
-                      <h6>{item.label}</h6>
-                      <p>{item.value}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <section className="contact-block contact-divider">
-              <h3>Response Time</h3>
-              <div className="contact-rule" />
-              <div className="contact-row">
-                <ContactIcon iconClass="fa-refresh" />
-                <p>
-                  We usually respond within
-                  <br />
-                  24-48 business hours.
-                </p>
-              </div>
-            </section>
+                </div>
+              ))}
+            </div>
           </div>
 
           <section className="contact-form-section" aria-labelledby="connect-title">
             <h3 id="connect-title">Let&apos;s Connect</h3>
             <div className="contact-rule" />
             <p>
-              Have a question or requirement?
-              <br />
-              Fill out the form below and our team will get in touch with you.
+              Have a question or requirement?<br />
+              Fill out the form below and our team will get in touch with you.<br />
+              Response Time: We usually respond within 24-48 business hours.
             </p>
-            <ContactForm />
+            <EnquiryForm type="contact-us" buttonLabel="Send Message" />
           </section>
         </section>
       </main>

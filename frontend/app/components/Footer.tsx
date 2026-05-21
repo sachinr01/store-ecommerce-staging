@@ -110,13 +110,13 @@ export default function Footer() {
             <ul className="footer-nav-list" role="list">
               {categories.length > 0 ? categories.map((cat) => (
                 <li key={cat.slug}>
-                  <Link href={`/shop/${cat.slug}`} className="link-faded">{cat.name.toUpperCase()}</Link>
+                  <Link href={`/shop/${cat.slug}`} className="link-faded">{cat.name}</Link>
                 </li>
               )) : (
                 <>
-                  <li><Link href='/shop/drinkware' className="link-faded">DRINKWARE</Link></li>
-                  <li><Link href='/shop/glassware' className="link-faded">GLASSWARE</Link></li>
-                  <li><Link href='/shop/jars-and-containers' className="link-faded">JARS AND CONTAINERS</Link></li>
+                  <li><Link href='/shop/drinkware' className="link-faded">Drinkware</Link></li>
+                  <li><Link href='/shop/glassware' className="link-faded">Glassware</Link></li>
+                  <li><Link href='/shop/jars-and-containers' className="link-faded">Jars and Containers</Link></li>
                 </>
               )}
             </ul>
@@ -124,29 +124,23 @@ export default function Footer() {
           <div>
             <h4>Contact Us</h4>
             <ul className="footer-nav-list" role="list">
-              <li><a href="#" className="link-faded">Whatsapp: 91 0000000000</a></li>
               <li><a href="#" className="link-faded">Mon-Sat 10AM - 6PM IST</a></li>
-              <li><a href="#" className="link-faded">Email: Info@test.com</a></li>
+              <li><a href="mailto:support@nestcase.in" className="link-faded">Email: support@nestcase.in</a></li>
               <li className="footer-social-list">
                 <a href="#" className="footer-social-icon footer-social-icon--instagram" aria-label="Instagram">
                   <Image src="/store/images/icons/instagram.png" alt="Instagram" width={24} height={24} />
                 </a>
-                <a href="#" className="footer-social-icon footer-social-icon--facebook" aria-label="Facebook">
-                  <Image src="/store/images/icons/facebook.png" alt="Facebook" width={24} height={24} />
-                </a>
-                <a href="#" className="footer-social-icon footer-social-icon--twitter" aria-label="X (Twitter)">
-                  <Image src="/store/images/icons/x.png" alt="X" width={24} height={24} />
-                </a>
+                {/* https://wa.me/+919876543210 */}
                 <a href="#" className="footer-social-icon footer-social-icon--whatsapp" aria-label="WhatsApp">
                   <Image src="/store/images/icons/whatsapp.png" alt="WhatsApp" width={24} height={24} />
                 </a>
-                <a href="#" className="footer-social-icon footer-social-icon--email" aria-label="Email">
+                <a href="mailto:support@nestcase.in" className="footer-social-icon footer-social-icon--email" aria-label="Email">
                   <Image src="/store/images/icons/gmail.png" alt="Email" width={24} height={24} />
                 </a>
                 <a href="#" className="footer-social-icon footer-social-icon--pinterest" aria-label="pinterest">
                   <Image src="/store/images/icons/pinterest.png" alt="pinterest" width={24} height={24} />
                 </a>
-                <a href="#" className="footer-social-icon footer-social-icon--linkedin" aria-label="LinkedIn">
+                <a href="https://www.linkedin.com/company/nestcase" className="footer-social-icon footer-social-icon--linkedin" aria-label="LinkedIn">
                   <Image src="/store/images/icons/linkedin.png" alt="LinkedIn" width={24} height={24} />
                 </a>
               </li>
@@ -188,7 +182,7 @@ export default function Footer() {
 
       <div className="footer-legal">
         <div className="footer-legal-bottom">
-          <p>nestcase.in &copy; 2026</p>
+          <p>Copyright © 2026 Nestcase.in. All rights reserved.</p>
           <div className="footer-payment-row" aria-label="Accepted payment methods">
             <p>We Accept</p>
             <span className="footer-payment-badge footer-payment-image">
@@ -203,7 +197,7 @@ export default function Footer() {
             <span className="footer-payment-badge footer-payment-image">
               <Image src="/store/images/icons/paytm_icon.png" alt="paytm" width={42} height={22} />
             </span>
-            <p>and more..</p>
+            {/* <p>and more..</p> */}
           </div>
         </div>
       </div>

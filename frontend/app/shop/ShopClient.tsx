@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { ShopGridSkeleton, ShopSidebarSkeleton } from './ShopSkeleton';
 import { getProducts, getAllAttributeGroups, getImageUrl, type Product, type AttributeGroup, getProductCategories, getCategoryProducts, type ProductCategory } from '../lib/api';
 import { formatPrice, formatPriceRange, CURRENCY } from '../lib/price';
 import { getDiscountPercent, isSaleDateActive } from '../lib/helpers/pricing';
@@ -85,18 +86,22 @@ function ShopProductCard({ product, idx, listMode }: { product: Product; idx: nu
         <button
           className={`csp-wishlist${inWishlist ? ' active' : ''}`}
           aria-label={inWishlist ? `Remove ${product.title} from wishlist` : `Add ${product.title} to wishlist`}
-          onClick={e => {
+          onClick={async e => {
             e.preventDefault();
-            if (inWishlist) {
-              removeItem(product.ID);
-            } else {
-              addItem({
-                id: product.ID,
-                title: product.title,
-                price: displayPrice ?? 0,
-                image: getImageUrl(product.thumbnail_url, PLACEHOLDER),
-                inStock: !isOutOfStock,
-              });
+            try {
+              if (inWishlist) {
+                await removeItem(product.ID);
+              } else {
+                await addItem({
+                  id: product.ID,
+                  title: product.title,
+                  price: displayPrice ?? 0,
+                  image: getImageUrl(product.thumbnail_url, PLACEHOLDER),
+                  inStock: !isOutOfStock,
+                });
+              }
+            } catch {
+              // optimistic update already rolled back by context
             }
           }}
         >
@@ -130,7 +135,7 @@ function ShopProductCard({ product, idx, listMode }: { product: Product; idx: nu
           <span className="csp-stock-label out">Out of Stock</span>
         )}
         {listMode && product.short_description && (
-          <p className="csp-list-desc">{product.short_description.replace(/<[^>]+>/g, '').slice(0, 300)}</p>
+          <p className="csp-list-desc">{product.short_description.replace(/<[^>]+>/g, '')}</p>
         )}
       </div>
     </div>
@@ -630,7 +635,7 @@ function ShopInner({ heading, subheading }: { heading: string; subheading: strin
 
       <div className="csp-body">
         <aside className="csp-sidebar" aria-label="Product filters">
-          {SidebarContent}
+          {loading ? <ShopSidebarSkeleton /> : SidebarContent}
         </aside>
 
         {sidebarOpen && (
@@ -776,10 +781,7 @@ function ShopInner({ heading, subheading }: { heading: string; subheading: strin
           )}
 
           {loading && (
-            <div className="csp-state-wrap" role="status">
-              <div className="csp-spinner" />
-              <p className="csp-state-text">Loading products...</p>
-            </div>
+            <ShopGridSkeleton listMode={viewMode === 'list'} />
           )}
 
           {error && (

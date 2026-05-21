@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import AccountSidebar from '../../components/AccountSidebar';
 import { updateProfile } from '../../lib/api';
 import { useAuth } from '../../lib/authContext';
 
@@ -52,24 +53,24 @@ export default function EditAccountPage() {
       return;
     }
 
-    const wantsPasswordChange = !!(form.currentPassword || form.newPassword || form.confirmPassword);
-    if (wantsPasswordChange) {
-      if (!form.currentPassword) {
-        setError('Current password is required to change your password.');
-        setSuccess('');
-        return;
-      }
-      if (!form.newPassword) {
-        setError('Enter a new password.');
-        setSuccess('');
-        return;
-      }
-      if (form.newPassword !== form.confirmPassword) {
-        setError('New password and confirmation do not match.');
-        setSuccess('');
-        return;
-      }
-    }
+    // const wantsPasswordChange = !!(form.currentPassword || form.newPassword || form.confirmPassword);
+    // if (wantsPasswordChange) {
+    //   if (!form.currentPassword) {
+    //     setError('Current password is required to change your password.');
+    //     setSuccess('');
+    //     return;
+    //   }
+    //   if (!form.newPassword) {
+    //     setError('Enter a new password.');
+    //     setSuccess('');
+    //     return;
+    //   }
+    //   if (form.newPassword !== form.confirmPassword) {
+    //     setError('New password and confirmation do not match.');
+    //     setSuccess('');
+    //     return;
+    //   }
+    // }
 
     setSaving(true);
     setError('');
@@ -80,8 +81,8 @@ export default function EditAccountPage() {
         email: form.email.trim(),
         firstName: form.firstName,
         lastName: form.lastName,
-        currentPassword: form.currentPassword || undefined,
-        newPassword: form.newPassword || undefined,
+        // currentPassword: form.currentPassword || undefined,
+        // newPassword: form.newPassword || undefined,
       });
 
       if (!result.success) {
@@ -125,29 +126,9 @@ export default function EditAccountPage() {
                   </div>
                 </div>
               ) : (
-                <div className="account-edit-shell">
-                  <div className="account-edit-layout">
-                    <aside className="account-edit-sidebar">
-                      <div className="account-edit-sidebar-inner">
-                        <div className="account-edit-avatar" aria-hidden="true">
-                          <svg width="78" height="78" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                            <circle cx="12" cy="7" r="4" />
-                          </svg>
-                        </div>
-                        <h3 className="account-edit-hello">Hello</h3>
-                        <p className="account-edit-handle">{accountHandle}</p>
-
-                        <nav className="account-edit-nav" aria-label="Account navigation">
-                          <Link href="/my-account" className="account-edit-link">Dashboard</Link>
-                          <Link href="/my-account/edit-account" className="account-edit-link active">Edit Profile</Link>
-                          <Link href="/my-account/edit-address" className="account-edit-link">My Addresses</Link>
-                          <Link href="/orders" className="account-edit-link">My Orders</Link>
-                          <Link href="/wishlist" className="account-edit-link">Wishlist</Link>
-                          <button className="account-edit-button" onClick={logout}>Logout</button>
-                        </nav>
-                      </div>
-                    </aside>
+                <div className="account-shell">
+                  <div className="account-layout">
+                    <AccountSidebar accountHandle={accountHandle} activeLink="edit-account" onLogout={logout} />
 
                     <div className="account-edit-main">
                       <div className="account-edit-top" />
@@ -156,19 +137,21 @@ export default function EditAccountPage() {
                       {success && <p className="account-edit-message success">{success}</p>}
 
                       <form className="account-edit-form" onSubmit={handleSubmit} noValidate>
-                        <div className="account-edit-field">
-                          <label className="account-edit-label">First name</label>
-                          <input className="account-edit-input" type="text" value={form.firstName} onChange={setField('firstName')} />
-                        </div>
+                        <div className="account-edit-row">
+                          <div className="account-edit-field">
+                            <label className="account-edit-label">First name</label>
+                            <input className="account-edit-input" type="text" placeholder="First name" value={form.firstName} onChange={setField('firstName')} />
+                          </div>
 
-                        <div className="account-edit-field">
-                          <label className="account-edit-label">Last name</label>
-                          <input className="account-edit-input" type="text" value={form.lastName} onChange={setField('lastName')} />
+                          <div className="account-edit-field">
+                            <label className="account-edit-label">Last name</label>
+                            <input className="account-edit-input" type="text" placeholder="Last name" value={form.lastName} onChange={setField('lastName')} />
+                          </div>
                         </div>
 
                         <div className="account-edit-field">
                           <label className="account-edit-label required">Display name</label>
-                          <input className="account-edit-input" type="text" value={form.displayName} onChange={setField('displayName')} />
+                          <input className="account-edit-input" type="text" placeholder="Display name" value={form.displayName} readOnly />
                           <p className="account-edit-note">
                             This will be how your name will be displayed in the account section and in reviews.
                           </p>
@@ -176,9 +159,10 @@ export default function EditAccountPage() {
 
                         <div className="account-edit-field">
                           <label className="account-edit-label required">Email address</label>
-                          <input className="account-edit-input" type="email" value={form.email} onChange={setField('email')} />
+                          <input className="account-edit-input" type="email" placeholder="Email address" value={form.email} readOnly />
                         </div>
 
+                        {/* Password change — commented out
                         <h4 className="account-edit-subheading">Password change</h4>
 
                         <div className="account-edit-field">
@@ -195,6 +179,7 @@ export default function EditAccountPage() {
                           <label className="account-edit-label">Confirm new password</label>
                           <input className="account-edit-input" type="password" value={form.confirmPassword} onChange={setField('confirmPassword')} />
                         </div>
+                        */}
 
                         <div className="account-edit-actions">
                           <button type="submit" className="btn-view-product btn-view-product--inline" disabled={saving}>
