@@ -292,6 +292,10 @@ const showEditProduct = async (req, res) => {
     product.meta_index = mainMeta["meta_index"] || "";
     product.sale_price_dates_from = mainMeta["_sale_price_dates_from"] || "";
     product.sale_price_dates_to   = mainMeta["_sale_price_dates_to"]   || "";
+    product.weight   = mainMeta["weight"]   || "";
+    product.length   = mainMeta["length"]   || "";
+    product.breadth  = mainMeta["breadth"]  || "";
+    product.height   = mainMeta["height"]   || "";
 
     // ── Main product thumbnail ──────────────────────────────
     // Read media_path directly from tbl_media(no _wp_attached_file in mediameta)
@@ -629,6 +633,11 @@ const storeProduct = async (req, res) => {
     );
     await insertMeta(productId, "canonical_tag", body.canonical_tag || "");
     await insertMeta(productId, "meta_index", body.meta_index || "");
+
+    await insertMeta(productId, "weight", body.weight || "0");
+    await insertMeta(productId, "length", body.length || "0");
+    await insertMeta(productId, "breadth", body.breadth || "0");
+    await insertMeta(productId, "height", body.height || "0");
 
     // ═══════════════════════════════════════════════════════
     // STEP 3: MAIN FEATURED IMAGE
@@ -1098,6 +1107,10 @@ const updateProduct = async (req, res) => {
     await updateMeta(id, "meta_description", body.meta_description || "");
     await updateMeta(id, "canonical_tag", body.canonical_tag || "");
     await updateMeta(id, "meta_index", body.meta_index || "");
+    await updateMeta(id, "weight", body.weight || "0");
+    await updateMeta(id, "length", body.length || "0");
+    await updateMeta(id, "breadth", body.breadth || "0");
+    await updateMeta(id, "height", body.height || "0");
 
     // ─────────────────────────────────────────
     // ✅ DELETE OLD MEDIA (FIXED - ALWAYS RUN)

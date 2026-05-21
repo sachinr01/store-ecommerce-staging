@@ -83,6 +83,7 @@ router.delete('/cart/clear',          cart.clearCart);
 // ── Orders ────────────────────────────────────────────────────────────────────
 // NOTE: /orders/my MUST come before /orders/:orderId to avoid route conflict
 router.post('/orders/place',      orders.placeOrder);
+router.post('/shipping-rate',      orders.getShippingRate);
 router.get('/orders/my',          requireLogin, orders.getMyOrders);
 router.get('/orders/:orderId',    requireLogin, orders.getMyOrderById);
 

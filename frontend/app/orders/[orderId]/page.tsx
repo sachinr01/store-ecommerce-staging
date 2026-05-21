@@ -86,7 +86,7 @@ export default function OrderDetailPage() {
       id: Number(order.order_id),
       status: normalizeStatus(order.order_status || ''),
       dateLabel: formatDate(order.order_date || ''),
-      totalLabel:    order.total    ? formatPrice(Number(order.total))    : formatPrice(0),
+      totalLabel: order.total ? formatPrice(Number(order.total)) : formatPrice(0),
       subtotalLabel: order.subtotal ? formatPrice(Number(order.subtotal)) : formatPrice(0),
       shippingLabel: order.shipping ? formatPrice(Number(order.shipping)) : formatPrice(0),
       payment: order.payment_method || 'cod',
@@ -94,6 +94,11 @@ export default function OrderDetailPage() {
       email,
       phone,
       address: shipAddress || billingAddress,
+
+      awb: order.awb_code || '',
+      courier: order.courier_name || '',
+      shippingStatus: order.shipping_status || '',
+      shipmentId: order.shipment_id || '',
     };
   }, [data]);
 
@@ -131,94 +136,136 @@ export default function OrderDetailPage() {
           <div className="order-detail-wrap">
             <Link href="/orders" className="order-back">{'<- Back to Orders'}</Link>
 
-          {loading && <div className="order-detail-empty">Loading order...</div>}
+            {loading && <div className="order-detail-empty">Loading order...</div>}
 
-          {!loading && needsLogin && (
-            <div className="order-detail-empty">
-              Please log in to view this order.
-              <div>
-                <Link className="orders-cta btn-view-product btn-view-product--inline" href="/my-account">Login / Register</Link>
-              </div>
-            </div>
-          )}
-
-          {!loading && !needsLogin && error && (
-            <div className="order-detail-error">{error}</div>
-          )}
-
-          {!loading && !error && summary && (
-            <div className="order-detail-grid">
-              <div className="order-detail-main">
-                <div className="order-detail-card order-hero">
-                  <div className="order-detail-header">
-                    <div>
-                      <h1 className="order-detail-title">Order #{summary.id}</h1>
-                      <div className="order-detail-meta">Placed on {summary.dateLabel}</div>
-                    </div>
-                    <span className={`order-detail-status ${summary.status}`}>{summary.status}</span>
-                  </div>
-                  <div className="order-timeline">
-                    {statusSteps.map(step => (
-                      <div key={step.key} className={`timeline-step${step.active ? ' active' : ''}`}>
-                        <span className="timeline-dot" />
-                        <span className="timeline-label">{step.label}</span>
-                      </div>
-                    ))}
-                  </div>
+            {!loading && needsLogin && (
+              <div className="order-detail-empty">
+                Please log in to view this order.
+                <div>
+                  <Link className="orders-cta btn-view-product btn-view-product--inline" href="/my-account">Login / Register</Link>
                 </div>
+              </div>
+            )}
 
-                <div className="order-detail-card">
-                  <h3 className="order-detail-subtitle">Items</h3>
-                  <div className="order-items-list">
-                    {data!.items.map(item => (
-                      <div key={item.order_item_id} className="order-item">
-                        <div className="order-item-thumb">
-                          {item.thumbnail_url ? (
-                            <img src={getImageUrl(item.thumbnail_url)} alt={item.order_item_name} />
-                          ) : (
-                            <span>{(item.order_item_name || 'Item').slice(0, 1).toUpperCase()}</span>
-                          )}
+            {!loading && !needsLogin && error && (
+              <div className="order-detail-error">{error}</div>
+            )}
+
+            {!loading && !error && summary && (
+              <div className="order-detail-grid">
+                <div className="order-detail-main">
+                  <div className="order-detail-card order-hero">
+                    <div className="order-detail-header">
+                      <div>
+                        <h1 className="order-detail-title">Order #{summary.id}</h1>
+                        <div className="order-detail-meta">Placed on {summary.dateLabel}</div>
+                      </div>
+                      <span className={`order-detail-status ${summary.status}`}>{summary.status}</span>
+                    </div>
+                    <div className="order-timeline">
+                      {statusSteps.map(step => (
+                        <div key={step.key} className={`timeline-step${step.active ? ' active' : ''}`}>
+                          <span className="timeline-dot" />
+                          <span className="timeline-label">{step.label}</span>
                         </div>
-                        <div className="order-item-body">
-                          <div className="order-item-name">{item.order_item_name}</div>
-                          <div className="order-item-meta">
-                            Qty: {item.qty ?? 1}
-                            {item.color ? ` · Color: ${item.color}` : ''}
-                            {item.size ? ` · Size: ${item.size}` : ''}
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="order-detail-card">
+                    <h3 className="order-detail-subtitle">Items</h3>
+                    <div className="order-items-list">
+                      {data!.items.map(item => (
+                        <div key={item.order_item_id} className="order-item">
+                          <div className="order-item-thumb">
+                            {item.thumbnail_url ? (
+                              <img src={getImageUrl(item.thumbnail_url)} alt={item.order_item_name} />
+                            ) : (
+                              <span>{(item.order_item_name || 'Item').slice(0, 1).toUpperCase()}</span>
+                            )}
+                          </div>
+                          <div className="order-item-body">
+                            <div className="order-item-name">{item.order_item_name}</div>
+                            <div className="order-item-meta">
+                              Qty: {item.qty ?? 1}
+                              {item.color ? ` · Color: ${item.color}` : ''}
+                              {item.size ? ` · Size: ${item.size}` : ''}
+                            </div>
+                          </div>
+                          <div className="order-item-price">
+                            {formatPrice(Number(item.line_total || 0))}
                           </div>
                         </div>
-                        <div className="order-item-price">
-                          {formatPrice(Number(item.line_total || 0))}
-                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="order-detail-side">
+                  <div className="order-detail-card">
+                    <h3 className="order-detail-subtitle">Delivery details</h3>
+                    <div className="order-summary-grid">
+                      <div><strong>Name:</strong> {summary.name || '-'}</div>
+                      <div><strong>Phone:</strong> {summary.phone || '-'}</div>
+                      <div><strong>Address:</strong> {summary.address || '-'}</div>
+                      <div><strong>Email:</strong> {summary.email || '-'}</div>
+                    </div>
+                  </div>
+
+                  <div className="order-detail-card">
+                    <h3 className="order-detail-subtitle">Price details</h3>
+                    <div className="order-summary-grid">
+                      <div><strong>Subtotal:</strong> {summary.subtotalLabel}</div>
+                      <div><strong>Shipping:</strong> {summary.shippingLabel}</div>
+                      <div><strong>Total:</strong> {summary.totalLabel}</div>
+                      <div><strong>Payment:</strong> {summary.payment}</div>
+                    </div>
+                  </div>
+
+
+                  <div className="order-detail-card">
+                    <h3 className="order-detail-subtitle">Shipping Details</h3>
+
+                    <div className="order-summary-grid">
+                      <div>
+                        <strong>Shipping Status:</strong>{' '}
+                        <span className={`shipping-badge ${summary.shippingStatus}`}>
+                          {summary.shippingStatus || 'Pending'}
+                        </span>
                       </div>
-                    ))}
+
+                      <div>
+                        <strong>Courier:</strong>{' '}
+                        {summary.courier || '-'}
+                      </div>
+
+                      <div>
+                        <strong>AWB Number:</strong>{' '}
+                        {summary.awb || '-'}
+                      </div>
+
+                      <div>
+                        <strong>Shipment ID:</strong>{' '}
+                        {summary.shipmentId || '-'}
+                      </div>
+                    </div>
+
+                    {summary.awb && (
+                      <a
+                        href={`https://shiprocket.co/tracking/${summary.awb}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="track-order-btn btn-view-product btn-view-product--inline na-view-all-btn mt-3"
+                      >
+                        Track Order
+                      </a>
+                    )}
                   </div>
+
+                  
                 </div>
               </div>
-
-              <div className="order-detail-side">
-                <div className="order-detail-card">
-                  <h3 className="order-detail-subtitle">Delivery details</h3>
-                  <div className="order-summary-grid">
-                    <div><strong>Name:</strong> {summary.name || '-'}</div>
-                    <div><strong>Phone:</strong> {summary.phone || '-'}</div>
-                    <div><strong>Address:</strong> {summary.address || '-'}</div>
-                    <div><strong>Email:</strong> {summary.email || '-'}</div>
-                  </div>
-                </div>
-
-                <div className="order-detail-card">
-                  <h3 className="order-detail-subtitle">Price details</h3>
-                  <div className="order-summary-grid">
-                    <div><strong>Subtotal:</strong> {summary.subtotalLabel}</div>
-                    <div><strong>Shipping:</strong> {summary.shippingLabel}</div>
-                    <div><strong>Total:</strong> {summary.totalLabel}</div>
-                    <div><strong>Payment:</strong> {summary.payment}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+            )}
           </div>
         </div>
       </div>

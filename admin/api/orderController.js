@@ -26,8 +26,7 @@ const toInt = (val, fallback = 0) => {
 
 const BREVO_API_KEY =
   process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY || "";
-const BREVO_SENDER_EMAIL =
-  process.env.BREVO_SENDER_EMAIL ;
+const BREVO_SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL;
 const BREVO_SENDER_NAME = process.env.BREVO_SENDER_NAME || "NESTCASE";
 const BREVO_LOGO_URL = process.env.BREVO_LOGO_URL || "";
 const DEFAULT_LOGO_PATH = path.join(
@@ -40,6 +39,202 @@ const DEFAULT_LOGO_PATH = path.join(
   "logo-white.png",
 );
 const DEFAULT_COUNTRY = process.env.DEFAULT_COUNTRY || "India";
+
+const axios = require("axios");
+const SHIPROCKET_EMAIL = process.env.SHIPROCKET_EMAIL;
+const SHIPROCKET_PASSWORD = process.env.SHIPROCKET_PASSWORD;
+
+// ================================
+// GET SHIPROCKET TOKEN
+// ================================
+
+async function getShiprocketToken() {
+  try {
+    const response = await axios.post(
+      "https://apiv2.shiprocket.in/v1/external/auth/login",
+      {
+        email: SHIPROCKET_EMAIL,
+        password: SHIPROCKET_PASSWORD,
+      },
+    );
+
+    return response.data.token;
+  } catch (error) {
+    console.log(
+      "Shiprocket Auth Error:",
+      error.response?.data || error.message,
+    );
+
+    throw new Error("Unable to authenticate Shiprocket");
+  }
+}
+
+// ================================
+// CREATE SHIPROCKET ORDER
+// ================================
+
+async function createShiprocketOrder(orderData) {
+  try {
+    const token = await getShiprocketToken();
+
+    const response = await axios.post(
+      "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
+      orderData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log(
+      "Shiprocket Order Error:",
+      error.response?.data || error.message,
+    );
+
+    throw new Error("Failed to create Shiprocket order");
+  }
+}
+
+// ================================
+// ASSIGN COURIER + GENERATE AWB
+// ================================
+
+async function generateAWB(shipment_id) {
+  try {
+    const token = await getShiprocketToken();
+
+    const response = await axios.post(
+      "https://apiv2.shiprocket.in/v1/external/courier/assign/awb",
+      {
+        shipment_id,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log("Shiprocket AWB Error:", error.response?.data || error.message);
+
+    throw new Error("Failed to generate AWB");
+  }
+}
+
+
+async function getShippingRate(req, res) {
+  try {
+    const token = await getShiprocketToken();
+
+    const {
+      pincode,
+      cod = 0,
+      weight,
+      length,
+      breadth,
+      height,
+      declared_value = 599
+    } = req.body;
+
+    const response = await axios.get(
+      "https://apiv2.shiprocket.in/v1/external/courier/serviceability",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          pickup_postcode: "411017",
+          delivery_postcode: pincode,
+          cod: cod ? 1 : 0,
+          weight,
+          length: length || 10,
+          breadth: breadth || 10,
+          height: height || 10,
+          declared_value
+        }
+      }
+    );
+
+    const couriers =
+      response.data?.data?.available_courier_companies || [];
+
+    if (!couriers.length) {
+      return res.json({
+        success:false,
+        message:"No courier available"
+      });
+    }
+
+    // Prefer Shiprocket recommended courier
+let selected =
+    couriers.find(
+        c => c.recommended_by_shiprocket === true
+    );
+
+if (!selected) {
+    couriers.sort((a,b)=>
+        Number(
+            a.courier_charge ||
+            a.rate ||
+            a.freight_charge
+        )
+        -
+        Number(
+            b.courier_charge ||
+            b.rate ||
+            b.freight_charge
+        )
+    );
+
+    selected = couriers[0];
+}
+
+const finalRate =
+    Number(
+        selected.courier_charge ||
+        selected.rate ||
+        selected.freight_charge ||
+        0
+    );
+
+return res.json({
+    success:true,
+    rate: finalRate,
+    courier_name:selected.courier_name,
+    etd:selected.etd,
+
+    all_rates:couriers.map(c=>({
+        courier:c.courier_name,
+        rate:Number(
+            c.courier_charge ||
+            c.rate ||
+            c.freight_charge ||
+            0
+        ),
+        etd:c.etd
+    }))
+});
+
+  } catch(error){
+
+    console.log(
+      error.response?.data || error.message
+    );
+
+    return res.status(500).json({
+      success:false,
+      message:"Unable to get shipping rate"
+    });
+  }
+}
+
 
 let cachedLogoDataUri = "";
 
@@ -601,6 +796,105 @@ const placeOrder = async (req, res) => {
     );
     const orderId = orderResult.insertId;
 
+    // ===================================
+    // SHIPROCKET ORDER PAYLOAD
+    // ===================================
+
+    const orderIdShiprocket = "ORD_" + orderId;
+
+    const shiprocketPayload = {
+      order_id: orderIdShiprocket,
+
+      order_date: new Date().toISOString().slice(0, 10),
+
+      pickup_location: "warehouse",
+
+      billing_customer_name: billing.first_name,
+
+      billing_last_name: billing.last_name,
+
+      billing_address: billing.address,
+
+      billing_address_2: billing.address_2 || "",
+
+      billing_city: billing.city,
+
+      billing_pincode: billing.postcode,
+
+      billing_state: billing.state,
+
+      billing_country: "India",
+
+      billing_email: billing.email,
+
+      billing_phone: billing.phone,
+
+      shipping_is_billing: true,
+
+      order_items: cartItems.map((item) => ({
+        name: item.title || "Product",
+
+        sku: item.product_id,
+
+        units: Number(item.quantity),
+
+        selling_price: Number(item.price),
+      })),
+
+      payment_method: paymentMethod === "cod" ? "COD" : "Prepaid",
+
+      sub_total: total,
+
+      length: 10,
+
+      breadth: 10,
+
+      height: 10,
+
+      weight: 0.5,
+    };
+
+    // ===================================
+    // CREATE SHIPROCKET ORDER
+    // ===================================
+
+    const shiprocketResponse = await createShiprocketOrder(shiprocketPayload);
+
+    console.log("Shiprocket Order Created:", shiprocketResponse);
+
+    // ===================================
+    // GENERATE AWB
+    // ===================================
+
+    let awbResponse = null;
+
+    if (shiprocketResponse.shipment_id) {
+      awbResponse = await generateAWB(shiprocketResponse.shipment_id);
+
+      console.log("AWB Generated:", awbResponse);
+      await conn.query(
+        `UPDATE tbl_orders
+        SET shipment_id = ?,
+       awb_code = ?,
+       courier_name = ?,
+       shipping_status = ?
+        WHERE order_id = ?`,
+        [
+          shiprocketResponse.shipment_id || "",
+
+          awbResponse?.response?.data?.awb_code || "",
+
+          awbResponse?.response?.data?.courier_name || "",
+
+          "new",
+
+          orderId,
+        ],
+      );
+    }
+
+    // end shiprocket code
+
     // ── 4. tbl_ordermeta: financial + payment data ONLY ──────────────────────
     //    NO address, NO contact info here
     //    name/email  → tbl_users via user_id
@@ -624,6 +918,16 @@ const placeOrder = async (req, res) => {
     if (paymentMethod === "razorpay") {
       metaEntries.push(["_razorpay_payment_id", razorpayPaymentId]);
       metaEntries.push(["_razorpay_order_id", razorpayOrderId]);
+    }
+
+    if (shiprocketResponse.shipment_id) {
+       metaEntries.push(["_shiprocket_order_id", orderData.order_id]);
+       metaEntries.push(["_shiprocket_shipment_id", orderData.shipment_id]);
+       metaEntries.push(["_awb_code", awbData.response.data.awb_code]);
+       metaEntries.push(["_courier_id", awbData.response.data.courier_company_id]);
+       metaEntries.push(["_courier_name", awbData.response.data.courier_name]);
+       metaEntries.push(["_tracking_number", awbData.response.data.awb_code]);
+       metaEntries.push(["_freight_charges", awbData.response.data.freight_charges]);
     }
 
     for (const [metaKey, metaValue] of metaEntries) {
@@ -1251,6 +1555,9 @@ const getMyOrders = async (req, res) => {
     const [orders] = await db.query(
       `SELECT o.order_id,
               MAX(o.order_status)      AS order_status,
+              MAX(o.awb_code) AS awb_code,
+              MAX(o.courier_name) AS courier_name,
+              MAX(o.shipping_status) AS shipping_status,
               MAX(o.order_date)        AS order_date,
               MAX(om_total.meta_value) AS total,
               GROUP_CONCAT(oi.order_item_name SEPARATOR ', ') AS items
@@ -1325,6 +1632,10 @@ const getMyOrderById = async (req, res) => {
     const [orderRows] = await db.query(
       `SELECT o.order_id,
               MAX(o.order_status)      AS order_status,
+              MAX(o.awb_code) AS awb_code,
+              MAX(o.courier_name) AS courier_name,
+              MAX(o.shipping_status) AS shipping_status,
+              MAX(o.shipment_id) AS shipment_id,
               MAX(o.order_date)        AS order_date,
               MAX(om_total.meta_value) AS total,
               MAX(om_sub.meta_value)   AS subtotal,
@@ -1548,4 +1859,5 @@ module.exports = {
   getSavedAddresses,
   getProfileAddresses,
   updateProfileAddress,
+  getShippingRate,
 };

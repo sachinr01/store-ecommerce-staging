@@ -228,6 +228,13 @@ export default function CheckoutPage() {
   const [cardCvv, setCardCvv] = useState('');
   const [shipForm, setShipForm] = useState<AddressFields>({ ...emptyAddress });
   const [billForm, setBillForm] = useState<AddressFields>({ ...emptyAddress });
+
+  // added by sumit
+  const [shippingCost, setShippingCost] = useState(0);
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [deliveryDays, setDeliveryDays] = useState("");
+
+
   const handleLoginSuccess = useCallback(async (payload: AuthUser | AuthUserResponse | null | undefined) => {
     setUser(payload ?? null);
     await refresh();
@@ -578,7 +585,8 @@ export default function CheckoutPage() {
   // the Order Summary shows the correct partial discount amount.
   const discount = appliedCoupon?.discount ?? 0;
 
-  const orderTotal = Math.max(0, total - discount);
+  // shippingCost added by sumit
+  const orderTotal = Math.max(0, total - discount + shippingCost);
 
   // ─── Resolved addresses ─────────────────────────────────────────────────────
   const resolvedShipping = useMemo<AddressFields>(() => {
@@ -657,6 +665,98 @@ export default function CheckoutPage() {
     return Object.keys(e).length === 0;
   };
 
+  // added by sumit 
+  const getShippingRate = useCallback(async () => {
+    try {
+      const postcode = resolvedShipping.postcode?.trim();
+
+      // Don't call API until valid pincode exists
+      if (!postcode || postcode.length < 6) {
+        setShippingCost(0);
+        return;
+      }
+
+      setShippingLoading(true);
+
+      // Calculate total package details from cart items
+      const totalWeight = items.reduce((sum, item) => {
+        const weight = parseFloat(item.weight || "0");
+        return sum + (weight * item.quantity);
+      }, 0);
+
+      const maxLength = Math.max(
+        ...items.map(item =>
+          parseFloat(item.length || "0")
+        ),
+        1
+      );
+
+      const maxBreadth = Math.max(
+        ...items.map(item =>
+          parseFloat(item.breadth || "0")
+        ),
+        1
+      );
+
+      const totalHeight = items.reduce((sum, item) => {
+        const height = parseFloat(item.height || "0");
+        return sum + (height * item.quantity);
+      }, 0);
+
+      const response = await fetch(
+        '/store/api/shipping-rate',
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            pincode: postcode,
+            weight: totalWeight || 0.5,
+            length: maxLength,
+            breadth: maxBreadth,
+            height: totalHeight || 1,
+            cod: paymentMethod === 'cod' ? 1 : 0
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setShippingCost(
+          parseFloat(data.rate || "0")
+        );
+
+        setDeliveryDays(
+            data.etd || ""
+        );
+
+      } else {
+        setShippingCost(0);
+        console.log("Shipping Error:", data.message);
+      }
+
+    } catch (err) {
+      console.error(
+        "Shipping calculation error:",
+        err
+      );
+      setShippingCost(0);
+    } finally {
+      setShippingLoading(false);
+    }
+  }, [
+      resolvedShipping.postcode,
+      items,
+      paymentMethod
+  ]);
+
+  useEffect(() => {
+    getShippingRate();
+  }, [getShippingRate]);
+
   // ─── Place order ────────────────────────────────────────────────────────────
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -699,7 +799,7 @@ export default function CheckoutPage() {
           billing,
           shipping,
           payment_method: paymentMethod,
-          shipping_cost: 0,
+          shipping_cost: shippingCost,
           notes,
         }),
       });
@@ -1258,12 +1358,30 @@ export default function CheckoutPage() {
                         )}
                         <div className="checkout-summary-row">
                           <span>Shipping &amp; Handling</span>
-                          <strong className="csp-free-shipping">Free</strong>
+                          <strong className="csp-free-shipping"> 
+                              {shippingLoading
+                                ? 'Calculating...'
+                                : shippingCost > 0
+                                    ? formatPrice(shippingCost)
+                                    : 'Free'}
+                          </strong>
                         </div>
                         <div className="checkout-summary-total">
                           <span>Order Total</span>
                           <span>{formatPrice(orderTotal)}</span>
                         </div>
+                        
+
+                              {deliveryDays && (
+                                  <div className='mt-2'
+                                    style={{
+                                        fontSize:'12px',
+                                        color:'#16a34a'
+                                    }}
+                                  >
+                                      Delivery in {deliveryDays}
+                                  </div>
+                              )}
                       </div>
 
                       <div className="checkout-order-items-card">
