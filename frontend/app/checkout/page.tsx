@@ -222,10 +222,6 @@ export default function CheckoutPage() {
   const [notes, setNotes] = useState('');
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
-  const [cardName, setCardName] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvv, setCardCvv] = useState('');
   const [shipForm, setShipForm] = useState<AddressFields>({ ...emptyAddress });
   const [billForm, setBillForm] = useState<AddressFields>({ ...emptyAddress });
   const handleLoginSuccess = useCallback(async (payload: AuthUser | AuthUserResponse | null | undefined) => {
@@ -827,7 +823,7 @@ export default function CheckoutPage() {
     };
   }, [showRegister, googleScriptReady, handleGoogleLogin]);
 
-  const showCardDetails = paymentMethod === 'card';
+  const showCardDetails = false;
 
   if (items.length === 0 && !placing) {
     return (
@@ -1311,12 +1307,6 @@ export default function CheckoutPage() {
                                 <span><strong>Cash on Delivery</strong></span>
                               </label>
                             </div>
-                            <div className={`checkout-payment-item ${paymentMethod === 'card' ? 'selected' : ''}`}>
-                              <label className="checkout-payment-label">
-                                <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={(e) => setPaymentMethod(e.target.value)} />
-                                <span><strong>Credit/Debit Card</strong></span>
-                              </label>
-                            </div>
                             <div className={`checkout-payment-item ${paymentMethod === 'razorpay' ? 'selected' : ''}`}>
                               <label className="checkout-payment-label">
                                 <input
@@ -1330,30 +1320,6 @@ export default function CheckoutPage() {
                               </label>
                             </div>
                           </div>
-
-                          {showCardDetails && (
-                            <div className="checkout-card-box">
-                              <h5 className="csp-card-title">Card Details</h5>
-                              <div className="field">
-                                <label>Name on Card</label>
-                                <input type="text" placeholder="Full name" value={cardName} onChange={(e) => setCardName(e.target.value)} autoComplete="cc-name" />
-                              </div>
-                              <div className="field">
-                                <label>Card Number</label>
-                                <input type="text" inputMode="numeric" placeholder="0000 0000 0000 0000" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} autoComplete="cc-number" />
-                              </div>
-                              <div className="checkout-inline-row">
-                                <div className="field">
-                                  <label>Expiry Date</label>
-                                  <input type="text" inputMode="numeric" placeholder="MM/YY" value={cardExpiry} onChange={(e) => setCardExpiry(e.target.value)} autoComplete="cc-exp" />
-                                </div>
-                                <div className="field">
-                                  <label>CVV</label>
-                                  <input type="password" inputMode="numeric" placeholder="123" value={cardCvv} onChange={(e) => setCardCvv(e.target.value)} autoComplete="cc-csc" />
-                                </div>
-                              </div>
-                            </div>
-                          )}
 
                           <button type="submit" className="button fill uppercase checkout-submit" disabled={placing}>
                             {placing ? 'Placing Order...' : 'Place Order'}

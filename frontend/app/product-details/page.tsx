@@ -326,15 +326,14 @@ function ProductDetailsInner({ id, slug }: { id?: string; slug?: string }) {
       await addItem({
         productId: product.ID,
         variationId: bestMatch?.ID,
-        title: product.title,
-        price: displayPrice ?? priceMin,
+        // title and price removed — backend fetches from DB
         color: selectedColor || undefined,
         size: selectedSize || undefined,
         quantity,
         image: productImage,
       });
       setAddedFlash(true);
-      setTimeout(() => setAddedFlash(false), 4000);
+      setTimeout(() => setAddedFlash(false), 2000);
     } catch (err) {
       console.error('Add to cart failed:', err);
     }
@@ -628,14 +627,6 @@ function ProductDetailsInner({ id, slug }: { id?: string; slug?: string }) {
               </svg>
             </button>
           </div>
-
-          {/* ── Added to cart confirmation ── */}
-          {addedFlash && (
-            <div className="cpd-added-msg">
-              <span>✓ Product added to cart.</span>
-              <Link href="/cart" className="cpd-added-view-cart">View Cart →</Link>
-            </div>
-          )}
 
           {/* ── Meta ── */}
           <div className="cpd-meta">

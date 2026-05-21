@@ -1,7 +1,5 @@
 const db = require("../config/db");
 const https = require("https");
-const fs = require("fs");
-const path = require("path");
 const { getSessionUser } = require("./session");
 const { getCartIdentity } = require("./cartController");
 const {
@@ -27,21 +25,9 @@ const toInt = (val, fallback = 0) => {
 const BREVO_API_KEY =
   process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY || "";
 const BREVO_SENDER_EMAIL =
-  process.env.BREVO_SENDER_EMAIL ;
+  process.env.BREVO_SENDER_EMAIL;
 const BREVO_SENDER_NAME = process.env.BREVO_SENDER_NAME || "NESTCASE";
-const BREVO_LOGO_URL = process.env.BREVO_LOGO_URL || "";
-const DEFAULT_LOGO_PATH = path.join(
-  __dirname,
-  "..",
-  "..",
-  "frontend",
-  "public",
-  "images",
-  "logo-white.png",
-);
 const DEFAULT_COUNTRY = process.env.DEFAULT_COUNTRY || "India";
-
-let cachedLogoDataUri = "";
 
 function formatMoney(amount) {
   const value = Number(amount);
@@ -56,21 +42,6 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
-}
-
-function getLogoDataUri() {
-  if (cachedLogoDataUri) return cachedLogoDataUri;
-  const logoPath =
-    process.env.BREVO_LOGO_PATH || process.env.LOGO_PATH || DEFAULT_LOGO_PATH;
-  try {
-    if (!fs.existsSync(logoPath)) return "";
-    const buffer = fs.readFileSync(logoPath);
-    cachedLogoDataUri = `data:image/png;base64,${buffer.toString("base64")}`;
-    return cachedLogoDataUri;
-  } catch (err) {
-    console.error("Failed to load logo for email:", err);
-    return "";
-  }
 }
 
 async function sendBrevoEmail({ toEmail, toName, subject, html }) {
@@ -513,7 +484,52 @@ const placeOrder = async (req, res) => {
       }
     }
 
-    // ── 2. Calculate totals ───────────────────────────────────────────────────
+    // ── 2. Fetch live prices from DB (never trust cart_items.price) ──────────
+    // This prevents price-tampering via Burp Suite / DevTools and ensures
+    // the customer always pays the current admin-configured price.
+    for (const item of cartItems) {
+      const checkId =
+        item.variation_id && Number(item.variation_id) > 0
+          ? item.variation_id
+          : item.product_id;
+
+      const [[priceRow]] = await conn.query(
+        `SELECT CAST(meta_value AS DECIMAL(10,2)) AS price
+         FROM tbl_productmeta
+         WHERE product_id = ? AND meta_key = '_price'
+         ORDER BY meta_id DESC LIMIT 1`,
+        [checkId],
+      );
+
+      // If variation had no price, fall back to parent product price
+      let livePrice = priceRow ? Number(priceRow.price) : null;
+      if (livePrice === null) {
+        const [[parentPriceRow]] = await conn.query(
+          `SELECT CAST(meta_value AS DECIMAL(10,2)) AS price
+           FROM tbl_productmeta
+           WHERE product_id = ? AND meta_key = '_price'
+           ORDER BY meta_id DESC LIMIT 1`,
+          [item.product_id],
+        );
+        livePrice = parentPriceRow ? Number(parentPriceRow.price) : 0;
+      }
+
+      // Fetch live title from tbl_products
+      const [[titleRow]] = await conn.query(
+        `SELECT product_title FROM tbl_products WHERE ID = ? LIMIT 1`,
+        [item.product_id],
+      );
+
+      // Overwrite the in-memory item — cart_items row is NOT updated here;
+      // getCart already returns live data. We just need the correct value
+      // for this order's subtotal and order_items records.
+      item.price = livePrice;
+      if (titleRow && titleRow.product_title) {
+        item.title = titleRow.product_title;
+      }
+    }
+
+    // ── 2b. Calculate totals with verified live prices ────────────────────────
     const subtotal = cartItems.reduce(
       (sum, item) => sum + toAmount(item.price) * Number(item.quantity || 0),
       0,
@@ -807,16 +823,6 @@ const placeOrder = async (req, res) => {
     try {
       const toEmail = billing.email;
       const toName = `${billing.first_name} ${billing.last_name}`.trim();
-      const frontendBase = (process.env.FRONTEND_URL || "").replace(/\/+$/, "");
-      const isLocalHost = /localhost|127\.0\.0\.1/.test(frontendBase);
-      let logoSrc = "";
-      if (BREVO_LOGO_URL) {
-        logoSrc = BREVO_LOGO_URL;
-      } else if (frontendBase && !isLocalHost) {
-        logoSrc = `${frontendBase}/store/images/logo-white.png`;
-      } else {
-        logoSrc = getLogoDataUri();
-      }
       const itemRows = cartItems
         .map((item) => {
           const title = escapeHtml(item.title || "Item");
@@ -849,7 +855,7 @@ const placeOrder = async (req, res) => {
                       <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
                         <tr>
                           <td>
-                            ${logoSrc ? `<img src="${logoSrc}" alt="NESTCASE" style="height:40px; width:auto; display:block;" />` : `<div style="color:#fff; font-size:20px; letter-spacing:2px; font-weight:700;">COFFR</div>`}
+                            <div style="color:#fff; font-size:20px; letter-spacing:2px; font-weight:700; font-family:Arial,sans-serif;">NESTCASE</div>
                           </td>
                           <td style="text-align:right; color:#fff; font-family: Arial, sans-serif; font-size:12px;">
                             <div style="opacity:0.85;">Order Confirmed</div>
@@ -983,7 +989,9 @@ const placeOrder = async (req, res) => {
 
     res.status(500).json({
       success: false,
-      message: err.message,
+      message: process.env.NODE_ENV === 'production'
+        ? 'Something went wrong. Please try again.'
+        : err.message,
     });
   } finally {
     conn.release();
