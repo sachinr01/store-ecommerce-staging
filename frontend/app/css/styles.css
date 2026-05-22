@@ -3982,7 +3982,7 @@ input[type="checkbox"] {
 /* ========================================== FULL-WIDTH BANNER ================================== */
 .video-banner {
   width: 100%;
-  height: 468px;
+  height: 654px;
   position: relative;
   overflow: hidden;
 }
@@ -4204,7 +4204,7 @@ input[type="checkbox"] {
   }
 
   .video-banner {
-    height: 380px;
+    height: 473px;
   }
 }
 
@@ -4255,7 +4255,7 @@ input[type="checkbox"] {
   }
 
   .video-banner {
-    height: 158px;
+    height: 198px;
   }
 
   .video-banner-btn {
@@ -4295,7 +4295,7 @@ input[type="checkbox"] {
   }
 
   .video-banner {
-    height: 158px;
+    height: 199px;
   }
 
   .gifting-collage {

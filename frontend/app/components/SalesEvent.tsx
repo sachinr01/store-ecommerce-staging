@@ -5,7 +5,7 @@ export default function VideoBanner() {
   return (
     <section className="video-banner">
       <Image
-        src="/store/images/ecommerce/FILLER_BANNER.png"
+        src="/store/images/ecommerce/Full_Banner.png"
         alt="Banner"
         width={1920}
         height={450}

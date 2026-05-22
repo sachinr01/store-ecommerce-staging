@@ -628,6 +628,14 @@ function ProductDetailsInner({ id, slug }: { id?: string; slug?: string }) {
             </button>
           </div>
 
+          {/* ── Added to cart confirmation ── */}
+          {addedFlash && (
+            <div className="cpd-added-msg">
+              <span>✓ Product added to cart</span>
+              <Link href="/cart" className="cpd-added-view-cart">View Cart</Link>
+            </div>
+          )}
+
           {/* ── Meta ── */}
           <div className="cpd-meta">
             {(bestMatch?.sku || product.sku) && (
