@@ -287,6 +287,10 @@ export interface OrderDetailResponse {
     ship_country?: string | null;
     user_display_name?: string | null;
     user_email?: string | null;
+    awb_code?: string | null;
+    courier_name?: string | null;
+    shipping_status?: string | null;
+    shipment_id?: string | null;
   };
   items: OrderItemDetail[];
 }

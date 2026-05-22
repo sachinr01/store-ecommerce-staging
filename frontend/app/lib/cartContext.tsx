@@ -24,6 +24,10 @@ export interface CartItem {
   size?: string | null;
   quantity: number;
   image?: string | null;
+  weight?: string | null;
+  length?: string | null;
+  breadth?: string | null;
+  height?: string | null;
 }
 
 export type AddCartItem = {
@@ -94,6 +98,10 @@ function normalizeItem(raw: any): CartItem {
     size: raw.size ?? null,
     quantity: Number(raw.quantity || 0),
     image: raw.image ?? null,
+    weight: raw.weight ?? null,
+    length: raw.length ?? null,
+    breadth: raw.breadth ?? null,
+    height: raw.height ?? null,
   };
 }
 

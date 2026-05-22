@@ -937,13 +937,13 @@ const placeOrder = async (req, res) => {
     }
 
     if (shiprocketResponse.shipment_id) {
-       metaEntries.push(["_shiprocket_order_id", orderData.order_id]);
-       metaEntries.push(["_shiprocket_shipment_id", orderData.shipment_id]);
-       metaEntries.push(["_awb_code", awbData.response.data.awb_code]);
-       metaEntries.push(["_courier_id", awbData.response.data.courier_company_id]);
-       metaEntries.push(["_courier_name", awbData.response.data.courier_name]);
-       metaEntries.push(["_tracking_number", awbData.response.data.awb_code]);
-       metaEntries.push(["_freight_charges", awbData.response.data.freight_charges]);
+       metaEntries.push(["_shiprocket_order_id", shiprocketResponse.order_id]);
+       metaEntries.push(["_shiprocket_shipment_id", shiprocketResponse.shipment_id]);
+       metaEntries.push(["_awb_code", awbResponse?.response?.data?.awb_code || ""]);
+       metaEntries.push(["_courier_id", awbResponse?.response?.data?.courier_company_id || ""]);
+       metaEntries.push(["_courier_name", awbResponse?.response?.data?.courier_name || ""]);
+       metaEntries.push(["_tracking_number", awbResponse?.response?.data?.awb_code || ""]);
+       metaEntries.push(["_freight_charges", awbResponse?.response?.data?.freight_charges || ""]);
     }
 
     for (const [metaKey, metaValue] of metaEntries) {
