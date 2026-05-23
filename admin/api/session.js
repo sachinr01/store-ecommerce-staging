@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const db = require('../config/db');
 
 const COOKIE_NAME = process.env.SESSION_COOKIE_NAME || 'store_sid';
-const SESSION_SECRET = process.env.SESSION_SECRET || 'nestcase-right-2026-aFg7G9dnsk';
+const SESSION_SECRET = process.env.SESSION_SECRET;
 const TTL_DAYS = Number.parseInt(process.env.SESSION_TTL_DAYS || '7', 10);
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const DEFAULT_SAMESITE = NODE_ENV === 'production' ? 'none' : 'lax';

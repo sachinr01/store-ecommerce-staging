@@ -827,7 +827,7 @@ export default function CheckoutPage() {
                 billing,
                 shipping,
                 payment_method: 'razorpay',
-                shipping_cost: 0,
+                shipping_cost: shippingCost,
                 notes,
                 cart_item_ids: items.map((item) => item.cartItemId),
 
