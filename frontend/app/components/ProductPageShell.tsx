@@ -502,23 +502,6 @@ export default function ProductPageShell({ product }: { product: ProductDetail }
             )}
           </div>
 
-          {/* ── Trust badges ── */}
-          <div className="cpd-trust-row">
-            {[
-              { icon: '🚚', label: 'Free Shipping', sub: 'Orders over ₹75' },
-              { icon: '↩',  label: 'Easy Returns',  sub: '30-day policy' },
-              { icon: '🔒', label: 'Secure Payment', sub: 'SSL encrypted' },
-            ].map(b => (
-              <div key={b.label} className="cpd-trust-badge">
-                <span className="cpd-trust-icon">{b.icon}</span>
-                <div>
-                  <div className="cpd-trust-label">{b.label}</div>
-                  <div className="cpd-trust-sub">{b.sub}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
           {/* ── Description ── */}
           <div className="cpd-tabs-section cpd-tabs-section-inline">
             <h5 className="cpd-section-heading">Description</h5>

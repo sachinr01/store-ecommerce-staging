@@ -3197,7 +3197,7 @@ input[type="checkbox"] {
 .na-save-badge {
   font-size: 11px;
   font-weight: 600;
-  color: #22311d;
+  color: red;
   white-space: nowrap;
 }
 
@@ -3251,7 +3251,7 @@ input[type="checkbox"] {
 
 @media (max-width: 768px) {
   .featured-collections-section {
-    padding: 20px 0 20px;
+    padding: 30px 0 30px;
   }
 
   .featured-collections-section .section-title {
@@ -3303,7 +3303,7 @@ input[type="checkbox"] {
 
 @media (max-width: 480px) {
   .featured-collections-section {
-    padding-top: 16px;
+    padding: 30px 0;
   }
 
   .featured-mobile-grid {
@@ -3421,7 +3421,7 @@ input[type="checkbox"] {
 
 /* ===== frontend/app/components/GiftingWorld.css ===== */
 .gw-section {
-  padding: 60px 0;
+  padding: 30px 0;
   background: #fff;
 }
 
@@ -3478,7 +3478,7 @@ input[type="checkbox"] {
 
 @media (max-width: 768px) {
   .gw-section {
-    padding: 60px 0;
+    padding: 30px 0;
   }
 
   .gw-grid {
@@ -3683,7 +3683,7 @@ input[type="checkbox"] {
 /* ================================== TRENDING CATEGORIES =================================== */
 .featured-collections-section {
   background: #fff;
-  padding: 60px 0 60px;
+  padding: 30px 0 30px;
 }
 .featured-collections {
   display: flex;
@@ -5491,8 +5491,8 @@ input[type="checkbox"] {
   font-family: var(--font-body);
   font-size: 12px;
   font-weight: 600;
-  color: #22311d;
-  white-space: nowrap;
+  color: red;
+  /* white-space: nowrap; */
 }
 
 .csp-stock-label {
@@ -6121,9 +6121,12 @@ input[type="checkbox"] {
 
 .cpd-save-badge {
   font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--cpd-sale);
+  font-size: 13px;
+  font-weight: 700;
+  color: red;
+  /* background: red; */
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 .cpd-divider {
@@ -6387,7 +6390,7 @@ input[type="checkbox"] {
   display: flex;
   gap: 10px;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 22px;
   flex-wrap: wrap;
 }
 
@@ -6567,44 +6570,6 @@ input[type="checkbox"] {
   font-size: 12px;
 }
 
-/* Trust badges */
-.cpd-trust-row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  padding-top: 16px;
-  border-top: 1px solid var(--cpd-border);
-}
-
-.cpd-trust-badge {
-  flex: 1;
-  min-width: 90px;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 11px 13px;
-  background: #f9f9f9;
-  border: 1px solid var(--cpd-border);
-}
-
-.cpd-trust-icon {
-  font-size: 20px;
-  flex-shrink: 0;
-}
-
-.cpd-trust-label {
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--cpd-text);
-  line-height: 1.3;
-}
-
-.cpd-trust-sub {
-  font-family: var(--font-body);
-  font-size: 11px;
-  color: var(--cpd-muted);
-}
 
 /* Accordion */
 .cpd-accordion {
@@ -7267,9 +7232,6 @@ input[type="checkbox"] {
     max-width: 200px;
   }
 
-  .cpd-trust-badge {
-    min-width: 80px;
-  }
 
   .cpd-heading-row {
     align-items: flex-start;

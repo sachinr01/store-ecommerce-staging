@@ -18,8 +18,8 @@ export const metadata: Metadata = {
   description:
     'Discover Nestcase premium bone-ash-free crockery, lead-free glassware, 304 food-grade stainless steel cutlery, bottles and bar accessories. Shop health-friendly dinnerware at Nestcase for a stylish and healthy lifestyle.',
   keywords: [
-    'hoodies', 'custom mugs', 'tumblers', 'decals', 'koozies',
-    'online store', 'custom gifts', 'spring summer 2026',
+    'dinnerware', 'crockery', 'tumblers', 'luxury dining', 'glassware',
+    'cutlery', 'custom gifts', 'serving bowls', 'ceramic dinner sets',
   ],
   alternates: { canonical: SITE_URL },
   openGraph: {
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     title: `${SITE_NAME} | Premium Dinnerware & Lifestyle Products for Modern Home`,
     description:
       'Discover Nestcase premium bone-ash-free crockery, lead-free glassware, 304 food-grade stainless steel cutlery, bottles and bar accessories. Shop health-friendly dinnerware at Nestcase for a stylish and healthy lifestyle.',
-    images: [`${SITE_URL}/images/Netcase.webp`],
+    images: [`${SITE_URL}/images/nestcase-logo-optimized.png`],
   },
   robots: { index: true, follow: true },
 };
