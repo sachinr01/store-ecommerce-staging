@@ -2,73 +2,30 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { getImageUrl, type ProductDetail } from '../lib/api';
 import Header from './Header';
 import Footer from './Footer';
-import { getImageUrl, type ProductDetail } from '../lib/api';
 import { formatPrice, formatPriceRange } from '../lib/price';
 import { getDiscountPercent, isSaleDateActive } from '../lib/helpers/pricing';
 import { sanitizeHtml } from '../lib/helpers/html';
+import {
+  getSwatchStyle,
+  hasColors as productHasColors,
+  hasSizes as productHasSizes,
+  hasFullSelection as productHasFullSelection,
+  resolveVariation,
+  colorHasStock,
+  sizeHasStock,
+  isVariationInStock,
+  resolveInStock,
+} from '../lib/product/variations';
 import { useCart } from '../lib/cartContext';
 import { useWishlist } from '../lib/wishlistContext';
 import { usePlaceholderImage } from '../lib/siteSettingsContext';
+import StarRating from './StarRating';
 
-type SwatchStyle = { style: { background?: string }; isLight: boolean };
 
-function getSwatchStyle(c: { attr_name?: string; attr_slug?: string }): SwatchStyle {
-  const slug = (c.attr_slug ?? '').toLowerCase().replace(/[_]+/g, '-').trim();
-  if (slug === 'blue-ocean-camo' || slug === 'blue-camo')
-    return { style: { background: 'linear-gradient(135deg, #0f766e 0%, #3b82f6 45%, #1f2937 100%)' }, isLight: false };
-  if (slug === 'white-ocean-camo' || slug === 'white-camo')
-    return { style: { background: 'linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 50%, #f8fafc 100%)' }, isLight: true };
-  if (slug === 'navy-tumbler')
-    return { style: { background: 'linear-gradient(135deg, #1b2a4a 0%, #2d4a8a 100%)' }, isLight: false };
-  if (slug.includes('camo'))
-    return { style: { background: 'linear-gradient(135deg, #4d7c0f 0%, #365314 50%, #1c2a0a 100%)' }, isLight: false };
-  if (slug.includes('stripe') || slug.includes('striper'))
-    return { style: { background: 'repeating-linear-gradient(45deg, #111 0 6px, #f5f5f5 6px 12px)' }, isLight: false };
-  if (slug.includes('multi'))
-    return { style: { background: 'linear-gradient(135deg, #f59e0b 0%, #ec4899 45%, #3b82f6 100%)' }, isLight: false };
-  if (slug === 'ice-blue') return { style: { background: '#cfe8ff' }, isLight: true };
-  if (slug === 'light-blue' || slug === 'aqua' || slug === 'water-blue')
-    return { style: { background: '#8ec5ff' }, isLight: true };
-  if (slug === 'navy') return { style: { background: '#1b2a4a' }, isLight: false };
-  if (slug === 'blue') return { style: { background: '#1f6feb' }, isLight: false };
-  if (slug === 'turquoise') return { style: { background: '#0d9488' }, isLight: false };
-  if (slug === 'mint') return { style: { background: '#6ee7b7' }, isLight: true };
-  if (slug === 'pink') return { style: { background: '#f472b6' }, isLight: true };
-  if (slug === 'rose') return { style: { background: '#fb7185' }, isLight: false };
-  if (slug === 'red') return { style: { background: '#dc2626' }, isLight: false };
-  if (slug === 'citrus' || slug === 'yellow') return { style: { background: '#fde047' }, isLight: true };
-  if (slug === 'orange') return { style: { background: '#f97316' }, isLight: false };
-  if (slug === 'gold') return { style: { background: '#d4af37' }, isLight: true };
-  if (slug === 'silver' || slug === 'steel' || slug === 'chrome' || slug === 'metal')
-    return { style: { background: '#b5bcc8' }, isLight: true };
-  if (slug === 'gray' || slug === 'grey' || slug === 'smoke' || slug === 'concrete')
-    return { style: { background: '#9ca3af' }, isLight: true };
-  if (slug === 'beige' || slug === 'natural' || slug === 'tan')
-    return { style: { background: '#f5f0e6' }, isLight: true };
-  if (slug === 'brown' || slug === 'wood') return { style: { background: '#8b5a2b' }, isLight: false };
-  if (slug === 'glass') return { style: { background: '#e5f6ff' }, isLight: true };
-  if (slug === 'white') return { style: { background: '#ffffff' }, isLight: true };
-  if (slug === 'black') return { style: { background: '#111111' }, isLight: false };
-  if (slug === 'green') return { style: { background: '#16a34a' }, isLight: false };
-  if (slug === 'purple') return { style: { background: '#7c3aed' }, isLight: false };
-  return { style: { background: '#cbd5e1' }, isLight: true };
-}
 
-function StarRating({ rating, size = 16 }: { rating: number; size?: number }) {
-  return (
-    <span style={{ display: 'inline-flex', gap: 2 }}>
-      {[1, 2, 3, 4, 5].map(i => (
-        <svg key={i} width={size} height={size} viewBox="0 0 24 24"
-          fill={i <= Math.round(rating) ? '#f59e0b' : 'none'}
-          stroke="#f59e0b" strokeWidth="1.5">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-      ))}
-    </span>
-  );
-}
 
 function AccordionItem({ label, content }: { label: string; content: string }) {
   const [open, setOpen] = useState(false);
@@ -111,30 +68,12 @@ export default function ProductPageShell({ product }: { product: ProductDetail }
   useEffect(() => { setMainImage(0); }, [selectedColor]);
 
   /* -- Variation logic -- */
-  const hasColors = product.variations.some(v => v.color) || (product.attributes?.colors?.length ?? 0) > 0;
-  const hasSizes  = product.variations.some(v => v.size)  || (product.attributes?.sizes?.length ?? 0) > 0;
+  const hasColors = productHasColors(product);
+  const hasSizes  = productHasSizes(product);
+  const sel       = { selectedColor, selectedSize };
 
-  const normalize = (v: string) => v.toLowerCase().trim().replace(/\s+/g, '-');
-  const isVariationInStock = (v: { stock_status?: string | null; stock_qty?: string | null }) => {
-    if (v.stock_status !== 'instock' && v.stock_status !== 'onbackorder') return false;
-    if (v.stock_qty !== null && v.stock_qty !== undefined) {
-      const qty = Number(v.stock_qty);
-      if (!isNaN(qty) && qty <= 0) return false;
-    }
-    return true;
-  };
-
-  const hasFullSelection = (!hasColors || selectedColor) && (!hasSizes || selectedSize);
-
-  const selectedVariation = hasFullSelection
-    ? product.variations.find(v => {
-        const colorMatch = !hasColors || normalize(v.color ?? '') === normalize(selectedColor);
-        const sizeMatch  = !hasSizes  || normalize(v.size  ?? '') === normalize(selectedSize);
-        return colorMatch && sizeMatch;
-      })
-    : undefined;
-
-  const bestMatch = selectedVariation;
+  const hasFullSelection = productHasFullSelection(product, sel);
+  const bestMatch        = resolveVariation(product, sel);
 
   const currentRegular   = bestMatch ? Number(bestMatch.regular_price || 0) || null : null;
   const currentSalePrice = bestMatch?.sale_price && bestMatch.sale_price !== '' ? Number(bestMatch.sale_price) : null;
@@ -155,27 +94,8 @@ export default function ProductPageShell({ product }: { product: ProductDetail }
 
   const isAddToCartEnabled = !product.variations.length || hasFullSelection;
 
-  const colorHasStock = (colorSlug: string) => {
-    if (!product.variations.length) return true;
-    const colorKey = normalize(colorSlug);
-    return product.variations.some(v => {
-      if (!isVariationInStock(v)) return false;
-      if (colorKey && normalize(v.color ?? '') !== colorKey) return false;
-      if (selectedSize && normalize(v.size ?? '') !== normalize(selectedSize)) return false;
-      return true;
-    });
-  };
-
-  const sizeHasStock = (sizeSlug: string) => {
-    if (!product.variations.length) return true;
-    const sizeKey = normalize(sizeSlug);
-    return product.variations.some(v => {
-      if (!isVariationInStock(v)) return false;
-      if (sizeKey && normalize(v.size ?? '') !== sizeKey) return false;
-      if (selectedColor && normalize(v.color ?? '') !== normalize(selectedColor)) return false;
-      return true;
-    });
-  };
+  const inStock    = resolveInStock(product, sel, bestMatch);
+  const canAddToCart = isAddToCartEnabled && inStock;
 
   const shortDescHtml     = sanitizeHtml(product.short_description || '', { normalizeSpecLists: false });
   const variationDescHtml = sanitizeHtml(bestMatch?.variation_description || '', { normalizeSpecLists: false });
@@ -192,19 +112,6 @@ export default function ProductPageShell({ product }: { product: ProductDetail }
     { id: 'acc5', label: 'Care',       content: sanitizeHtml(product.product_care       || '', { normalizeSpecLists: false }) },
     { id: 'acc6', label: 'More Info',  content: sanitizeHtml(product.product_more_info  || '', { normalizeSpecLists: false }) },
   ].filter(item => item.content.trim());
-
-  const anyInStock = product.variations.length
-    ? product.variations.some(isVariationInStock)
-    : (product.stock_status === 'instock' || product.stock_status === 'onbackorder') &&
-      (product.stock_qty === null || product.stock_qty === undefined || Number(product.stock_qty) > 0);
-
-  const inStock = product.variations.length === 0
-    ? anyInStock
-    : hasFullSelection
-      ? (bestMatch ? isVariationInStock(bestMatch) : false)
-      : anyInStock;
-
-  const canAddToCart = isAddToCartEnabled && inStock;
 
   const handleAddToCart = async () => {
     if (!canAddToCart) return;
@@ -387,7 +294,7 @@ export default function ProductPageShell({ product }: { product: ProductDetail }
               <div className="cpd-color-row">
                 {product.attributes.colors.map(c => {
                   const swatch = getSwatchStyle(c);
-                  const colorInStock = product.variations.length > 0 ? colorHasStock(c.attr_slug) : true;
+                  const colorInStock = product.variations.length > 0 ? colorHasStock(product, c.attr_slug, selectedSize) : true;
                   return (
                     <button key={c.attr_id}
                       title={!colorInStock ? `${c.attr_name} — Out of Stock` : c.attr_name}
@@ -419,7 +326,7 @@ export default function ProductPageShell({ product }: { product: ProductDetail }
               </div>
               <div className="cpd-size-row">
                 {product.attributes.sizes.map(s => {
-                  const sizeInStock = sizeHasStock(s.attr_slug);
+                  const sizeInStock = sizeHasStock(product, s.attr_slug, selectedColor);
                   return (
                     <button key={s.attr_id}
                       title={!sizeInStock ? `${s.attr_name} — Out of Stock` : s.attr_name}
