@@ -317,85 +317,70 @@ async function getShippingRate(req, res) {
     console.log(error.response?.data || error.message);
 
     return res.status(500).json({
-      success:false,
-      message:"Unable to get shipping rate"
+      success: false,
+      message: "Unable to get shipping rate",
     });
   }
 }
 
-async function getTrackingStatus(req,res){
-    try{
+async function getTrackingStatus(req, res) {
+  try {
+    const token = await getShiprocketToken();
 
-        const token = await getShiprocketToken();
+    const { awb } = req.params;
 
-        const {awb} = req.params;
+    const response = await axios.get(
+      `https://apiv2.shiprocket.in/v1/external/courier/track/awb/${awb}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
 
-        const response = await axios.get(
-            `https://apiv2.shiprocket.in/v1/external/courier/track/awb/${awb}`,
-            {
-                headers:{
-                    Authorization:`Bearer ${token}`
-                }
-            }
-        );
+    const tracking = response.data?.tracking_data;
 
-        const tracking =
-            response.data?.tracking_data;
+    const shiprocketStatus =
+      tracking?.shipment_track?.[0]?.current_status || "Pending";
 
-        const shiprocketStatus =
-            tracking?.shipment_track?.[0]
-            ?.current_status || "Pending";
+    // Map Shiprocket statuses
+    const statusMap = {
+      NEW: "Order Confirmed",
+      "PICKUP SCHEDULED": "Packed",
+      "PICKED UP": "Shipped",
+      "IN TRANSIT": "In Transit",
+      "OUT FOR DELIVERY": "Out for Delivery",
+      DELIVERED: "Delivered",
+      CANCELLED: "Cancelled",
+      "RTO INITIATED": "Return Initiated",
+      "RTO DELIVERED": "Returned",
+    };
 
-        // Map Shiprocket statuses
-        const statusMap = {
-            "NEW":"Order Confirmed",
-            "PICKUP SCHEDULED":"Packed",
-            "PICKED UP":"Shipped",
-            "IN TRANSIT":"In Transit",
-            "OUT FOR DELIVERY":"Out for Delivery",
-            "DELIVERED":"Delivered",
-            "CANCELLED":"Cancelled",
-            "RTO INITIATED":"Return Initiated",
-            "RTO DELIVERED":"Returned"
-        };
+    const finalStatus = statusMap[shiprocketStatus] || shiprocketStatus;
 
-        const finalStatus =
-            statusMap[shiprocketStatus] ||
-            shiprocketStatus;
-
-        // update order table
-        await db.query(
-            `
+    // update order table
+    await db.query(
+      `
             UPDATE orders
             SET
                 order_status=?
             WHERE awb_code=?
             `,
-            [
-                finalStatus,
-                awb
-            ]
-        );
+      [finalStatus, awb],
+    );
 
-        return res.json({
-            success:true,
-            current_status:finalStatus,
-            activities:
-                tracking?.shipment_track_activities || []
-        });
+    return res.json({
+      success: true,
+      current_status: finalStatus,
+      activities: tracking?.shipment_track_activities || [],
+    });
+  } catch (error) {
+    console.log("Tracking Error:", error.response?.data || error.message);
 
-    }catch(error){
-
-        console.log(
-            "Tracking Error:",
-            error.response?.data ||
-            error.message
-        );
-
-        return res.status(500).json({
-            success:false
-        });
-    }
+    return res.status(500).json({
+      success: false,
+    });
+  }
 }
 
 function formatMoney(amount) {
@@ -1103,19 +1088,19 @@ const placeOrder = async (req, res) => {
       // When false, Shiprocket requires the full shipping_* fields below;
       // without them it silently falls back to billing and delivers to the wrong address.
       shipping_is_billing:
-        shipping.address  === billing.address &&
-        shipping.city     === billing.city    &&
+        shipping.address === billing.address &&
+        shipping.city === billing.city &&
         shipping.postcode === billing.postcode,
 
       shipping_customer_name: shipping.first_name,
-      shipping_last_name:     shipping.last_name,
-      shipping_address:       shipping.address,
-      shipping_address_2:     shipping.address_2 || "",
-      shipping_city:          shipping.city,
-      shipping_pincode:       shipping.postcode,
-      shipping_state:         shipping.state,
-      shipping_country:       "India",
-      shipping_phone:         shipping.phone,
+      shipping_last_name: shipping.last_name,
+      shipping_address: shipping.address,
+      shipping_address_2: shipping.address_2 || "",
+      shipping_city: shipping.city,
+      shipping_pincode: shipping.postcode,
+      shipping_state: shipping.state,
+      shipping_country: "India",
+      shipping_phone: shipping.phone,
 
       order_items: cartItems.map((item) => ({
         name: item.title || "Product",
@@ -1181,26 +1166,21 @@ const placeOrder = async (req, res) => {
         awbResponse?.response?.data?.freight_charges,
       );
 
-        await conn.query(
-          `UPDATE tbl_orders
+      await conn.query(
+        `UPDATE tbl_orders
            SET shipment_id    = ?,
                awb_code       = ?,
                courier_name   = ?,
                shipping_status = ?
            WHERE order_id = ?`,
-          [
-            shiprocketResponse.shipment_id || "",
-            awbResponse?.response?.data?.awb_code    || "",
-            awbResponse?.response?.data?.courier_name || "",
-            "new",
-            orderId,
-          ],
-        );
-      }
-    } catch (shipErr) {
-      // Non-fatal — log for ops team to manually push to Shiprocket if needed.
-      // Order commit continues below; customer payment is not affected.
-      console.error("Shiprocket failed (non-fatal), orderId:", orderId, shipErr.message);
+        [
+          shiprocketResponse.shipment_id || "",
+          awbResponse?.response?.data?.awb_code || "",
+          awbResponse?.response?.data?.courier_name || "",
+          "new",
+          orderId,
+        ],
+      );
     }
 
     // end shiprocket code
@@ -1602,9 +1582,6 @@ const placeOrder = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    try {
-      await conn.rollback();
-    } catch (_) {}
 
     res.status(500).json({
       success: false,
@@ -1971,7 +1948,9 @@ const getAllOrders = async (_req, res) => {
        ORDER BY MAX(o.order_date) DESC`,
     );
 
-    const orderIds = orders.map((order) => Number(order.order_id)).filter(Boolean);
+    const orderIds = orders
+      .map((order) => Number(order.order_id))
+      .filter(Boolean);
     if (!orderIds.length) {
       return res.json({ success: true, data: orders });
     }
@@ -2001,7 +1980,10 @@ const getAllOrders = async (_req, res) => {
         order.subtotal ? Number(order.subtotal) : 0,
       );
       order.item_count = effectiveItems.length;
-      order.items = effectiveItems.map((item) => item.order_item_name).filter(Boolean).join(", ");
+      order.items = effectiveItems
+        .map((item) => item.order_item_name)
+        .filter(Boolean)
+        .join(", ");
     }
 
     res.json({ success: true, data: orders });
@@ -2246,7 +2228,9 @@ const updateOrderStatus = async (req, res) => {
     "wc-failed",
   ];
   if (!VALID_STATUSES.includes(status)) {
-    return res.status(400).json({ success: false, message: "Invalid order status." });
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid order status." });
   }
 
   const STOCK_RESTORE_STATUSES = ["wc-cancelled", "wc-refunded", "wc-failed"];
@@ -2349,15 +2333,15 @@ async function getTrackingStatus(req, res) {
     // Only store known, mapped statuses — never write raw Shiprocket strings
     // into order_status, which would break admin/customer status display.
     const STATUS_MAP = {
-      "NEW":               "Order Confirmed",
-      "PICKUP SCHEDULED":  "Packed",
-      "PICKED UP":         "Shipped",
-      "IN TRANSIT":        "In Transit",
-      "OUT FOR DELIVERY":  "Out for Delivery",
-      "DELIVERED":         "Delivered",
-      "CANCELLED":         "Cancelled",
-      "RTO INITIATED":     "Return Initiated",
-      "RTO DELIVERED":     "Returned",
+      NEW: "Order Confirmed",
+      "PICKUP SCHEDULED": "Packed",
+      "PICKED UP": "Shipped",
+      "IN TRANSIT": "In Transit",
+      "OUT FOR DELIVERY": "Out for Delivery",
+      DELIVERED: "Delivered",
+      CANCELLED: "Cancelled",
+      "RTO INITIATED": "Return Initiated",
+      "RTO DELIVERED": "Returned",
     };
 
     // Unknown Shiprocket statuses default to "In Transit" — safe fallback
