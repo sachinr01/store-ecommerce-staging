@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 export default function Slider() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -23,11 +24,14 @@ export default function Slider() {
           key={index}
           className={`slider-slide ${index === currentSlide ? "active" : "inactive"}`}
         >
-          <img
-            src={slide.image}
-            alt="Slider"
-            className="slider-bg-img"
-          />
+          <Link href="/shop" aria-label="Shop now">
+            <img
+              src={slide.image}
+              alt="Slider"
+              className="slider-bg-img"
+              style={{ cursor: "pointer" }}
+            />
+          </Link>
         </div>
       ))}
 

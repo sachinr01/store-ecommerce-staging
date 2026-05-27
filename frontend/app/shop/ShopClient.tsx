@@ -6,19 +6,11 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { ShopGridSkeleton, ShopSidebarSkeleton } from './ShopSkeleton';
-import { getProducts, getAllAttributeGroups, getImageUrl, type Product, type AttributeGroup, getProductCategories, getCategoryProducts, type ProductCategory } from '../lib/api';
+import { getProducts, getAllAttributeGroups, type Product, type AttributeGroup, getProductCategories, getCategoryProducts, type ProductCategory } from '../lib/api';
 import { formatPrice, formatPriceRange, CURRENCY } from '../lib/price';
-import { getDiscountPercent, isSaleDateActive } from '../lib/helpers/pricing';
-import { useWishlist } from '../lib/wishlistContext';
 import { usePlaceholderImage } from '../lib/siteSettingsContext';
+import ShopProductCard from './ShopProductCard';
 
-
-const toSlug = (value: string): string =>
-  value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
 
 const DEFAULT_OPEN_FILTERS: Record<string, boolean> = {};
 
@@ -33,112 +25,6 @@ function MiniStars({ rating = 4 }: { rating?: number }) {
         </svg>
       ))}
     </span>
-  );
-}
-
-/* Product Card */
-function ShopProductCard({ product, idx, listMode }: { product: Product; idx: number; listMode?: boolean }) {
-  const [hovered, setHovered] = useState(false);
-  const { hasItem, addItem, removeItem } = useWishlist();
-  const PLACEHOLDER = usePlaceholderImage();
-  const inWishlist = hasItem(product.ID);
-
-  const isOutOfStock =
-    (product.stock_status !== 'instock' && product.stock_status !== 'onbackorder') ||
-    (product.stock_qty !== null && product.stock_qty !== undefined && Number(product.stock_qty) <= 0);
-
-  const slugBase = toSlug(product.slug || product.title) || 'product';
-  const productHref = `/shop/product/${slugBase}`;
-
-  const priceMin = Number(product.price_min ?? 0);
-  const priceMax = Number(product.price_max ?? product.price_min ?? 0);
-  const showRange = priceMin > 0 && priceMax > priceMin;
-  const salePrice = product._sale_price ? Number(product._sale_price) : null;
-  const regularPrice = product._regular_price ? Number(product._regular_price) : null;
-  const displayPrice = salePrice ?? regularPrice ?? (priceMin > 0 ? priceMin : null);
-  const isOnSale = !showRange && salePrice !== null && salePrice > 0 && isSaleDateActive(product._sale_price_dates_from, product._sale_price_dates_to);
-  const priceStr = showRange ? formatPriceRange(priceMin, priceMax) : (displayPrice ? formatPrice(displayPrice) : '');
-  const discountPercent = showRange ? null : getDiscountPercent(salePrice, regularPrice);
-
-  return (
-    <div
-      className="csp-card"
-      style={{ animationDelay: `${Math.min(idx * 40, 400)}ms` }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <div className="csp-img-wrap">
-        <Link href={productHref} tabIndex={-1} aria-hidden="true">
-          <img
-            src={getImageUrl(product.thumbnail_url, PLACEHOLDER)}
-            alt={product.title}
-            className={`csp-img${hovered ? ' zoomed' : ''}`}
-            loading={idx < 8 ? 'eager' : 'lazy'}
-            onError={e => { (e.target as HTMLImageElement).src = PLACEHOLDER; }}
-          />
-        </Link>
-
-        <div className="csp-badges">
-          {isOnSale && <span className="csp-badge sale">Sale</span>}
-          {isOutOfStock && <span className="csp-badge oos">Sold Out</span>}
-        </div>
-
-        <button
-          className={`csp-wishlist${inWishlist ? ' active' : ''}`}
-          aria-label={inWishlist ? `Remove ${product.title} from wishlist` : `Add ${product.title} to wishlist`}
-          onClick={async e => {
-            e.preventDefault();
-            try {
-              if (inWishlist) {
-                await removeItem(product.ID);
-              } else {
-                await addItem({
-                  id: product.ID,
-                  title: product.title,
-                  price: displayPrice ?? 0,
-                  image: getImageUrl(product.thumbnail_url, PLACEHOLDER),
-                  inStock: !isOutOfStock,
-                });
-              }
-            } catch {
-              // optimistic update already rolled back by context
-            }
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"
-            fill={inWishlist ? '#e74c3c' : 'none'}
-            stroke={inWishlist ? '#e74c3c' : 'currentColor'}
-            strokeWidth="1.8">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-          </svg>
-        </button>
-
-        <div className={`csp-overlay${hovered ? ' show' : ''}`} aria-hidden={!hovered}>
-          <Link href={productHref} className="csp-quick-view btn-view-product">View Product</Link>
-        </div>
-      </div>
-
-      <div className="csp-info">
-        <Link href={productHref} className="csp-name">{product.title}</Link>
-        <div className="csp-price-row">
-          {!showRange && salePrice !== null && regularPrice !== null && (
-            <span className="csp-old-price" aria-label="Regular price">
-              {formatPrice(regularPrice)}
-            </span>
-          )}
-          <span className={`csp-price${isOnSale ? ' sale' : ''}`}>{priceStr}</span>
-          {discountPercent !== null && (
-            <span className="csp-save-badge">{discountPercent}% off</span>
-          )}
-        </div>
-        {isOutOfStock && (
-          <span className="csp-stock-label out">Out of Stock</span>
-        )}
-        {listMode && product.short_description && (
-          <p className="csp-list-desc">{product.short_description.replace(/<[^>]+>/g, '')}</p>
-        )}
-      </div>
-    </div>
   );
 }
 
@@ -259,6 +145,7 @@ function FilterSection({
 
 /* Shop Page */
 function ShopInner({ heading, subheading }: { heading: string; subheading: string }) {
+  const PLACEHOLDER = usePlaceholderImage();
   const [products, setProducts] = useState<Product[]>([]);
   const [attrGroups, setAttrGroups] = useState<AttributeGroup[]>([]);
   const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
@@ -811,7 +698,7 @@ function ShopInner({ heading, subheading }: { heading: string; subheading: strin
           {!loading && !error && sorted.length > 0 && (
             <div className={`csp-grid${viewMode === 'list' ? ' list-mode' : ''}`} aria-label="Products">
               {sorted.map((product, idx) => (
-                <ShopProductCard key={product.ID} product={product} idx={idx} listMode={viewMode === 'list'} />
+                <ShopProductCard key={product.ID} product={product} idx={idx} listMode={viewMode === 'list'} placeholder={PLACEHOLDER} />
               ))}
             </div>
           )}

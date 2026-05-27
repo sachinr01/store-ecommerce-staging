@@ -66,12 +66,19 @@ async function validateCouponRules(coupon, userId, cartTotal, productIds, conn, 
   const query = conn.query.bind(conn);
 
   // ── 1. usage_limit_per_coupon ─────────────────────────────────────────────
+  // NOTE: No FOR UPDATE here. This function is called both from apply/active
+  // (uses the pool — autocommit, no open transaction) and from
+  // validateAndLockCoupon (uses a real conn inside BEGIN).
+  // FOR UPDATE on a SELECT COUNT(*) outside a transaction is a no-op:
+  // MySQL releases the lock immediately under autocommit, protecting nothing.
+  // The authoritative race-safe check happens in validateAndLockCoupon, which
+  // runs inside the order transaction and locks tbl_coupons FOR UPDATE before
+  // calling this function.
   if (coupon.usage_limit_per_coupon > 0) {
     const [[usageRow]] = await query(
       `SELECT COUNT(*) AS total_used
        FROM tbl_coupons_usage
-       WHERE coupon_id = ? AND order_id > 0
-       FOR UPDATE`,
+       WHERE coupon_id = ? AND order_id > 0`,
       [coupon.coupon_id]
     );
     if (usageRow.total_used >= coupon.usage_limit_per_coupon) {
@@ -84,8 +91,7 @@ async function validateCouponRules(coupon, userId, cartTotal, productIds, conn, 
     const [[userUsage]] = await query(
       `SELECT COUNT(*) AS user_used
        FROM tbl_coupons_usage
-       WHERE coupon_id = ? AND user_id = ? AND order_id > 0
-       FOR UPDATE`,
+       WHERE coupon_id = ? AND user_id = ? AND order_id > 0`,
       [coupon.coupon_id, userId]
     );
     if (userUsage.user_used >= coupon.usage_limit_per_user) {
@@ -165,7 +171,8 @@ async function validateCouponRules(coupon, userId, cartTotal, productIds, conn, 
     includeCategories.length > 0 ||
     excludeCategories.length > 0;
 
-  let eligibleSubtotal = cartTotal; // default: full cart eligible when no rules set
+  let eligibleSubtotal = cartTotal;   // default: full cart eligible when no rules set
+  let eligibleProductIds = productIds; // default: all products eligible when no rules set
 
   if (hasAnyProductRule) {
     // cartItems is required for accurate subtotal calculation
@@ -177,7 +184,7 @@ async function validateCouponRules(coupon, userId, cartTotal, productIds, conn, 
       };
     }
 
-    const eligibleProductIds = productIds.filter((pid) => {
+    eligibleProductIds = productIds.filter((pid) => {
       // (a) Explicitly included product → always eligible, skip all other checks
       if (includeProducts.length > 0 && includeProducts.includes(pid)) return true;
 
@@ -235,15 +242,9 @@ async function validateCouponRules(coupon, userId, cartTotal, productIds, conn, 
     };
   }
 
-  return { ok: true, eligibleSubtotal, eligibleProductIds: hasAnyProductRule ? (productIds.filter((pid) => {
-    if (includeProducts.length > 0 && includeProducts.includes(pid)) return true;
-    if (excludeProducts.length > 0 && excludeProducts.includes(pid)) return false;
-    const cats = productCatMap[pid] || [];
-    if (excludeCategories.length > 0 && cats.some((cid) => excludeCategories.includes(cid))) return false;
-    if (includeCategories.length > 0) return cats.some((cid) => includeCategories.includes(cid));
-    if (includeProducts.length > 0) return false;
-    return true;
-  })) : productIds };
+  // eligibleProductIds is already computed above inside the hasAnyProductRule block.
+  // Reuse it directly — no need to re-run the filter logic a second time.
+  return { ok: true, eligibleSubtotal, eligibleProductIds: hasAnyProductRule ? eligibleProductIds : productIds };
 }
 
 
@@ -331,9 +332,11 @@ const active = async (req, res) => {
 
       eligibleSubtotal = result.eligibleSubtotal;
       discount         = calculateDiscount(coupon, cartTotal, eligibleSubtotal, cartItems, result.eligibleProductIds);
-    } catch (_) {
+    } catch (activeCartErr) {
       // Cart unreadable due to a DB error — safest to strip the coupon and
       // return null rather than risk showing a wrong discount to the user.
+      // Log so DB failures are visible in server logs.
+      console.error('coupon/active: cart read or validation failed:', activeCartErr);
       delete req.sessionData.appliedCoupon;
       req.touchSession();
       return res.json({ success: true, coupon: null });
@@ -383,8 +386,11 @@ const apply = async (req, res) => {
     let cartItems = [];
     try {
       cartItems = await readCartItems(req, db);
-    } catch (_) {
-     
+    } catch (cartErr) {
+      // Do NOT proceed with cartItems = [] — minimum_spend would pass against ₹0,
+      // potentially allowing coupons to be applied to an effectively empty cart.
+      console.error('coupon/apply: readCartItems failed:', cartErr);
+      return res.status(500).json({ success: false, message: 'Something went wrong on our end. Please try again in a moment.' });
     }
 
     const cartTotal  = cartItems.reduce((sum, i) => sum + Number(i.price || 0) * Number(i.quantity || 0), 0);

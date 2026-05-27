@@ -116,6 +116,10 @@ export default function MyAccountPage() {
       setRegErr('Enter a valid email address.');
       return;
     }
+    if (reg.password.length < 6) {
+      setRegErr('Password must be at least 6 characters.');
+      return;
+    }
 
     setRegErr('');
     setRegLoading(true);
@@ -408,7 +412,7 @@ export default function MyAccountPage() {
                         </div>
                         <div className="field">
                           <label className="required">Password</label>
-                          <input type="password" placeholder="Password" value={reg.password} onChange={setR('password')} />
+                          <input type="password" placeholder="Password" minLength={6} value={reg.password} onChange={setR('password')} />
                         </div>
                         {regErr && <p className="account-err">{regErr}</p>}
                         {regSuccess && <p className="account-success">{regSuccess}</p>}

@@ -6,11 +6,11 @@ import Footer from "../components/Footer";
 import { getProductCategories, type ProductCategory } from "../lib/api";
 import EnquiryForm from "../components/EnquiryForm";
 
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "NESTCASE";
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "Nestcase";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001";
 
 export const metadata: Metadata = {
-  title: `B2B Connect | ${SITE_NAME}`,
+  title: `B2B Connect`,
   description:
     "Premium drinkware, glassware and lifestyle essentials for hospitality, gifting, retail and modern spaces.",
   alternates: { canonical: `${SITE_URL}/b2b-connect` },

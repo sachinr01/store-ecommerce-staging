@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "NESTCASE";
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "Nestcase";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001";
 
 export const metadata: Metadata = {
-  title: `FAQs | ${SITE_NAME}`,
+  title: `Frequently Asked Questions (FAQs)`,
   description:
     "Find answers to the most common questions about orders, shipping, returns, and more.",
   alternates: { canonical: `${SITE_URL}/faqs` },

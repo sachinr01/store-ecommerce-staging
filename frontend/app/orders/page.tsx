@@ -85,13 +85,14 @@ export default function OrdersPage() {
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean).length;
+      const backendCount = Number(o.item_count);
       return {
         id: Number(o.order_id),
         status,
         statusLabel: toTitleCase(status),
         dateLabel: formatDate(o.order_date || ''),
         totalLabel: o.total ? formatPrice(Number(o.total)) : formatPrice(0),
-        itemCount: Number(o.item_count || 0) || fallbackCount || 1,
+        itemCount: Number.isFinite(backendCount) ? backendCount : fallbackCount,
       };
     })
   ), [orders]);

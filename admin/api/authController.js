@@ -46,6 +46,14 @@ const sha256 = (val) => crypto.createHash('sha256').update(val).digest('hex');
 
 const isHex32 = (val) => /^[a-f0-9]{32}$/i.test(val || '');
 
+// Stricter email validation used in register() and updateProfile().
+// Rejects obvious garbage that /\S+@\S+\.\S+/ passes (e.g. 'a@b.c',
+// leading/trailing spaces, missing TLD, multiple consecutive dots).
+// local part : 1–64 chars, no whitespace or bare @
+// domain     : labels of alphanumeric/hyphen chars separated by dots
+// TLD        : 2–24 letters only
+const VALID_EMAIL_RE = /^[^\s@]{1,64}@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*\.[A-Za-z]{2,24}$/;
+
 function encode64(input, count) {
   let output = '';
   let i = 0;
@@ -89,14 +97,28 @@ async function verifyPassword(password, storedHash) {
   }
   if (storedHash.startsWith('$P$') || storedHash.startsWith('$H$')) {
     const check = phpassHash(password, storedHash);
-    const ok = check === storedHash;
+    // timingSafeEqual prevents timing attacks that enumerate the hash byte-by-byte.
+    // phpassHash always produces a fixed-length string matching storedHash length.
+    const ok = check.length === storedHash.length &&
+      crypto.timingSafeEqual(Buffer.from(check), Buffer.from(storedHash));
     return { ok, needsRehash: ok };
   }
   if (isHex32(storedHash)) {
-    const ok = md5(password) === storedHash;
+    // Legacy MD5 path — WordPress accounts migrated before bcrypt was adopted.
+    // timingSafeEqual prevents timing attacks; md5() always returns 32 hex chars
+    // matching storedHash length, so buffers are always the same length.
+    const computed = md5(password);
+    const ok = crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(storedHash));
     return { ok, needsRehash: ok };
   }
-  const ok = storedHash === password;
+  // Legacy plaintext fallback — absolute last resort for very old accounts.
+  // Pad both sides to 256 bytes so length itself does not leak whether the
+  // password matched (prevents timing oracle on password length).
+  const a = Buffer.alloc(256, 0);
+  const b = Buffer.alloc(256, 0);
+  Buffer.from(storedHash).copy(a);
+  Buffer.from(password).copy(b);
+  const ok = crypto.timingSafeEqual(a, b);
   return { ok, needsRehash: ok };
 }
 
@@ -431,6 +453,9 @@ const register = async (req, res) => {
   if (!username || !email || !password) {
     return res.status(400).json({ success: false, message: 'Username, email and password are required.' });
   }
+  if (!VALID_EMAIL_RE.test(String(email).trim())) {
+    return res.status(400).json({ success: false, message: 'Please enter a valid email address.' });
+  }
 
   try {
     const [[existing]] = await db.query(
@@ -695,7 +720,7 @@ const updateProfile = async (req, res) => {
   if (!displayName || !displayName.trim()) {
     return res.status(400).json({ success: false, message: 'Display name is required.' });
   }
-  if (!email || !/\S+@\S+\.\S+/.test(email)) {
+  if (!email || !VALID_EMAIL_RE.test(email.trim())) {
     return res.status(400).json({ success: false, message: 'A valid email is required.' });
   }
 
@@ -972,4 +997,3 @@ module.exports = {
   requestPasswordReset,
   resetPassword,
 };
-

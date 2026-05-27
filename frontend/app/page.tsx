@@ -11,21 +11,21 @@ import { BLOG_HOME_LIMIT } from './blog/utils/config';
 import { getLatestBlogs } from './blog/utils/getBlogs';
 
 const SITE_URL  = process.env.NEXT_PUBLIC_SITE_URL  ?? 'http://localhost:3001';
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? 'NESTCASE';
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? 'Nestcase';
 
 export const metadata: Metadata = {
-  title: `${SITE_NAME} | Hoodies, Mugs, Decals & More`,
+  title: `${SITE_NAME} | Premium Dinnerware & Lifestyle Products for Modern Home`,
   description:
-    'Shop our full collection of custom hoodies, tumblers, mugs, decals, koozies and more. Free shipping on orders above $99. Spring Summer 2026 now live.',
+    'Discover Nestcase premium bone-ash-free crockery, lead-free glassware, 304 food-grade stainless steel cutlery, bottles and bar accessories. Shop health-friendly dinnerware at Nestcase for a stylish and healthy lifestyle.',
   keywords: [
-    'hoodies', 'custom mugs', 'tumblers', 'decals', 'koozies',
-    'online store', 'custom gifts', 'spring summer 2026',
+    'dinnerware', 'crockery', 'tumblers', 'luxury dining', 'glassware',
+    'cutlery', 'custom gifts', 'serving bowls', 'ceramic dinner sets',
   ],
   alternates: { canonical: SITE_URL },
   openGraph: {
-    title: `${SITE_NAME} | Hoodies, Mugs, Decals & More`,
+    title: `${SITE_NAME} | Premium Dinnerware & Lifestyle Products for Modern Home`,
     description:
-      'Shop custom hoodies, tumblers, mugs, decals and more. Free shipping on orders above $99.',
+      'Discover Nestcase premium bone-ash-free crockery, lead-free glassware, 304 food-grade stainless steel cutlery, bottles and bar accessories. Shop health-friendly dinnerware at Nestcase for a stylish and healthy lifestyle.',
     url: SITE_URL,
     siteName: SITE_NAME,
     type: 'website',
@@ -40,10 +40,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_NAME} | Hoodies, Mugs, Decals & More`,
+    title: `${SITE_NAME} | Premium Dinnerware & Lifestyle Products for Modern Home`,
     description:
-      'Shop custom hoodies, tumblers, mugs, decals and more. Free shipping on orders above $99.',
-    images: [`${SITE_URL}/images/Netcase.webp`],
+      'Discover Nestcase premium bone-ash-free crockery, lead-free glassware, 304 food-grade stainless steel cutlery, bottles and bar accessories. Shop health-friendly dinnerware at Nestcase for a stylish and healthy lifestyle.',
+    images: [`${SITE_URL}/images/nestcase-logo-optimized.png`],
   },
   robots: { index: true, follow: true },
 };

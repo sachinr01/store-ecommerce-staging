@@ -1,165 +1,243 @@
-# Coffr E-commerce - Next.js Conversion
+# Nestcase — Full-Stack E-Commerce Platform
 
-This is a Next.js conversion of the original shop HTML template, maintaining pixel-perfect design and all functionality.
-
-## 🚀 Features
-
-- ✅ Complete HTML to React/Next.js conversion
-- ✅ Revolution Slider integration
-- ✅ Product filtering with Isotope
-- ✅ Responsive design (desktop & mobile)
-- ✅ Shopping cart functionality
-- ✅ Product quick view with Magnific Popup
-- ✅ All original CSS and JavaScript preserved
-- ✅ Font Awesome icons
-- ✅ Google Fonts (Open Sans, Lato)
-
-## 📁 Project Structure
-
-```
-frontend/
-├── app/
-│   ├── components/
-│   │   ├── Header.tsx          # Navigation & top bar
-│   │   ├── Slider.tsx          # Revolution slider
-│   │   ├── Banners.tsx         # Promotional banners
-│   │   ├── NewArrivals.tsx     # New products section
-│   │   ├── ProductCard.tsx     # Reusable product component
-│   │   ├── SalesEvent.tsx      # Sales banner
-│   │   ├── PopularProducts.tsx # Filtered products
-│   │   ├── LatestPosts.tsx     # Blog section
-│   │   └── Footer.tsx          # Footer with links
-│   ├── layout.tsx              # Root layout
-│   ├── page.tsx                # Home page
-│   └── globals.css             # Global styles
-├── public/
-│   ├── css/                    # All original CSS files
-│   ├── js/                     # All JavaScript libraries
-│   ├── images/                 # All images
-│   └── fonts/                  # Font files
-└── package.json
-```
-
-## 🛠️ Installation
-
-```bash
-npm install
-```
-
-## 🏃 Running the Application
-
-### Development Mode
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### Production Build
-```bash
-npm run build
-npm start
-```
-
-## 🎨 Design & Assets
-
-All original design assets from the shop template have been preserved:
-
-- **CSS**: Complete SASS/CSS structure from `shop/css/`
-- **JavaScript**: jQuery plugins and libraries from `shop/js/`
-- **Images**: All product images, banners, and icons from `shop/images/`
-- **Fonts**: Font Awesome and custom icon fonts from `shop/fonts/`
-
-## 🔧 Technical Details
-
-### Key Technologies
-- **Next.js 16.1.6** - React framework
-- **React 19.2.3** - UI library
-- **TypeScript 5** - Type safety
-- **Tailwind CSS 4** - Utility-first CSS (minimal usage)
-- **jQuery 2.1.1** - For legacy plugins
-- **Revolution Slider** - Hero slider
-- **Isotope** - Product filtering
-- **Magnific Popup** - Lightbox/modal
-
-### Script Loading Order
-Scripts are loaded in the exact order as the original HTML:
-1. jQuery
-2. Core utilities (load.js, easing, modernizr, imagesloaded, respond)
-3. libs.min.js (all plugins bundled)
-4. Revolution Slider (tools + main)
-5. main.js (initialization)
-
-### Hydration Handling
-- Client-side rendering for slider to avoid hydration issues
-- `suppressHydrationWarning` on elements modified by jQuery
-- Dynamic import with `ssr: false` for Revolution Slider component
-
-## 📝 Components
-
-### Header
-- Desktop and mobile navigation
-- Shopping cart dropdown
-- Search functionality
-- Multi-level menu system
-
-### Slider
-- Revolution Slider with 2 slides
-- Animated captions
-- Responsive images
-- Touch-enabled
-
-### Product Sections
-- New Arrivals (4 products)
-- Popular Products (8 products with filtering)
-- Product cards with hover effects
-- Sale badges
-- Rating display
-
-### Footer
-- 6 column layout
-- Links to policies, categories, shop sections
-- Contact information
-- Social media icons
-- Payment method icons
-
-## 🐛 Known Issues & Solutions
-
-### Hydration Warnings
-The application uses `suppressHydrationWarning` on elements that jQuery modifies (loading screen, isotope containers, slider). This is expected behavior when integrating legacy jQuery plugins with React.
-
-### Revolution Slider
-The slider is loaded client-side only to prevent SSR/hydration conflicts. A placeholder is shown during initial load.
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-```bash
-vercel
-```
-
-### Other Platforms
-Build the production version and deploy the `.next` folder:
-```bash
-npm run build
-```
-
-## 📄 License
-
-This project is a conversion of the original shop template. Please refer to the original template's license for usage rights.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📧 Contact
-
-For questions or support, please open an issue on GitHub.
+A full-stack e-commerce platform for premium dinnerware, glassware, cutlery, and bar accessories. Built with Next.js on the frontend and Express.js on the backend.
 
 ---
 
-**Note**: This is a pixel-perfect conversion maintaining all original functionality. For a fully modern React implementation, consider refactoring jQuery dependencies to React hooks and state management.
+## Tech Stack
+
+### Frontend
+- **Next.js 16** / React 19 / TypeScript 5
+- **Tailwind CSS 4** for styling
+- **Font Awesome 7** for icons
+- React Context API — Cart, Wishlist, Auth, Site Settings
+
+### Backend
+- **Express.js 5** / Node.js
+- **MySQL2** with connection pooling
+- **EJS** for admin panel templating
+- **Multer** for file uploads
+- **Bcrypt** for password hashing
+- **Express-session** for auth sessions
+- **Razorpay** for payments
+- **Brevo** for transactional email
+- **Shiprocket** for shipping
+
+---
+
+## Project Structure
+
+```
+project/
+│
+├── frontend/                        # Next.js storefront (port 3001)
+│   ├── app/
+│   │   ├── components/              # Reusable UI components
+│   │   │   ├── Header.tsx
+│   │   │   ├── Footer.tsx
+│   │   │   ├── MobileNavbar.tsx
+│   │   │   ├── Slider.tsx
+│   │   │   ├── Banners.tsx
+│   │   │   ├── NewArrivals.tsx
+│   │   │   ├── PopularProducts.tsx
+│   │   │   ├── ProductCard.tsx
+│   │   │   ├── LatestPosts.tsx
+│   │   │   ├── GiftingWorld.tsx
+│   │   │   ├── SalesEvent.tsx
+│   │   │   ├── TrustBar.tsx
+│   │   │   ├── AccountSidebar.tsx
+│   │   │   └── EnquiryForm.tsx
+│   │   ├── lib/                     # Context providers & utilities
+│   │   │   ├── api.ts
+│   │   │   ├── authContext.tsx
+│   │   │   ├── cartContext.tsx
+│   │   │   ├── wishlistContext.tsx
+│   │   │   ├── siteSettingsContext.tsx
+│   │   │   ├── price.ts
+│   │   │   └── pages.ts
+│   │   ├── (footer)/                # Dynamic footer pages (slug-based)
+│   │   ├── about-us/
+│   │   ├── b2b-connect/
+│   │   ├── blog/
+│   │   ├── careers/
+│   │   ├── cart/
+│   │   ├── checkout/
+│   │   ├── contact-us/
+│   │   ├── faqs/
+│   │   ├── my-account/
+│   │   ├── orders/
+│   │   ├── product/
+│   │   ├── product-details/
+│   │   ├── reset-password/
+│   │   ├── shop/
+│   │   ├── wishlist/
+│   │   ├── css/                     # Global styles
+│   │   ├── layout.tsx               # Root layout
+│   │   ├── page.tsx                 # Home page
+│   │   ├── error.tsx
+│   │   └── not-found.tsx
+│   └── package.json
+│
+└── admin/                           # Express backend + admin panel (port 3000)
+    ├── api/                         # REST API controllers
+    │   ├── authController.js
+    │   ├── authMiddleware.js
+    │   ├── cartController.js
+    │   ├── contactController.js
+    │   ├── couponController.js
+    │   ├── mediaController.js
+    │   ├── orderController.js
+    │   ├── wishlistController.js
+    │   ├── guestCookie.js
+    │   ├── session.js
+    │   └── routes.js
+    ├── controllers/                 # Admin panel controllers
+    │   ├── authController.js
+    │   ├── blogController.js
+    │   ├── blogCategoryController.js
+    │   ├── categoryController.js
+    │   ├── couponController.js
+    │   ├── dashboardController.js
+    │   ├── mediaController.js
+    │   ├── orderController.js
+    │   ├── pagesController.js
+    │   ├── productController.js
+    │   ├── siteSettingsController.js
+    │   └── userController.js
+    ├── routes/                      # Express route definitions
+    │   ├── admin.js
+    │   ├── auth.js
+    │   ├── blogRoutes.js
+    │   ├── blogCategoryRoutes.js
+    │   ├── categoryRoutes.js
+    │   ├── couponRoutes.js
+    │   ├── mediaRoutes.js
+    │   ├── orderRoutes.js
+    │   ├── pagesRoutes.js
+    │   ├── productRoutes.js
+    │   ├── siteSettingsRoutes.js
+    │   └── userRoutes.js
+    ├── views/                       # EJS templates
+    │   ├── auth/
+    │   ├── blogs/
+    │   ├── category/
+    │   ├── coupons/
+    │   ├── dashboard/
+    │   ├── orders/
+    │   ├── pages/
+    │   ├── partials/
+    │   ├── products/
+    │   ├── site-settings/
+    │   └── users/
+    ├── config/
+    │   ├── db.js                    # MySQL connection pool
+    │   └── razorpay.js
+    ├── middleware/
+    │   └── auth.js
+    ├── helpers/
+    │   └── dd.js
+    ├── public/                      # Static assets
+    │   ├── css/
+    │   ├── js/
+    │   ├── images/
+    │   └── uploads/
+    ├── app.js                       # Express entry point
+    └── package.json
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- MySQL 8+
+
+### Backend
+
+```bash
+cd admin
+npm install
+npm run dev     # http://localhost:3000
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev     # http://localhost:3001
+```
+
+---
+
+## Features
+
+### Storefront
+- Home page with hero slider, new arrivals, popular products, blog preview
+- Shop with product filtering and search
+- Product detail pages
+- Shopping cart and checkout with Razorpay
+- User accounts — register, login, Google OAuth, password reset
+- Order history and tracking
+- Wishlist
+- Blog with categories and dynamic routing
+- B2B Connect, About Us, Careers, Contact Us, FAQs
+- Dynamic footer pages (slug-based)
+
+### Admin Panel
+- Dashboard with sales overview
+- Product and category management
+- Order management and status updates
+- User management
+- Blog and blog category management
+- Coupon and discount management
+- Media/file upload management
+- Site settings configuration
+- Dynamic pages management
+
+---
+
+## API
+
+Base URL: `/store/api`
+
+| Endpoint | Description |
+|---|---|
+| `/auth/*` | Login, register, logout, Google OAuth |
+| `/cart/*` | Cart operations |
+| `/wishlist/*` | Wishlist management |
+| `/orders/*` | Order creation and tracking |
+| `/products/*` | Product listing and details |
+| `/coupons/*` | Coupon validation |
+| `/contact` | Contact form |
+| `/media/*` | File uploads |
+| `/session` | Session info |
+
+---
+
+## Scripts
+
+### Frontend
+```bash
+npm run dev      # Dev server on port 3001
+npm run build    # Production build
+npm start        # Production server on port 3001
+npm run lint     # ESLint
+```
+
+### Backend
+```bash
+npm run dev      # Dev server with nodemon on port 3000
+npm start        # Production server on port 3000
+```
+
+---
+
+## Deployment
+
+1. Update `FRONTEND_URL` and `NEXT_PUBLIC_API_URL` to your production URLs
+2. Enable `SESSION_SECURE=true` in production
+3. Use a managed MySQL instance with SSL enabled
+4. Build the frontend: `npm run build && npm start`
+5. Run the backend behind a reverse proxy (nginx recommended)

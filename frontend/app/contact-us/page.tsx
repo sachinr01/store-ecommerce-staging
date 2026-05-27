@@ -3,11 +3,11 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import EnquiryForm from "../components/EnquiryForm";
 
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "NESTCASE";
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "Nestcase";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001";
 
 export const metadata: Metadata = {
-  title: `Contact Us | ${SITE_NAME}`,
+  title: `Contact Us`,
   description:
     "Contact Nestcase for product queries, order support, business enquiries, bulk orders, gifting and collaborations.",
   alternates: { canonical: `${SITE_URL}/contact-us` },

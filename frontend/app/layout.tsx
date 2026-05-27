@@ -4,9 +4,9 @@ import { CartProvider } from "./lib/cartContext";
 import { WishlistProvider } from "./lib/wishlistContext";
 import { AuthProvider } from "./lib/authContext";
 import { SiteSettingsProvider } from "./lib/siteSettingsContext";
+import { SITE_URL } from "./lib/helpers/siteUrl";
 
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? 'NESTCASE';
-const SITE_URL  = process.env.NEXT_PUBLIC_SITE_URL  ?? 'http://localhost:3001';
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? 'Nestcase';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    'Shop our full collection of custom tumblers, mugs, decals, koozies and more.',
+    'Discover Nestcase premium bone-ash-free crockery, lead-free glassware, 304 food-grade stainless steel cutlery, bottles and bar accessories. Shop health-friendly dinnerware at Nestcase for a stylish and healthy lifestyle.',
   metadataBase: new URL(SITE_URL),
   openGraph: {
     siteName: SITE_NAME,

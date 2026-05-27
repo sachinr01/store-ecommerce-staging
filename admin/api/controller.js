@@ -794,6 +794,7 @@ const getProduct = async (req, res) => {
                     CASE WHEN m.media_id = ? THEN 1 ELSE 0 END AS is_thumbnail
              FROM tbl_media m
              WHERE m.parent_id = ?
+             AND m.media_type = 'product_image'
              ORDER BY is_thumbnail DESC, m.media_id ASC`,
             [product.thumbnail_id ? Number(product.thumbnail_id) : 0, id]
         ));

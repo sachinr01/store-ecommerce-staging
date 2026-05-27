@@ -1,4 +1,5 @@
 const db = require("../config/db");
+const crypto = require("crypto");
 const https = require("https");
 const { getSessionUser } = require("./session");
 const { getCartIdentity } = require("./cartController");
@@ -22,7 +23,9 @@ const toInt = (val, fallback = 0) => {
   return Number.isFinite(n) ? n : fallback;
 };
 
-const MONEY_EPSILON = 0.01;
+// Tolerance per item — accounts for floating-point accumulation across many items.
+// e.g. 4 items each ₹249.99 sum to 999.96 but stored subtotal may be 999.99.
+const MONEY_EPSILON_PER_ITEM = 0.02;
 
 function normalizeOrderLineItems(items) {
   return (Array.isArray(items) ? items : [])
@@ -34,24 +37,49 @@ function normalizeOrderLineItems(items) {
     .sort((a, b) => a.order_item_id - b.order_item_id);
 }
 
-// Some legacy orders have older line items left behind before the final
-// checkout snapshot was saved. We keep the newest contiguous suffix whose
-// sum matches the stored subtotal so the order view reflects what was paid.
+// Selects the correct line items for an order from potentially dirty data.
+//
+// Background: legacy orders (and orders placed during checkout bugs) can have
+// multiple sets of line_item rows for the same order_id — one set per checkout
+// attempt. Only the LAST set (highest order_item_ids) represents what was
+// actually paid.
+//
+// Strategy (in order of preference):
+//   1. Walk backward from the last item, accumulating a running sum.
+//      The first contiguous suffix whose sum matches targetSubtotal (within
+//      per-item epsilon) is the correct set.
+//   2. If no exact suffix match: try the same walk with a relaxed tolerance
+//      (handles accumulated floating-point drift across many items).
+//   3. If still no match (subtotal missing / zero / very stale order):
+//      return ALL items sorted by order_item_id — never hide order data.
 function selectEffectiveOrderItems(items, targetSubtotal) {
   const sorted = normalizeOrderLineItems(items);
   if (!sorted.length) return [];
 
   const target = toAmount(targetSubtotal);
-  if (target > 0) {
+
+  // No stored subtotal → nothing to match against; return everything.
+  if (!(target > 0)) return sorted;
+
+  // Pass 1: tight tolerance (0.02 per item in the candidate set).
+  // Pass 2: relaxed tolerance (0.50 per item) for heavily rounded prices.
+  const passes = [MONEY_EPSILON_PER_ITEM, 0.5];
+
+  for (const epsilonPerItem of passes) {
     let runningTotal = 0;
     for (let start = sorted.length - 1; start >= 0; start -= 1) {
       runningTotal += sorted[start].line_total;
-      if (Math.abs(runningTotal - target) <= MONEY_EPSILON) {
+      const itemCount = sorted.length - start;
+      const tolerance = epsilonPerItem * itemCount;
+      if (Math.abs(runningTotal - target) <= tolerance) {
         return sorted.slice(start);
       }
     }
   }
 
+  // Fallback: subtotal is stored but no suffix matched at all.
+  // This should be extremely rare (e.g. admin manually edited the subtotal meta).
+  // Return all items rather than silently hiding them.
   return sorted;
 }
 
@@ -289,70 +317,85 @@ async function getShippingRate(req, res) {
     console.log(error.response?.data || error.message);
 
     return res.status(500).json({
-      success: false,
-      message: "Unable to get shipping rate",
+      success:false,
+      message:"Unable to get shipping rate"
     });
   }
 }
 
-async function getTrackingStatus(req, res) {
-  try {
-    const token = await getShiprocketToken();
+async function getTrackingStatus(req,res){
+    try{
 
-    const { awb } = req.params;
+        const token = await getShiprocketToken();
 
-    const response = await axios.get(
-      `https://apiv2.shiprocket.in/v1/external/courier/track/awb/${awb}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
+        const {awb} = req.params;
 
-    const tracking = response.data?.tracking_data;
+        const response = await axios.get(
+            `https://apiv2.shiprocket.in/v1/external/courier/track/awb/${awb}`,
+            {
+                headers:{
+                    Authorization:`Bearer ${token}`
+                }
+            }
+        );
 
-    const shiprocketStatus =
-      tracking?.shipment_track?.[0]?.current_status || "Pending";
+        const tracking =
+            response.data?.tracking_data;
 
-    // Map Shiprocket statuses
-    const statusMap = {
-      NEW: "Order Confirmed",
-      "PICKUP SCHEDULED": "Packed",
-      "PICKED UP": "Shipped",
-      "IN TRANSIT": "In Transit",
-      "OUT FOR DELIVERY": "Out for Delivery",
-      DELIVERED: "Delivered",
-      CANCELLED: "Cancelled",
-      "RTO INITIATED": "Return Initiated",
-      "RTO DELIVERED": "Returned",
-    };
+        const shiprocketStatus =
+            tracking?.shipment_track?.[0]
+            ?.current_status || "Pending";
 
-    const finalStatus = statusMap[shiprocketStatus] || shiprocketStatus;
+        // Map Shiprocket statuses
+        const statusMap = {
+            "NEW":"Order Confirmed",
+            "PICKUP SCHEDULED":"Packed",
+            "PICKED UP":"Shipped",
+            "IN TRANSIT":"In Transit",
+            "OUT FOR DELIVERY":"Out for Delivery",
+            "DELIVERED":"Delivered",
+            "CANCELLED":"Cancelled",
+            "RTO INITIATED":"Return Initiated",
+            "RTO DELIVERED":"Returned"
+        };
 
-    // update order table
-    await db.query(
-      `
+        const finalStatus =
+            statusMap[shiprocketStatus] ||
+            shiprocketStatus;
+
+        // update order table
+        await db.query(
+            `
             UPDATE orders
             SET
                 order_status=?
             WHERE awb_code=?
             `,
-      [finalStatus, awb],
-    );
+            [
+                finalStatus,
+                awb
+            ]
+        );
 
-    return res.json({
-      success: true,
-      current_status: finalStatus,
-      activities: tracking?.shipment_track_activities || [],
-    });
-  } catch (error) {
-    console.log("Tracking Error:", error.response?.data || error.message);
+        return res.json({
+            success:true,
+            current_status:finalStatus,
+            activities:
+                tracking?.shipment_track_activities || []
+        });
 
-    return res.status(500).json({
-      success: false,
-    });
-  }
+    }catch(error){
+
+        console.log(
+            "Tracking Error:",
+            error.response?.data ||
+            error.message
+        );
+
+        return res.status(500).json({
+            success:false
+        });
+    }
 }
 
 function formatMoney(amount) {
@@ -424,9 +467,11 @@ async function sendBrevoEmail({ toEmail, toName, subject, html }) {
 function buildOrderName() {
   const now = new Date();
   const stamp = now.toISOString().slice(0, 19).replace(/[:T]/g, "-");
-  return `order-${stamp}`;
+  // crypto.randomBytes gives a cryptographically strong suffix — no collision risk
+  // unlike Math.random() which shares a ~32-bit PRNG state across all requests.
+  const suffix = crypto.randomBytes(3).toString("hex"); // 6 hex chars = 16M possibilities
+  return `order-${stamp}-${suffix}`;
 }
-
 function sanitizeBilling(billing) {
   const b = billing || {};
   return {
@@ -933,8 +978,6 @@ const placeOrder = async (req, res) => {
     }
 
     if (paymentMethod === "razorpay" && razorpayPaymentId) {
-      const crypto = require("crypto");
-
       const generatedSignature = crypto
         .createHmac("sha256", process.env.RAZORPAY_SECRET)
         .update(razorpayOrderId + "|" + razorpayPaymentId)
@@ -1056,7 +1099,23 @@ const placeOrder = async (req, res) => {
 
       billing_phone: billing.phone,
 
-      shipping_is_billing: true,
+      // Dynamically detect whether shipping matches billing — never hardcode true.
+      // When false, Shiprocket requires the full shipping_* fields below;
+      // without them it silently falls back to billing and delivers to the wrong address.
+      shipping_is_billing:
+        shipping.address  === billing.address &&
+        shipping.city     === billing.city    &&
+        shipping.postcode === billing.postcode,
+
+      shipping_customer_name: shipping.first_name,
+      shipping_last_name:     shipping.last_name,
+      shipping_address:       shipping.address,
+      shipping_address_2:     shipping.address_2 || "",
+      shipping_city:          shipping.city,
+      shipping_pincode:       shipping.postcode,
+      shipping_state:         shipping.state,
+      shipping_country:       "India",
+      shipping_phone:         shipping.phone,
 
       order_items: cartItems.map((item) => ({
         name: item.title || "Product",
@@ -1088,7 +1147,10 @@ const placeOrder = async (req, res) => {
     };
 
     // ===================================
-    // CREATE SHIPROCKET ORDER
+    // CREATE SHIPROCKET ORDER + GENERATE AWB
+    // Wrapped in try/catch so a Shiprocket outage NEVER blocks order creation.
+    // The order is fully saved to DB regardless; Shiprocket can be retried
+    // from the admin panel using the stored orderId.
     // ===================================
 
     const shiprocketResponse = await createShiprocketOrder(shiprocketPayload);
@@ -1119,26 +1181,26 @@ const placeOrder = async (req, res) => {
         awbResponse?.response?.data?.freight_charges,
       );
 
-      console.log("AWB Generated:", awbResponse);
-      await conn.query(
-        `UPDATE tbl_orders
-        SET shipment_id = ?,
-       awb_code = ?,
-       courier_name = ?,
-       shipping_status = ?
-        WHERE order_id = ?`,
-        [
-          shiprocketResponse.shipment_id || "",
-
-          awbResponse?.response?.data?.awb_code || "",
-
-          awbResponse?.response?.data?.courier_name || "",
-
-          "new",
-
-          orderId,
-        ],
-      );
+        await conn.query(
+          `UPDATE tbl_orders
+           SET shipment_id    = ?,
+               awb_code       = ?,
+               courier_name   = ?,
+               shipping_status = ?
+           WHERE order_id = ?`,
+          [
+            shiprocketResponse.shipment_id || "",
+            awbResponse?.response?.data?.awb_code    || "",
+            awbResponse?.response?.data?.courier_name || "",
+            "new",
+            orderId,
+          ],
+        );
+      }
+    } catch (shipErr) {
+      // Non-fatal — log for ops team to manually push to Shiprocket if needed.
+      // Order commit continues below; customer payment is not affected.
+      console.error("Shiprocket failed (non-fatal), orderId:", orderId, shipErr.message);
     }
 
     // end shiprocket code
@@ -1540,6 +1602,9 @@ const placeOrder = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
+    try {
+      await conn.rollback();
+    } catch (_) {}
 
     res.status(500).json({
       success: false,
@@ -1811,28 +1876,23 @@ const getMyOrders = async (req, res) => {
     return res.status(401).json({ success: false, message: "Login required." });
   }
   try {
+    // Single JOIN instead of correlated subqueries per row.
+    // CAST inside MAX() ensures numeric comparison, not lexicographic string sort
+    // (e.g. MAX('1000.00','200.00') as strings = '200.00' — wrong; as DECIMAL = 1000.00 — correct).
     const [orders] = await db.query(
-      `SELECT o.order_id,
-              MAX(o.order_status)      AS order_status,
-              MAX(o.awb_code) AS awb_code,
-              MAX(o.courier_name) AS courier_name,
-              MAX(o.shipping_status) AS shipping_status,
-              MAX(o.order_date)        AS order_date,
-              (
-                SELECT om.meta_value
-                FROM tbl_ordermeta om
-                WHERE om.order_id = o.order_id AND om.meta_key = '_order_total'
-                ORDER BY om.meta_id DESC
-                LIMIT 1
-              ) AS total,
-              (
-                SELECT om.meta_value
-                FROM tbl_ordermeta om
-                WHERE om.order_id = o.order_id AND om.meta_key = '_order_subtotal'
-                ORDER BY om.meta_id DESC
-                LIMIT 1
-              ) AS subtotal
+      `SELECT
+         o.order_id,
+         MAX(o.order_status)    AS order_status,
+         MAX(o.awb_code)        AS awb_code,
+         MAX(o.courier_name)    AS courier_name,
+         MAX(o.shipping_status) AS shipping_status,
+         MAX(o.order_date)      AS order_date,
+         MAX(CAST(CASE WHEN om.meta_key = '_order_total'    THEN om.meta_value ELSE NULL END AS DECIMAL(10,2))) AS total,
+         MAX(CAST(CASE WHEN om.meta_key = '_order_subtotal' THEN om.meta_value ELSE NULL END AS DECIMAL(10,2))) AS subtotal
        FROM tbl_orders o
+       LEFT JOIN tbl_ordermeta om
+         ON om.order_id = o.order_id
+        AND om.meta_key IN ('_order_total', '_order_subtotal')
        WHERE o.user_id = ? AND o.order_type = 'shop_order'
        GROUP BY o.order_id
        ORDER BY MAX(o.order_date) DESC`,
@@ -1846,19 +1906,20 @@ const getMyOrders = async (req, res) => {
       return res.json({ success: true, data: orders });
     }
 
+    // Single query for all line items across all orders.
+    // CAST inside MAX() for same reason as above.
     const [lineItems] = await db.query(
-      `SELECT oi.order_id,
-              oi.order_item_id,
-              oi.order_item_name,
-              (
-                SELECT oim.meta_value
-                FROM tbl_order_itemmeta oim
-                WHERE oim.order_item_id = oi.order_item_id AND oim.meta_key = '_line_total'
-                ORDER BY oim.meta_id DESC
-                LIMIT 1
-              ) AS line_total
+      `SELECT
+         oi.order_id,
+         oi.order_item_id,
+         oi.order_item_name,
+         MAX(CAST(CASE WHEN oim.meta_key = '_line_total' THEN oim.meta_value ELSE NULL END AS DECIMAL(10,2))) AS line_total
        FROM tbl_order_items oi
+       LEFT JOIN tbl_order_itemmeta oim
+         ON oim.order_item_id = oi.order_item_id
+        AND oim.meta_key = '_line_total'
        WHERE oi.order_id IN (?) AND oi.order_item_type = 'line_item'
+       GROUP BY oi.order_id, oi.order_item_id, oi.order_item_name
        ORDER BY oi.order_id ASC, oi.order_item_id ASC`,
       [orderIds],
     );
@@ -1889,28 +1950,60 @@ const getMyOrders = async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const getAllOrders = async (_req, res) => {
   try {
+    // Single JOIN instead of correlated subqueries per row.
+    // CAST inside MAX() ensures numeric comparison, not lexicographic string sort.
     const [orders] = await db.query(
-      `SELECT o.order_id,
-              MAX(o.order_status)      AS order_status,
-              MAX(o.order_date)        AS order_date,
-              (
-                SELECT om.meta_value
-                FROM tbl_ordermeta om
-                WHERE om.order_id = o.order_id AND om.meta_key = '_order_total'
-                ORDER BY om.meta_id DESC
-                LIMIT 1
-              ) AS total,
-              MAX(u.user_email)        AS billing_email,
-              MAX(u.display_name)      AS customer_name,
-              GROUP_CONCAT(oi.order_item_name SEPARATOR ', ') AS items
+      `SELECT
+         o.order_id,
+         MAX(o.order_status)  AS order_status,
+         MAX(o.order_date)    AS order_date,
+         MAX(CAST(CASE WHEN om.meta_key = '_order_total'    THEN om.meta_value ELSE NULL END AS DECIMAL(10,2))) AS total,
+         MAX(CAST(CASE WHEN om.meta_key = '_order_subtotal' THEN om.meta_value ELSE NULL END AS DECIMAL(10,2))) AS subtotal,
+         MAX(u.user_email)    AS billing_email,
+         MAX(u.display_name)  AS customer_name
        FROM tbl_orders o
+       LEFT JOIN tbl_ordermeta om
+         ON om.order_id = o.order_id
+        AND om.meta_key IN ('_order_total', '_order_subtotal')
        LEFT JOIN tbl_users u ON u.ID = o.user_id
-       LEFT JOIN tbl_order_items oi
-         ON o.order_id = oi.order_id AND oi.order_item_type = 'line_item'
        WHERE o.order_type = 'shop_order'
        GROUP BY o.order_id
        ORDER BY MAX(o.order_date) DESC`,
     );
+
+    const orderIds = orders.map((order) => Number(order.order_id)).filter(Boolean);
+    if (!orderIds.length) {
+      return res.json({ success: true, data: orders });
+    }
+
+    // Single query for all line items across all orders.
+    // CAST inside MAX() for same reason as above.
+    const [lineItems] = await db.query(
+      `SELECT
+         oi.order_id,
+         oi.order_item_id,
+         oi.order_item_name,
+         MAX(CAST(CASE WHEN oim.meta_key = '_line_total' THEN oim.meta_value ELSE NULL END AS DECIMAL(10,2))) AS line_total
+       FROM tbl_order_items oi
+       LEFT JOIN tbl_order_itemmeta oim
+         ON oim.order_item_id = oi.order_item_id
+        AND oim.meta_key = '_line_total'
+       WHERE oi.order_id IN (?) AND oi.order_item_type = 'line_item'
+       GROUP BY oi.order_id, oi.order_item_id, oi.order_item_name
+       ORDER BY oi.order_id ASC, oi.order_item_id ASC`,
+      [orderIds],
+    );
+
+    const itemsByOrderId = buildOrderItemMap(lineItems);
+    for (const order of orders) {
+      const effectiveItems = selectEffectiveOrderItems(
+        itemsByOrderId.get(Number(order.order_id)) || [],
+        order.subtotal ? Number(order.subtotal) : 0,
+      );
+      order.item_count = effectiveItems.length;
+      order.items = effectiveItems.map((item) => item.order_item_name).filter(Boolean).join(", ");
+    }
+
     res.json({ success: true, data: orders });
   } catch (err) {
     console.error("getAllOrders error:", err);
@@ -2140,6 +2233,22 @@ const updateOrderStatus = async (req, res) => {
       .json({ success: false, message: "orderId and status required." });
   }
 
+  // Whitelist — only known WooCommerce-compatible statuses are accepted.
+  // Prevents arbitrary strings being written to order_status via a compromised
+  // admin account, a bug, or a forged request.
+  const VALID_STATUSES = [
+    "wc-pending",
+    "wc-processing",
+    "wc-on-hold",
+    "wc-completed",
+    "wc-cancelled",
+    "wc-refunded",
+    "wc-failed",
+  ];
+  if (!VALID_STATUSES.includes(status)) {
+    return res.status(400).json({ success: false, message: "Invalid order status." });
+  }
+
   const STOCK_RESTORE_STATUSES = ["wc-cancelled", "wc-refunded", "wc-failed"];
 
   const conn = await db.getConnection();
@@ -2217,6 +2326,59 @@ const updateOrderStatus = async (req, res) => {
     conn.release();
   }
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// getTrackingStatus
+// Fetches live tracking from Shiprocket by AWB and updates the order status.
+// Frontend: GET /store/api/orders/track/:awb  (requireLogin on route)
+// ─────────────────────────────────────────────────────────────────────────────
+async function getTrackingStatus(req, res) {
+  try {
+    const token = await getShiprocketToken();
+    const { awb } = req.params;
+
+    const response = await axios.get(
+      `https://apiv2.shiprocket.in/v1/external/courier/track/awb/${awb}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+
+    const tracking = response.data?.tracking_data;
+    const shiprocketStatus =
+      tracking?.shipment_track?.[0]?.current_status || "Pending";
+
+    // Only store known, mapped statuses — never write raw Shiprocket strings
+    // into order_status, which would break admin/customer status display.
+    const STATUS_MAP = {
+      "NEW":               "Order Confirmed",
+      "PICKUP SCHEDULED":  "Packed",
+      "PICKED UP":         "Shipped",
+      "IN TRANSIT":        "In Transit",
+      "OUT FOR DELIVERY":  "Out for Delivery",
+      "DELIVERED":         "Delivered",
+      "CANCELLED":         "Cancelled",
+      "RTO INITIATED":     "Return Initiated",
+      "RTO DELIVERED":     "Returned",
+    };
+
+    // Unknown Shiprocket statuses default to "In Transit" — safe fallback
+    // that doesn't corrupt order_status with raw external strings.
+    const finalStatus = STATUS_MAP[shiprocketStatus] ?? "In Transit";
+
+    await db.query(
+      `UPDATE tbl_orders SET order_status = ? WHERE awb_code = ?`,
+      [finalStatus, awb],
+    );
+
+    return res.json({
+      success: true,
+      current_status: finalStatus,
+      activities: tracking?.shipment_track_activities || [],
+    });
+  } catch (error) {
+    console.error("Tracking Error:", error.response?.data || error.message);
+    return res.status(500).json({ success: false });
+  }
+}
 
 module.exports = {
   placeOrder,

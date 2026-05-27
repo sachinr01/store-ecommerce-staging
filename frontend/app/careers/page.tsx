@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "NESTCASE";
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "Nestcase";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001";
 
 export const metadata: Metadata = {
-  title: `Careers | ${SITE_NAME}`,
+  title: `Careers`,
   description:
     "Explore career opportunities at Nestcase and connect with our team.",
   alternates: { canonical: `${SITE_URL}/careers` },
@@ -25,7 +25,7 @@ export default function CareersPage() {
             <p>We&apos;re looking for amazing people to join our team.</p>
             <p>
               Please visit our{" "}
-              <a href="#" target="_blank" rel="noreferrer">
+              <a href="https://www.linkedin.com/company/nestcase/" target="_blank" rel="noreferrer">
                 LinkedIn
               </a>{" "}
               careers page to explore our open opportunities.
@@ -39,7 +39,7 @@ export default function CareersPage() {
 
           <a
             className="careers-button"
-            href="#"
+            href="https://www.linkedin.com/company/nestcase/jobs/"
             target="_blank"
             rel="noreferrer"
           >
@@ -56,7 +56,7 @@ export default function CareersPage() {
               <a href="#" target="_blank" rel="noreferrer" aria-label="Instagram">
                 <i className="fa fa-instagram" aria-hidden="true" />
               </a>
-              <a href="#" target="_blank" rel="noreferrer" aria-label="LinkedIn">
+              <a href="https://www.linkedin.com/company/nestcase/" target="_blank" rel="noreferrer" aria-label="LinkedIn">
                 <i className="fa fa-linkedin" aria-hidden="true" />
               </a>
             </div>
