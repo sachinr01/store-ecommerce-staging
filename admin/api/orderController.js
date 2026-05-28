@@ -1142,34 +1142,43 @@ const placeOrder = async (req, res) => {
 
     let awbResponse = null;
 
-    if (shiprocketResponse.shipment_id) {
-      const courierCompanyId = Number(req.body.courier_company_id);
+    if (shiprocketResponse.shipment_id && shiprocketResponse.status !== "CANCELED") {
+      try {
+        const courierCompanyId = Number(req.body.courier_company_id);
 
-      awbResponse = await generateAWB(
-        shiprocketResponse.shipment_id,
-        courierCompanyId,
-      );
+        awbResponse = await generateAWB(
+          shiprocketResponse.shipment_id,
+          courierCompanyId,
+        );
 
-      console.log("AWB Generated:", awbResponse);
-      await conn.query(
-        `UPDATE tbl_orders
-        SET shipment_id = ?,
-       awb_code = ?,
-       courier_name = ?,
-       shipping_status = ?
-        WHERE order_id = ?`,
-        [
-          shiprocketResponse.shipment_id || "",
-
-          awbResponse?.response?.data?.awb_code || "",
-
-          awbResponse?.response?.data?.courier_name || "",
-
-          "new",
-
-          orderId,
-        ],
-      );
+        console.log("AWB Generated:", awbResponse);
+        await conn.query(
+          `UPDATE tbl_orders
+          SET shipment_id = ?,
+              awb_code = ?,
+              courier_name = ?,
+              shipping_status = ?
+          WHERE order_id = ?`,
+          [
+            shiprocketResponse.shipment_id || "",
+            awbResponse?.response?.data?.awb_code || "",
+            awbResponse?.response?.data?.courier_name || "",
+            "new",
+            orderId,
+          ],
+        );
+      } catch (awbErr) {
+        // AWB failure is non-fatal — order is already saved in DB.
+        // Log the error and continue so the customer gets a success response.
+        console.error("AWB generation failed (non-fatal):", awbErr?.response?.data || awbErr.message);
+        // Still save shipment_id so admin can assign AWB manually later
+        await conn.query(
+          `UPDATE tbl_orders SET shipment_id = ?, shipping_status = ? WHERE order_id = ?`,
+          [shiprocketResponse.shipment_id || "", "new", orderId],
+        ).catch((dbErr) => console.error("Failed to save shipment_id:", dbErr.message));
+      }
+    } else if (shiprocketResponse.status === "CANCELED") {
+      console.warn("Shiprocket order CANCELED — skipping AWB. shipment_id:", shiprocketResponse.shipment_id);
     }
 
     // end shiprocket code
@@ -1995,7 +2004,7 @@ const getMyOrderById = async (req, res) => {
     return res.status(401).json({ success: false, message: "Login required." });
   }
   const orderId = Number.parseInt(req.params.orderId, 10);
-  if (!orderId) {
+  if (!Number.isFinite(orderId) || orderId <= 0) {
     return res
       .status(400)
       .json({ success: false, message: "Invalid order id." });
