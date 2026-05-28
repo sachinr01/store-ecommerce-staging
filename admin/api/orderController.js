@@ -2300,58 +2300,6 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// getTrackingStatus
-// Fetches live tracking from Shiprocket by AWB and updates the order status.
-// Frontend: GET /store/api/orders/track/:awb  (requireLogin on route)
-// ─────────────────────────────────────────────────────────────────────────────
-async function getTrackingStatus(req, res) {
-  try {
-    const token = await getShiprocketToken();
-    const { awb } = req.params;
-
-    const response = await axios.get(
-      `https://apiv2.shiprocket.in/v1/external/courier/track/awb/${awb}`,
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-
-    const tracking = response.data?.tracking_data;
-    const shiprocketStatus =
-      tracking?.shipment_track?.[0]?.current_status || "Pending";
-
-    // Only store known, mapped statuses — never write raw Shiprocket strings
-    // into order_status, which would break admin/customer status display.
-    const STATUS_MAP = {
-      NEW: "Order Confirmed",
-      "PICKUP SCHEDULED": "Packed",
-      "PICKED UP": "Shipped",
-      "IN TRANSIT": "In Transit",
-      "OUT FOR DELIVERY": "Out for Delivery",
-      DELIVERED: "Delivered",
-      CANCELLED: "Cancelled",
-      "RTO INITIATED": "Return Initiated",
-      "RTO DELIVERED": "Returned",
-    };
-
-    // Unknown Shiprocket statuses default to "In Transit" — safe fallback
-    // that doesn't corrupt order_status with raw external strings.
-    const finalStatus = STATUS_MAP[shiprocketStatus] ?? "In Transit";
-
-    await db.query(
-      `UPDATE tbl_orders SET order_status = ? WHERE awb_code = ?`,
-      [finalStatus, awb],
-    );
-
-    return res.json({
-      success: true,
-      current_status: finalStatus,
-      activities: tracking?.shipment_track_activities || [],
-    });
-  } catch (error) {
-    console.error("Tracking Error:", error.response?.data || error.message);
-    return res.status(500).json({ success: false });
-  }
-}
 
 module.exports = {
   placeOrder,
