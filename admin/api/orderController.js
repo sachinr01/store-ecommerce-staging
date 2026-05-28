@@ -149,12 +149,19 @@ async function createShiprocketOrder(orderData) {
 
     return response.data;
   } catch (error) {
-    console.log(
-      "Shiprocket Order Error:",
-      error.response?.data || error.message,
+    // ✅ Log the FULL Shiprocket error response, not just message
+    const shiprocketError = error.response?.data;
+    console.error(
+      "Shiprocket Order Error (full):",
+      JSON.stringify(shiprocketError, null, 2),
     );
+    console.error("Shiprocket Status Code:", error.response?.status);
+    console.error("Payload sent:", JSON.stringify(orderData, null, 2));
 
-    throw new Error("Failed to create Shiprocket order");
+    // ✅ Throw with real details so the catch above can log them too
+    const err = new Error("Failed to create Shiprocket order");
+    err.shiprocketError = shiprocketError;
+    throw err;
   }
 }
 
@@ -252,12 +259,6 @@ async function getShippingRate(req, res) {
       maxBreadth = Math.max(maxBreadth, breadth);
     }
 
-    console.log({
-      weight: totalWeight,
-      length: maxLength,
-      breadth: maxBreadth,
-      height: totalHeight,
-    });
 
     const response = await axios.get(
       "https://apiv2.shiprocket.in/v1/external/courier/serviceability",
@@ -304,6 +305,14 @@ async function getShippingRate(req, res) {
       selected.courier_name,
       getRate(selected),
     );
+    
+    console.log({
+      weight: totalWeight,
+      length: maxLength,
+      breadth: maxBreadth,
+      height: totalHeight,
+      rate: getRate(selected),
+    });
 
     return res.json({
       success: true,
@@ -1051,7 +1060,7 @@ const placeOrder = async (req, res) => {
       weight: totalWeight,
     });
 
-    const orderIdShiprocket = "ORD_" + orderId;
+    const orderIdShiprocket = "ORD_" + orderId + "_" + Date.now(); // makes it unique on retry
 
     // Standardize fallback metrics to match your rate calculator defaults
     const finalLength = maxLength || 10;
@@ -1122,13 +1131,17 @@ const placeOrder = async (req, res) => {
     // ===================================
 
     let shiprocketResponse = {};
-      try {
-        shiprocketResponse = await createShiprocketOrder(shiprocketPayload);
-      } catch (shipErr) {
-        console.error("Shiprocket order creation failed:", shipErr.message);
-        // Don't block the order — just skip shiprocket
-      }
 
+    try {
+      shiprocketResponse = await createShiprocketOrder(shiprocketPayload);
+    } catch (shipErr) {
+      console.error("Shiprocket failed:", shipErr.message);
+      console.error(
+        "Shiprocket API response:",
+        JSON.stringify(shipErr.shiprocketError, null, 2),
+      ); // ✅
+      // continues without blocking order
+    }
 
     console.log(
       "Shiprocket Order Created:",
@@ -1142,7 +1155,10 @@ const placeOrder = async (req, res) => {
 
     let awbResponse = null;
 
-    if (shiprocketResponse.shipment_id && shiprocketResponse.status !== "CANCELED") {
+    if (
+      shiprocketResponse.shipment_id &&
+      shiprocketResponse.status !== "CANCELED"
+    ) {
       try {
         const courierCompanyId = Number(req.body.courier_company_id);
 
@@ -1170,15 +1186,25 @@ const placeOrder = async (req, res) => {
       } catch (awbErr) {
         // AWB failure is non-fatal — order is already saved in DB.
         // Log the error and continue so the customer gets a success response.
-        console.error("AWB generation failed (non-fatal):", awbErr?.response?.data || awbErr.message);
+        console.error(
+          "AWB generation failed (non-fatal):",
+          awbErr?.response?.data || awbErr.message,
+        );
         // Still save shipment_id so admin can assign AWB manually later
-        await conn.query(
-          `UPDATE tbl_orders SET shipment_id = ?, shipping_status = ? WHERE order_id = ?`,
-          [shiprocketResponse.shipment_id || "", "new", orderId],
-        ).catch((dbErr) => console.error("Failed to save shipment_id:", dbErr.message));
+        await conn
+          .query(
+            `UPDATE tbl_orders SET shipment_id = ?, shipping_status = ? WHERE order_id = ?`,
+            [shiprocketResponse.shipment_id || "", "new", orderId],
+          )
+          .catch((dbErr) =>
+            console.error("Failed to save shipment_id:", dbErr.message),
+          );
       }
     } else if (shiprocketResponse.status === "CANCELED") {
-      console.warn("Shiprocket order CANCELED — skipping AWB. shipment_id:", shiprocketResponse.shipment_id);
+      console.warn(
+        "Shiprocket order CANCELED — skipping AWB. shipment_id:",
+        shiprocketResponse.shipment_id,
+      );
     }
 
     // end shiprocket code
@@ -1590,7 +1616,7 @@ const placeOrder = async (req, res) => {
     });
   } finally {
     conn.release();
-  } 
+  }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -2308,7 +2334,6 @@ const updateOrderStatus = async (req, res) => {
     conn.release();
   }
 };
-
 
 module.exports = {
   placeOrder,
