@@ -3438,8 +3438,8 @@ input[type="checkbox"] {
 .gw-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  max-width: 1360px;
+  gap: 40px;
+  max-width: 940px;
   margin: 0 auto;
   padding: 0 45px;
 }
@@ -3449,7 +3449,7 @@ input[type="checkbox"] {
   overflow: hidden;
   background: #f3f3f3;
   /*  */
-  height: 400px;
+  height: 530px;
   /*  */
 }
 
@@ -3493,7 +3493,7 @@ input[type="checkbox"] {
   }
 
   .gw-grid {
-    gap: 10px;
+    gap: 40px;
     padding: 0 45px;
   }
 /*  */
