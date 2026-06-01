@@ -370,7 +370,7 @@ async function getTrackingStatus(req, res) {
     // update order table
     await db.query(
       `
-            UPDATE orders
+            UPDATE tbl_orders
             SET
                 order_status=?
             WHERE awb_code=?
