@@ -23,7 +23,7 @@ const CATEGORY_NAME_TO_SLUG: Record<string, string> = {
   'jars and containers': 'jars-and-containers',
   'jars & containers': 'jars-and-containers',
   'kitchen organisers': 'jars-and-containers',
-  'kitchen organizers': 'kitchen-organizers',
+  'kitchen organizers': 'kitchen-organisers',
   'cup & mugs': 'cup-and-mugs'
 };
 const getCategoryHref = (slug: string) => {
@@ -163,57 +163,21 @@ export default function Header() {
     }, 280);
   };
 
-  const [aboutHref] = useState("/about-us");
-  const [b2bHref, setB2bHref] = useState("/b2b-connect");
-
-  useEffect(() => {
-    fetch('/store/api/pages?limit=100', { cache: 'no-store' })
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (!data?.success || !Array.isArray(data.data)) return;
-        const normalize = (v: string) => String(v || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-        const resolve = (matchers: string[]) => {
-          const page = data.data.find((p: { title: string; slug: string }) =>
-            matchers.some(m => normalize(p.title).includes(normalize(m)))
-          );
-          return page?.slug ? `/${page.slug}` : null;
-        };
-        const b2b = resolve(['b2b connect', 'b2b-connect', 'b2b']);
-        if (b2b) setB2bHref(b2b);
-      })
-      .catch(() => {});
-  }, []);
-
-  type NavCategory = { id: number; name: string; slug: string };
-  const [navCategories, setNavCategories] = useState<NavCategory[]>([]);
-
-  useEffect(() => {
-    fetch('/store/api/product-categories', { headers: { Accept: 'application/json' } })
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (!data?.success || !Array.isArray(data.data)) return;
-        const topLevel = data.data
-          .filter((c: any) => !c.parent_id || Number(c.parent_id) === 0)
-          .map((c: any) => ({ id: c.category_id, name: c.category_name, slug: c.category_slug }));
-        setNavCategories(topLevel);
-      })
-      .catch(() => {});
-  }, []);
-
   const navLinks: Array<{ label: string; href: string; mega?: MegaMenu }> = [
-    ...navCategories.map(cat => ({
-      label: cat.name,
-      href: `/shop/${cat.slug}`,
-      mega: { columns: [], featured: [], categorySlug: cat.slug } as MegaMenu,
-    })),
-    { label: "About Us", href: aboutHref },
-    { label: "B2B Connect", href: b2bHref },
+    { label: "Drinkware",          href: "/shop/drinkware",           mega: { columns: [], featured: [], categorySlug: "drinkware" } },
+    { label: "Glassware",          href: "/shop/glassware",           mega: { columns: [], featured: [], categorySlug: "glassware" } },
+    { label: "Kitchen Organisers", href: "/shop/kitchen-organisers",  mega: { columns: [], featured: [], categorySlug: "kitchen-organisers" } },
+    { label: "Cup & Mugs",         href: "/shop/cup-and-mugs",        mega: { columns: [], featured: [], categorySlug: "cup-and-mugs" } },
+    { label: "Bowl & Platters",    href: "/shop/bowl-and-platters",   mega: { columns: [], featured: [], categorySlug: "bowl-and-platters" } },
+    { label: "Dinner Set",         href: "/shop/dinner-set",          mega: { columns: [], featured: [], categorySlug: "dinner-set" } },
+    { label: "About Us",           href: "/about-us" },
+    { label: "B2B Connect",        href: "/b2b-connect" },
   ];
 
   const [catProducts, setCatProducts] = useState<Record<string, Array<{ id: number; title: string; price: string; image: string; slug: string }>>>({});
   const [catBestSellers, setCatBestSellers] = useState<Record<string, Array<{ id: number; title: string; price: string; image: string; slug: string }>>>({});
 
-  const mapProducts = (raw: any[]) => raw.slice(0, 4).map((p: any) => {
+  const mapProducts = (raw: any) => (Array.isArray(raw) ? raw : []).slice(0, 4).map((p: any) => {
     const raw_img = p.thumbnail_url ?? '';
     const image = raw_img
       ? raw_img.startsWith('http') || raw_img.startsWith('//') ? raw_img
@@ -229,15 +193,17 @@ export default function Header() {
   });
 
   useEffect(() => {
-    if (!navCategories.length) return;
-    navCategories.forEach(cat => {
-      fetch(`/store/api/product-categories/${cat.slug}/products`, { headers: { Accept: 'application/json' } })
-        .then(r => r.json()).then(json => setCatProducts(prev => ({ ...prev, [cat.slug]: mapProducts(json.data ?? json ?? []) }))).catch(() => {});
-      fetch(`/store/api/products/best-sellers?category=${cat.slug}&limit=2`, { headers: { Accept: 'application/json' } })
-        .then(r => r.json()).then(json => setCatBestSellers(prev => ({ ...prev, [cat.slug]: mapProducts(json.data ?? []) }))).catch(() => {});
+    const categorySlugs = navLinks
+      .filter(l => l.mega?.categorySlug)
+      .map(l => l.mega!.categorySlug!);
+    categorySlugs.forEach(slug => {
+      fetch(`/store/api/product-categories/${slug}/products`, { headers: { Accept: 'application/json' } })
+        .then(r => r.json()).then(json => setCatProducts(prev => ({ ...prev, [slug]: mapProducts(json.data ?? json ?? []) }))).catch(() => {});
+      fetch(`/store/api/products/best-sellers?category=${slug}&limit=2`, { headers: { Accept: 'application/json' } })
+        .then(r => r.json()).then(json => setCatBestSellers(prev => ({ ...prev, [slug]: mapProducts(json.data ?? []) }))).catch(() => {});
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navCategories]);
+  }, []);
 
   const closeOverlays = () => { setCartOpen(false); setSearchOpen(false); setMobileSearchOpen(false); setMobileMenuOpen(false); setActiveMenu(null); };
   const openMega = (label: string) => { if (megaLeaveTimer.current) clearTimeout(megaLeaveTimer.current); setActiveMenu(label); };

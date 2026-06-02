@@ -11,6 +11,13 @@ const { sessionMiddleware } = require('./session');
 const { guestCookieMiddleware } = require('./guestCookie');
 const { requireAdmin, requireAgentOrAdmin, requireLogin } = require('./authMiddleware');
 const contact = require('./contactController');
+const {
+  authLimiter,
+  passwordResetLimiter,
+  contactLimiter,
+  orderLimiter,
+  couponLimiter,
+} = require('./rateLimiters');
 
 router.use(guestCookieMiddleware());
 router.use(sessionMiddleware());
@@ -19,7 +26,7 @@ router.use(sessionMiddleware());
 router.get('/health', (_req, res) => res.json({ success: true, message: 'API is running' }));
 
 // ── Contact Forms ─────────────────────────────────────────────────────────────
-router.post('/contact', contact.submitContact);
+router.post('/contact', contactLimiter, contact.submitContact);
 
 // ── Products ──────────────────────────────────────────────────────────────────
 router.get('/products/featured',      ctrl.getFeaturedProducts);
@@ -59,18 +66,18 @@ router.get('/product-categories/:slug/children',   ctrl.getCategoryChildren);
 router.get('/product-categories/:slug/products',   ctrl.getCategoryProducts);
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
-router.post('/auth/register', auth.register);
-router.post('/auth/login',    auth.login);
-router.post('/auth/google',   auth.googleLogin);
+router.post('/auth/register', authLimiter, auth.register);
+router.post('/auth/login',    authLimiter, auth.login);
+router.post('/auth/google',   authLimiter, auth.googleLogin);
 router.post('/auth/logout',   auth.logout);
-router.post('/auth/forgot-password', auth.requestPasswordReset);
-router.post('/auth/reset-password',  auth.resetPassword);
+router.post('/auth/forgot-password', passwordResetLimiter, auth.requestPasswordReset);
+router.post('/auth/reset-password',  passwordResetLimiter, auth.resetPassword);
 router.get('/auth/me',        auth.me);
 router.put('/auth/profile',   requireLogin, auth.updateProfile);
 
 // ── Coupons ───────────────────────────────────────────────────────────────────
 router.get('/coupon/active',   coupon.active);
-router.post('/coupon/apply',   coupon.apply);
+router.post('/coupon/apply',   couponLimiter, coupon.apply);
 router.post('/coupon/remove',  coupon.remove);
 
 // ── Cart ──────────────────────────────────────────────────────────────────────
@@ -88,7 +95,7 @@ router.post  ('/wishlist/sync',               requireLogin, wishlist.syncWishlis
 
 // ── Orders ────────────────────────────────────────────────────────────────────
 // NOTE: /orders/my MUST come before /orders/:orderId to avoid route conflict
-router.post('/orders/place',      orders.placeOrder);
+router.post('/orders/place',      orderLimiter, orders.placeOrder);
 router.post('/shipping-rate',     orders.getShippingRate);
 router.get('/tracking/:awb',      orders.getTrackingStatus);
 router.get('/orders/my',          requireLogin, orders.getMyOrders);

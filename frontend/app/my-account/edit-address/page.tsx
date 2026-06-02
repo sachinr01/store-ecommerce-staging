@@ -105,7 +105,7 @@ export default function EditAddressPage() {
                       {loadingAddress && <p className="account-address-message">Loading your latest saved checkout addresses...</p>}
 
                       <section className="account-address-card">
-                        <h3 className="account-address-title">Address</h3>
+                        <h4 className="account-address-title">Address</h4>
                         <Link href="/my-account/edit-address/billing" className="account-address-edit-link">
                           <span className="account-address-edit-icon">{'->'}</span>
                           <span>Edit address</span>
