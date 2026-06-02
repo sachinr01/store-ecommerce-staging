@@ -9,6 +9,8 @@ import { BLOG_FEATURED_LIMIT } from '../utils/config';
 import { getBlogDetailHref } from '../utils/links';
 import { getBlogCategories, getBlogs, getLatestBlogs, getBlogsByCategory } from '../utils/getBlogs';
 import type { BlogSidebarFeaturedItem } from '../types';
+import { buildAdminSeoMetadata } from '../../lib/helpers/seoMetadata';
+import { resolveOgImageUrl } from '../../lib/helpers/siteUrl';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,34 +21,51 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const resolved = await params;
   const segments = (resolved?.slug ?? []).map((s) => decodeURIComponent(s)).filter(Boolean);
-  if (segments.length === 0) return {};
+
+  // Blog listing only — do not inherit a post-level canonical
+  if (segments.length === 0) {
+    return {
+      title: 'Blog – Home Decor & Lifestyle',
+      description:
+        'Explore home decor tips, interior styling inspiration, and the latest updates from our team.',
+      alternates: { canonical: '/store/blog' },
+      openGraph: {
+        title: 'Blog – Home Decor & Lifestyle',
+        description:
+          'Explore home decor tips, interior styling inspiration, and the latest updates from our team.',
+        url: '/store/blog',
+        type: 'website',
+      },
+    };
+  }
 
   const slug = segments[0].toLowerCase();
   const blogResult = await getBlogBySlug(slug);
   const blog = blogResult.blog;
   if (!blog) return {};
 
-  // Use admin-set SEO fields from tbl_postmeta — fall back to blog title/summary if not set
-  const metaTitle       = blog.seo_meta_title       || `${blog.title} | Blog`;
-  const metaDescription = blog.seo_meta_description || blog.summary || `Read "${blog.title}" on our blog.`;
-  const canonicalUrl    = blog.seo_canonical_tag     || `/blog/${blog.slug}`;
-  const shouldIndex     = (blog.seo_meta_index || 'yes').toLowerCase() !== 'no';
+  const seo = buildAdminSeoMetadata(
+    {
+      seo_meta_title: blog.seo_meta_title,
+      seo_meta_description: blog.seo_meta_description,
+      seo_canonical_tag: blog.seo_canonical_tag,
+      fallbackTitle: blog.title,
+    },
+    { openGraphType: 'article', overrideTwitter: true },
+  );
+  const shouldIndex = (blog.seo_meta_index || 'yes').toLowerCase() !== 'no';
+  const ogImageUrl  = resolveOgImageUrl(blog.image);
 
   return {
-    title: metaTitle,
-    description: metaDescription,
+    ...seo,
     robots: {
       index:  shouldIndex,
       follow: shouldIndex,
     },
     openGraph: {
-      title:       metaTitle,
-      description: metaDescription,
-      url:         canonicalUrl,
-      type:        'article',
-      ...(blog.image ? { images: [{ url: blog.image, alt: blog.title }] } : {}),
+      ...seo.openGraph,
+      ...(ogImageUrl ? { images: [{ url: ogImageUrl, alt: blog.title }] } : {}),
     },
-    alternates: { canonical: canonicalUrl },
   };
 }
 

@@ -5,7 +5,8 @@ import Script from 'next/script';
 import ProductPageShell from '../../components/ProductPageShell';
 import type { ProductDetail } from '../../lib/api';
 import { htmlToText } from '../../lib/helpers/html';
-import { productCanonicalUrl } from '../../lib/helpers/siteUrl';
+import { buildAdminSeoMetadata } from '../../lib/helpers/seoMetadata';
+import { productCanonicalUrl, resolveOgImageUrl } from '../../lib/helpers/siteUrl';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/store/api';
 
@@ -34,7 +35,7 @@ function buildProductJsonLd(product: ProductDetail, slug: string) {
       ? 'https://schema.org/BackOrder'
       : 'https://schema.org/OutOfStock';
 
-  const canonicalUrl = productCanonicalUrl(slug);
+  const canonicalUrl = productCanonicalUrl(slug, product.seo_canonical_tag);
 
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
@@ -76,28 +77,25 @@ export async function generateMetadata({
   const product = await fetchProduct(slug);
   if (!product) return {};
 
-  const metaTitle       = product.seo_meta_title || product.title || '';
-  const metaDescription = product.seo_meta_description
-    || htmlToText(product.short_description || '')
-    || '';
-  // Relative path is correct here — Next.js resolves it against metadataBase from layout.tsx
-  // If admin has set a custom seo_canonical_tag, use that (absoluteUrl handles relative or absolute)
-  const canonicalUrl    = product.seo_canonical_tag || `/store/shop/product/${slug}`;
-  const shouldIndex     = (product.seo_meta_index || 'yes').toLowerCase() !== 'no';
-  const ogImage         = product.thumbnail_url || null;
+  const seo = buildAdminSeoMetadata(
+    {
+      seo_meta_title: product.seo_meta_title,
+      seo_meta_description: product.seo_meta_description,
+      seo_canonical_tag: product.seo_canonical_tag,
+      fallbackTitle: product.title,
+    },
+    { absoluteTitle: true },
+  );
+  const shouldIndex = (product.seo_meta_index || 'yes').toLowerCase() !== 'no';
+  const ogImageUrl  = resolveOgImageUrl(product.thumbnail_url);
 
   return {
-    title: { absolute: metaTitle },
-    description: metaDescription,
+    ...seo,
     robots: { index: shouldIndex, follow: shouldIndex },
     openGraph: {
-      title:       metaTitle,
-      description: metaDescription,
-      url:         canonicalUrl,
-      type:        'website',
-      ...(ogImage ? { images: [{ url: ogImage, alt: product.title }] } : {}),
+      ...seo.openGraph,
+      ...(ogImageUrl ? { images: [{ url: ogImageUrl, alt: product.title }] } : {}),
     },
-    alternates: { canonical: canonicalUrl },
   };
 }
 

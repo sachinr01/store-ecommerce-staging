@@ -1,18 +1,5 @@
 /**
  * Site URL helper — for contexts where Next.js metadataBase does NOT apply.
- *
- * Next.js automatically resolves relative paths in generateMetadata() against
- * metadataBase (set in layout.tsx). So for <title>, <meta>, alternates.canonical,
- * openGraph.url etc. — relative paths are fine and correct.
- *
- * This helper is needed for:
- *  - JSON-LD structured data (<script type="application/ld+json">) — raw script tag,
- *    metadataBase does not apply, must be absolute URLs.
- *  - Any other place outside Next.js metadata API that needs a full URL.
- *
- * Env var priority:
- *  1. SITE_URL             — server-only, not exposed to browser (set in prod deployment)
- *  2. NEXT_PUBLIC_SITE_URL — public fallback
  */
 export const SITE_URL = (
   process.env.SITE_URL ||
@@ -29,11 +16,32 @@ export function absoluteUrl(path: string): string {
   return `${SITE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
 }
 
+/** Absolute URL for Open Graph images (product thumbnail, blog hero, etc.). */
+export function resolveOgImageUrl(filePath: string | null | undefined): string | undefined {
+  const trimmed = filePath?.trim();
+  if (!trimmed) return undefined;
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+  if (trimmed.startsWith('/')) return absoluteUrl(trimmed);
+  if (trimmed.startsWith('uploads/')) return absoluteUrl(`/${trimmed}`);
+  if (trimmed.startsWith('store/')) return absoluteUrl(`/${trimmed}`);
+  // DB paths like "products/file.jpg" or wrongly stored "images/2.jpg"
+  return absoluteUrl(`/uploads/${trimmed}`);
+}
+
+/** Backend SEO field — only when admin set it; omit the meta tag otherwise. */
+export function resolveSeoField(value: string | null | undefined): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed || undefined;
+}
+
+export const resolveSeoCanonical = resolveSeoField;
+
 /**
- * Absolute canonical URL for a product — used in JSON-LD only.
- * For generateMetadata(), use the relative path directly; Next.js handles resolution.
+ * Absolute product URL for JSON-LD — uses admin canonical when set, else the product path.
+ * Not used for <link rel="canonical">; see resolveSeoCanonical for metadata.
  */
 export function productCanonicalUrl(slug: string, seoCanonicalTag?: string | null): string {
-  if (seoCanonicalTag) return absoluteUrl(seoCanonicalTag);
+  const custom = resolveSeoCanonical(seoCanonicalTag);
+  if (custom) return absoluteUrl(custom);
   return absoluteUrl(`/store/shop/product/${slug}`);
 }
