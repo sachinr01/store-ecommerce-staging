@@ -199,11 +199,6 @@ export default function CartPage() {
                         </div>
                       )}
 
-                      <div className="cart-summary-row">
-                        <span>Shipping &amp; Handling</span>
-                        <span className="cart-summary-shipping">Free Shipping</span>
-                      </div>
-
                       <div className="cart-summary-row total">
                         <span>Order Total</span>
                         <span>{formatPrice(orderTotal)}</span>
