@@ -21,7 +21,7 @@ exports.index = async (req, res) => {
     res.render("pages/index", {
       title: "Pages",
       pages: rows,
-      currentRoute: "/store/admin/pages",
+      currentRoute: "/admin/pages",
       success: req.query.success || null,
       error: req.query.error || null,
     });
@@ -98,7 +98,7 @@ exports.showForm = async (req, res) => {
       page: blog || {},
       allCategories: categories,
       selectedCategoryIds,
-      currentRoute: "/store/admin/pages",
+      currentRoute: "/admin/pages",
       errors: null,
     });
   } catch (err) {
@@ -190,7 +190,7 @@ exports.store = async (req, res) => {
       );
     }
 
-    res.redirect("/store/admin/pages?success=Page created successfully");
+    res.redirect("/admin/pages?success=Page created successfully");
   } catch (err) {
     console.error(err);
     res.send(err.message);
@@ -295,7 +295,7 @@ exports.update = async (req, res) => {
       );
     }
 
-    res.redirect("/store/admin/pages?success=Page updated successfully");
+    res.redirect("/admin/pages?success=Page updated successfully");
   } catch (err) {
     console.error(err);
     res.send(err.message);
@@ -332,7 +332,7 @@ exports.delete = async (req, res) => {
     // DELETE POST META
     await db.query(`DELETE FROM tbl_postmeta WHERE post_id = ?`, [id]);
 
-    res.redirect("/store/admin/pages?success=Page deleted successfully");
+    res.redirect("/admin/pages?success=Page deleted successfully");
   } catch (err) {
     console.error(err);
     res.send(err.message);

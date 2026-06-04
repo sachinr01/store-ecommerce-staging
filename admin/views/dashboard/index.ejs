@@ -159,7 +159,7 @@
                                                     <div class="text-end mt-3">
                                                         <button class="btn btn-sm btn-light-danger"
                                                             id="btn-lowstock-more" data-offset="5"
-                                                            data-endpoint="/store/admin/load-more/low-stock"
+                                                            data-endpoint="/admin/load-more/low-stock"
                                                             data-target="lowstock-list" data-type="lowstock"
                                                             onclick="loadMore(this)">
                                                             View More
@@ -257,7 +257,7 @@
 
                                                         <button class="btn btn-sm btn-light-primary"
                                                             id="btn-bestsellers-more" data-offset="5"
-                                                            data-endpoint="/store/admin/load-more/best-sellers"
+                                                            data-endpoint="/admin/load-more/best-sellers"
                                                             data-target="bestsellers-list" data-type="bestsellers"
                                                             onclick="loadMore(this)">
                                                             View More
@@ -294,7 +294,7 @@
                                                                     <div
                                                                         class="d-flex justify-content-between align-items-center">
                                                                         <strong class="text-primary">
-                                                                            <a href="/store/admin/orders/<%= order.order_id %>"
+                                                                            <a href="/admin/orders/<%= order.order_id %>"
                                                                                 class="fw-semibold text-decoration-none"
                                                                                 target="_blank">
                                                                                 #<%=order.order_id %>
@@ -337,7 +337,7 @@
                                                     <div class="text-end mt-3">
                                                         <button class="btn btn-sm btn-light-info" id="btn-orders-more"
                                                             data-offset="5"
-                                                            data-endpoint="/store/admin/load-more/orders"
+                                                            data-endpoint="/admin/load-more/orders"
                                                             data-target="orders-list" data-type="orders"
                                                             onclick="loadMore(this)">
                                                             View More
@@ -395,7 +395,7 @@
 
                                                     <div class="text-end mt-3">
                                                         <button class="btn btn-sm btn-light-primary" id="btn-users-more"
-                                                            data-offset="5" data-endpoint="/store/admin/load-more/users"
+                                                            data-offset="5" data-endpoint="/admin/load-more/users"
                                                             data-target="users-list" data-type="users"
                                                             onclick="loadMore(this)">
                                                             View More
@@ -436,7 +436,7 @@
                                                     </div>
 
                                                     <div class="text-end mt-3">
-                                                        <a href="/store/admin/products/categories"
+                                                        <a href="/admin/products/categories"
                                                             class="btn btn-sm btn-light-warning" target="_blank">
                                                             View All
                                                         </a>
@@ -624,7 +624,7 @@
 
                                     <div class="d-flex justify-content-between align-items-center">
                                         <strong class="text-primary">
-                                            <a href="/store/admin/orders/${d.order_id}"
+                                            <a href="/admin/orders/${d.order_id}"
                                               class="fw-semibold text-decoration-none" target="_blank">
                                                     #${d.order_id}
                                             </a>

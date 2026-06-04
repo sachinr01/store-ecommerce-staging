@@ -141,8 +141,8 @@ export default function Header() {
       setSuggestLoading(true);
       try {
         const [prodRes, catRes] = await Promise.all([
-          fetch(`/store/api/products?search=${encodeURIComponent(value.trim())}&limit=5`, { headers: { Accept: 'application/json' }, signal: controller.signal }),
-          fetch(`/store/api/product-categories/search?q=${encodeURIComponent(value.trim())}&limit=4`, { headers: { Accept: 'application/json' }, signal: controller.signal }),
+          fetch(`/api/products?search=${encodeURIComponent(value.trim())}&limit=5`, { headers: { Accept: 'application/json' }, signal: controller.signal }),
+          fetch(`/api/product-categories/search?q=${encodeURIComponent(value.trim())}&limit=4`, { headers: { Accept: 'application/json' }, signal: controller.signal }),
         ]);
         if (!prodRes.ok || !catRes.ok) throw new Error('fetch failed');
         const prodJson = await prodRes.json();
@@ -167,7 +167,7 @@ export default function Header() {
   const [b2bHref, setB2bHref] = useState("/b2b-connect");
 
   useEffect(() => {
-    fetch('/store/api/pages?limit=100', { cache: 'no-store' })
+    fetch('/api/pages?limit=100', { cache: 'no-store' })
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (!data?.success || !Array.isArray(data.data)) return;
@@ -188,7 +188,7 @@ export default function Header() {
   const [navCategories, setNavCategories] = useState<NavCategory[]>([]);
 
   useEffect(() => {
-    fetch('/store/api/product-categories', { headers: { Accept: 'application/json' } })
+    fetch('/api/product-categories', { headers: { Accept: 'application/json' } })
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (!data?.success || !Array.isArray(data.data)) return;
@@ -231,9 +231,9 @@ export default function Header() {
   useEffect(() => {
     if (!navCategories.length) return;
     navCategories.forEach(cat => {
-      fetch(`/store/api/product-categories/${cat.slug}/products`, { headers: { Accept: 'application/json' } })
+      fetch(`/api/product-categories/${cat.slug}/products`, { headers: { Accept: 'application/json' } })
         .then(r => r.json()).then(json => setCatProducts(prev => ({ ...prev, [cat.slug]: mapProducts(json.data ?? json ?? []) }))).catch(() => {});
-      fetch(`/store/api/products/best-sellers?category=${cat.slug}&limit=2`, { headers: { Accept: 'application/json' } })
+      fetch(`/api/products/best-sellers?category=${cat.slug}&limit=2`, { headers: { Accept: 'application/json' } })
         .then(r => r.json()).then(json => setCatBestSellers(prev => ({ ...prev, [cat.slug]: mapProducts(json.data ?? []) }))).catch(() => {});
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -317,7 +317,7 @@ export default function Header() {
 
             <div className="nh-top-center">
               <Link href="/" className="nh-logo-link" onClick={closeOverlays}>
-                <Image src="/store/images/nestcase-logo-optimized.png" alt="Nestcase" width={220} height={80} priority className="nh-logo-image" />
+                <Image src="/images/nestcase-logo-optimized.png" alt="Nestcase" width={220} height={80} priority className="nh-logo-image" />
               </Link>
             </div>
 
@@ -390,7 +390,7 @@ export default function Header() {
                           const bestSellers = catBestSellers[slug] ?? [];
                           const shopHref = link.href;
                           const promos = [
-                            { img: `/store/images/category_images/CC_${slug.toUpperCase().replace(/-/g, '_')}.png`, title: `OUR ${link.label} COLLECTION`, sub: '150+ Products Available' },
+                            { img: `/images/category_images/CC_${slug.toUpperCase().replace(/-/g, '_')}.png`, title: `OUR ${link.label} COLLECTION`, sub: '150+ Products Available' },
                           ];
                           const placeholder = <span className="nh-km-placeholder"><svg viewBox="0 0 48 48" fill="none"><rect width="48" height="48" fill="#e8e8e8"/><path d="M14 34l8-10 6 7 4-5 6 8H14z" fill="#bbb"/><circle cx="30" cy="20" r="4" fill="#bbb"/></svg></span>;
                           return (
@@ -533,7 +533,7 @@ export default function Header() {
       {mobileMenuOpen && <div className="nh-drawer-overlay" onClick={() => setMobileMenuOpen(false)} />}
       <aside className={`nh-drawer${mobileMenuOpen ? ' open' : ''}`} aria-hidden={!mobileMenuOpen}>
         <div className="nh-drawer-head">
-          <Image src="/store/images/nestcase-logo-optimized.png" alt="Nestcase" width={200} height={53} style={{ width: 'auto', height: '60px' }}/>
+          <Image src="/images/nestcase-logo-optimized.png" alt="Nestcase" width={200} height={53} style={{ width: 'auto', height: '60px' }}/>
           <button type="button" className="nh-search-close" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">×</button>
         </div>
         <ul className="nh-drawer-nav">

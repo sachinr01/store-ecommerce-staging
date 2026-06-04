@@ -257,7 +257,7 @@ const showEditProduct = async (req, res) => {
       [id],
     );
     if (!product) {
-      return res.redirect("/store/admin/products?error=Product not found");
+      return res.redirect("/admin/products?error=Product not found");
     }
 
     // STEP 2: Get main product meta
@@ -985,12 +985,12 @@ const storeProduct = async (req, res) => {
     }
 
     await conn.commit();
-    res.redirect("/store/admin/products?success=Product added successfully");
+    res.redirect("/admin/products?success=Product added successfully");
   } catch (err) {
     await conn.rollback();
     console.error("Store Product Error:", err.message, err.stack);
     res.redirect(
-      "/store/admin/products/add?error=" + encodeURIComponent(err.message),
+      "/admin/products/add?error=" + encodeURIComponent(err.message),
     );
   } finally {
     conn.release();
@@ -1584,14 +1584,14 @@ const updateProduct = async (req, res) => {
     }
 
     await conn.commit();
-    res.redirect("/store/admin/products?success=Product updated successfully");
+    res.redirect("/admin/products?success=Product updated successfully");
   } catch (err) {
     await conn.rollback();
     console.error("❌ Update Product Error:", err.message);
     console.error("SQL:", err.sql || "N/A");
     console.error("Stack:", err.stack);
     res.redirect(
-      `/store/admin/products/edit/${req.params.id}?error=` +
+      `/admin/products/edit/${req.params.id}?error=` +
         encodeURIComponent(err.message),
     );
   } finally {
@@ -1609,11 +1609,11 @@ const deleteProduct = async (req, res) => {
     );
     await db.query("DELETE FROM tbl_products WHERE parent_id = ?", [id]);
     await db.query("DELETE FROM tbl_products WHERE ID = ?", [id]);
-    res.redirect("/store/admin/products?success=Product deleted successfully");
+    res.redirect("/admin/products?success=Product deleted successfully");
   } catch (err) {
     console.error("Delete Product Error:", err.message);
     res.redirect(
-      "/store/admin/products?error=" + encodeURIComponent(err.message),
+      "/admin/products?error=" + encodeURIComponent(err.message),
     );
   }
 };

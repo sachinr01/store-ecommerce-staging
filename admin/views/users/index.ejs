@@ -11,14 +11,14 @@
               <div class="d-flex align-items-center">
                 <nav aria-label="breadcrumb">
                   <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/store/admin/dashboard">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
                     <li class="breadcrumb-item active">Users</li>
                   </ol>
                 </nav>
               </div>
             </div>
             <div class="col-5 align-self-center text-end">
-              <a href="/store/admin/users/add" class="btn-view-product btn-view-product--inline na-view-all-btn">
+              <a href="/admin/users/add" class="btn-view-product btn-view-product--inline na-view-all-btn">
                 <div class="d-flex align-items-center gap-1">
                   <i data-feather="user-plus" class="feather-sm"></i> Add User
                 </div>
@@ -109,7 +109,7 @@
                                     </td>
                                     <td>
                                       <div class="d-flex gap-1">
-                                        <a href="/store/admin/users/edit/<%= u.ID %>"
+                                        <a href="/admin/users/edit/<%= u.ID %>"
                                           class="btn btn-sm btn-outline-primary rounded-pill px-2 py-1">
                                           <i data-feather="edit-2" style="width:13px;height:13px;"></i>
                                         </a>
@@ -117,7 +117,7 @@
                                           class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1 delete-btn"
                                           data-id="<%= u.ID %>" 
                                           data-name="<%= u.display_name || u.user_login %>"
-                                          data-url="/store/admin/users/delete/"
+                                          data-url="/admin/users/delete/"
                                           data-title="Delete User">
                                           <i data-feather="trash-2" style="width:13px;height:13px;"></i>
                                         </button>

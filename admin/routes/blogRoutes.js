@@ -7,7 +7,7 @@ router.get("/blogs", isAuthenticated, blogController.index);
 router.get("/blogs/add", isAuthenticated, blogController.showForm);
 router.get("/blogs/edit/:id", isAuthenticated, blogController.showForm);
 
-router.post("/blogs/store", isAuthenticated, blogController.store);
+router.post("/blogs", isAuthenticated, blogController.store);
 router.post("/blogs/update/:id", isAuthenticated, blogController.update);
 
 router.get("/blogs/delete/:id", isAuthenticated, blogController.delete);

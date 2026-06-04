@@ -13,8 +13,8 @@
               <div class="d-flex align-items-center">
                 <nav aria-label="breadcrumb">
                   <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/store/admin/dashboard">Home</a></li>
-                    <li class="breadcrumb-item"><a href="/store/admin/products">Products</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/products">Products</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Categories</li>
                   </ol>
                 </nav>
@@ -52,7 +52,7 @@
 
                       <h4 class="card-title mb-3 pb-3 border-bottom">Add New Category</h4>
 
-                      <form method="POST" action="/store/admin/product/category/store">
+                      <form method="POST" action="/admin/product/category">
 
                         <div class="mb-3">
                           <label class="form-label fw-semibold">
@@ -223,7 +223,7 @@
                                         </button>
                                         <button class="btn btn-sm btn-outline-danger rounded-pill px-3 delete-btn"
                                           data-id="<%= cat.category_id %>" data-name="<%= cat.category_name %>"
-                                          data-url="/store/admin/product/category/delete/" data-title="Delete Category">
+                                          data-url="/admin/product/category/delete/" data-title="Delete Category">
 
                                           <div class="d-flex align-items-center gap-1">
                                             <i data-feather="trash-2" class="feather-sm"></i> Delete
@@ -362,7 +362,7 @@
             document.getElementById('edit_slug').value = slug;
             document.getElementById('edit_parent').value = parent || 0;
             document.getElementById('edit_desc').value = desc;
-            document.getElementById('editForm').action = '/store/admin/product/category/update/' + id;
+            document.getElementById('editForm').action = '/admin/product/category/update/' + id;
             new bootstrap.Modal(document.getElementById('editModal')).show();
           }
 

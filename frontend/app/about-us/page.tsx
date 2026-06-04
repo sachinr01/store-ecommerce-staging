@@ -50,7 +50,7 @@ export default function AboutUsPage() {
       <main className="aboutus-main">
         <section className="aboutus-banner">
           <img
-            src="/store/images/about/about-banner.jpeg"
+            src="/images/about/about-banner.jpeg"
             alt="About Nestcase"
             className="aboutus-banner-img"
           />
@@ -98,7 +98,7 @@ export default function AboutUsPage() {
 
             <div className="aboutus-art aboutus-art-bowl">
               <img
-                src="/store/images/about/about-cn.jpeg"
+                src="/images/about/about-cn.jpeg"
                 alt="Minimal ceramic bowl and plates"
               />
             </div>
@@ -144,7 +144,7 @@ export default function AboutUsPage() {
 
             <div className="aboutus-art aboutus-art-vase">
               <img
-                src="/store/images/about/about-ls.jpeg"
+                src="/images/about/about-ls.jpeg"
                 alt="Ceramic vase and bowl on stacked books"
               />
             </div>

@@ -12,11 +12,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ✅ Serve static files on BOTH paths (local + VPS)
-app.use('/store/admin/css', express.static(path.join(__dirname, 'public/css')));
-app.use('/store/admin/js', express.static(path.join(__dirname, 'public/js')));
-app.use('/store/admin/images', express.static(path.join(__dirname, 'public/images')));
-app.use('/store/admin/fonts', express.static(path.join(__dirname, 'public/fonts')));
-app.use('/store/admin/libs', express.static(path.join(__dirname, 'public/libs')));
+app.use('/admin/css', express.static(path.join(__dirname, 'public/css')));
+app.use('/admin/js', express.static(path.join(__dirname, 'public/js')));
+app.use('/admin/images', express.static(path.join(__dirname, 'public/images')));
+app.use('/admin/fonts', express.static(path.join(__dirname, 'public/fonts')));
+app.use('/admin/libs', express.static(path.join(__dirname, 'public/libs')));
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
@@ -64,22 +64,22 @@ const blogCategoryRoutes = require('./routes/blogCategoryRoutes');
 const blogRoutes = require('./routes/blogRoutes');
 const pagesRoutes = require('./routes/pagesRoutes');
 
-app.use('/store/admin', pagesRoutes);
-app.use('/store/admin', blogRoutes);
-app.use('/store/admin', blogCategoryRoutes);
-app.use('/store/admin', couponRoutes);
-app.use('/store/admin', categoryRoutes);
-app.use('/store/admin', mediaRoutes);
-app.use('/store/admin', siteSettingsRoutes);
-app.use('/store/admin', productRoutes);
-app.use('/store/admin', orderRoutes);
-app.use('/store/admin', userRoutes);
+app.use('/admin', pagesRoutes);
+app.use('/admin', blogRoutes);
+app.use('/admin', blogCategoryRoutes);
+app.use('/admin', couponRoutes);
+app.use('/admin', categoryRoutes);
+app.use('/admin', mediaRoutes);
+app.use('/admin', siteSettingsRoutes);
+app.use('/admin', productRoutes);
+app.use('/admin', orderRoutes);
+app.use('/admin', userRoutes);
 
-app.use('/store/admin', authRoutes);
-app.use('/store/admin', adminRoutes);
+app.use('/admin', authRoutes);
+app.use('/admin', adminRoutes);
 
 // CORS for frontend
-app.use('/store/api', (req, res, next) => {
+app.use('/api', (req, res, next) => {
     const allowed = [
         process.env.FRONTEND_URL,
         'http://localhost:3001',
@@ -98,7 +98,7 @@ app.use('/store/api', (req, res, next) => {
     if (req.method === 'OPTIONS') return res.sendStatus(204);
     next();
 });
-app.use('/store/api', apiRoutes);
+app.use('/api', apiRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {

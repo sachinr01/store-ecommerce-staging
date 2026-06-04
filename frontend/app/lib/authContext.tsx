@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 import type { AuthUser } from './api';
 import { useCart } from './cartContext';
 
-const API_BASE = '/store/api';
+const API_BASE = '/api';
 
 interface AuthState {
   user: AuthUser | null;

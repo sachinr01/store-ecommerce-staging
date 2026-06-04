@@ -282,7 +282,7 @@ const COUPON_VALID_SQL = `
 `;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GET /store/api/coupon/active
+// GET /api/coupon/active
 // ─────────────────────────────────────────────────────────────────────────────
 const active = async (req, res) => {
   const c = req.sessionData?.appliedCoupon;

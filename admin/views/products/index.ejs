@@ -14,14 +14,14 @@
               <div class="d-flex align-items-center">
                 <nav aria-label="breadcrumb">
                   <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/store/admin/dashboard">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Products</li>
                   </ol>
                 </nav>
               </div>
             </div>
             <div class="col-5 align-self-center text-end">
-              <a href="/store/admin/products/add" class="btn-view-product btn-view-product--inline na-view-all-btn">
+              <a href="/admin/products/add" class="btn-view-product btn-view-product--inline na-view-all-btn">
                 <div class="d-flex align-items-center">
                   <i data-feather="plus" class="feather-sm me-1"></i>
                   Add Product
@@ -149,13 +149,13 @@
                                   </td>
                                   <td>
                                     <div class="d-flex gap-1">
-                                      <a href="/store/admin/products/edit/<%= product.ID %>"
+                                      <a href="/admin/products/edit/<%= product.ID %>"
                                         class="btn btn-sm btn-light-primary text-primary" title="Edit">
                                         <i data-feather="edit-2" class="feather-sm"></i>
                                       </a>
                                       <button class="btn btn-sm btn-light-danger text-danger delete-btn"
                                         data-id="<%= product.ID %>" data-name="<%= product.product_title %>"
-                                        data-url="/store/admin/products/delete/" data-title="Delete Product">
+                                        data-url="/admin/products/delete/" data-title="Delete Product">
                                         <i data-feather="trash-2" class="feather-sm"></i>
                                       </button>
                                     </div>
@@ -168,7 +168,7 @@
                                         <i data-feather="package" style="width:48px;height:48px;"
                                           class="text-muted mb-3 d-block mx-auto"></i>
                                         <h5 class="text-muted">No products found</h5>
-                                        <a href="/store/admin/products/add"
+                                        <a href="/admin/products/add"
                                           class="btn btn-primary rounded-pill mt-2">Add Your First Product</a>
                                       </td>
                                     </tr>

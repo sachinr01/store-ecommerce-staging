@@ -1623,7 +1623,7 @@ const placeOrder = async (req, res) => {
 // getDefaultAddress
 // Pre-fills checkout form with user's default saved address.
 // Only looks at saved address rows (order_id IS NULL).
-// Frontend: GET /store/api/address/default
+// Frontend: GET /api/address/default
 // ─────────────────────────────────────────────────────────────────────────────
 const getDefaultAddress = async (req, res) => {
   const user = getSessionUser(req);
@@ -1651,7 +1651,7 @@ const getDefaultAddress = async (req, res) => {
 // User sets a saved address as default from profile/address-book page.
 // Only touches saved address rows (order_id IS NULL).
 // Order rows are never affected.
-// Frontend: PUT /store/api/address/default/:addressId
+// Frontend: PUT /api/address/default/:addressId
 // ─────────────────────────────────────────────────────────────────────────────
 const setDefaultAddress = async (req, res) => {
   const user = getSessionUser(req);
@@ -1717,7 +1717,7 @@ const getRecentOrderAddresses = async (req, res) => {
 // getSavedAddresses
 // Returns only saved address-book rows (order_id IS NULL).
 // Order rows are excluded — they are fetched via getMyOrderById.
-// Frontend: GET /store/api/address/saved
+// Frontend: GET /api/address/saved
 // ─────────────────────────────────────────────────────────────────────────────
 const getSavedAddresses = async (req, res) => {
   const user = getSessionUser(req);
@@ -1869,7 +1869,7 @@ const updateProfileAddress = async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // getMyOrders
-// Frontend: GET /store/api/orders/my
+// Frontend: GET /api/orders/my
 // ─────────────────────────────────────────────────────────────────────────────
 const getMyOrders = async (req, res) => {
   const user = getSessionUser(req);
@@ -1947,7 +1947,7 @@ const getMyOrders = async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // getAllOrders (admin)
-// Frontend: GET /store/api/admin/orders
+// Frontend: GET /api/admin/orders
 // ─────────────────────────────────────────────────────────────────────────────
 const getAllOrders = async (_req, res) => {
   try {
@@ -2022,7 +2022,7 @@ const getAllOrders = async (_req, res) => {
 // name/email  → tbl_users via user_id        (sir's instruction)
 // address     → tbl_user_address via order_id (sir's instruction)
 // financials  → tbl_ordermeta
-// Frontend: GET /store/api/orders/:orderId
+// Frontend: GET /api/orders/:orderId
 // ─────────────────────────────────────────────────────────────────────────────
 const getMyOrderById = async (req, res) => {
   const user = getSessionUser(req);
@@ -2228,7 +2228,7 @@ const getMyOrderById = async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // updateOrderStatus (admin)
-// Frontend: PUT /store/api/admin/orders/:orderId/status
+// Frontend: PUT /api/admin/orders/:orderId/status
 // ─────────────────────────────────────────────────────────────────────────────
 const updateOrderStatus = async (req, res) => {
   const orderId = Number.parseInt(req.params.orderId, 10);

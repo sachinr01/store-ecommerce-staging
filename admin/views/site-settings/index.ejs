@@ -13,7 +13,7 @@
                   <h4 class="page-title">Site Settings</h4>
                   <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                      <li class="breadcrumb-item"><a href="/store/admin/dashboard">Home</a></li>
+                      <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
                       <li class="breadcrumb-item active">Site Settings</li>
                     </ol>
                   </nav>
@@ -44,7 +44,7 @@
                           <% tabs.forEach(function(t) { %>
                             <li class="nav-item">
                               <a class="nav-link py-3 <%= activeTab === t.id ? 'active' : '' %>"
-                                href="/store/admin/site-settings?tab=<%= t.id %>">
+                                href="/admin/site-settings?tab=<%= t.id %>">
                                 <i data-feather="<%= t.icon %>" style="width:14px;height:14px;" class="me-1"></i>
                                 <%= t.label %>
                               </a>
@@ -54,7 +54,7 @@
                     </div>
                   </div>
 
-                  <form action="/store/admin/site-settings?tab=<%= activeTab %>" method="POST">
+                  <form action="/admin/site-settings?tab=<%= activeTab %>" method="POST">
                     <div class="card" style="border-radius:0 0 8px 8px;">
                       <div class="card-body">
 
@@ -725,7 +725,7 @@
                               <i data-feather="save" style="width:15px;height:15px;" class="me-1"></i>
                               Save Changes
                             </button>
-                            <a href="/store/admin/site-settings?tab=<%= activeTab %>"
+                            <a href="/admin/site-settings?tab=<%= activeTab %>"
                               class="btn-view-second btn-view-second--inline na-view-all-btn">
                               Cancel
                             </a>

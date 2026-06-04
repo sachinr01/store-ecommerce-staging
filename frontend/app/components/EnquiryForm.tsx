@@ -1,7 +1,7 @@
 "use client";
 import { useState, FormEvent } from "react";
 
-const API_BASE = "/store/api";
+const API_BASE = "/api";
 
 interface EnquiryFormProps {
   type?: "contact-us" | "b2b";

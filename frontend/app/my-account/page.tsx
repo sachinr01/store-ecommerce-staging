@@ -69,7 +69,7 @@ export default function MyAccountPage() {
 
   const syncLoggedInUser = useCallback(async (fallbackUser: AuthUser) => {
     try {
-      const me = await fetch('/store/api/auth/me', { credentials: 'include' }).then((r) => r.json());
+      const me = await fetch('/api/auth/me', { credentials: 'include' }).then((r) => r.json());
       if (me.success && me.data?.isLoggedIn && me.data.user) {
         setUser(me.data.user);
       } else {
@@ -128,7 +128,7 @@ export default function MyAccountPage() {
       const res = await authRegister(reg.username, reg.email, reg.password);
       if (res.success) {
         setReg({ username: '', email: '', password: '' });
-        const me = await fetch('/store/api/auth/me', { credentials: 'include' }).then((r) => r.json());
+        const me = await fetch('/api/auth/me', { credentials: 'include' }).then((r) => r.json());
         if (me.success && me.data?.isLoggedIn && me.data.user) {
           setUser(me.data.user);
           await refresh();

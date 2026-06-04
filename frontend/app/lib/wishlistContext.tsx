@@ -30,8 +30,8 @@ interface WishlistContextType {
 
 const LS_KEY   = 'wishlist_items';
 const API_BASE = typeof window === 'undefined'
-  ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/store/api')
-  : '/store/api';
+  ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api')
+  : '/api';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers

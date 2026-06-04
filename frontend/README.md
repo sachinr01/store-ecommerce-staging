@@ -200,7 +200,7 @@ npm run dev     # http://localhost:3001
 
 ## API
 
-Base URL: `/store/api`
+Base URL: `/api`
 
 | Endpoint | Description |
 |---|---|

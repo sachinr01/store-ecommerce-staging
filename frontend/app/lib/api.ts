@@ -3,11 +3,11 @@
 const API_BASE =
   typeof window === 'undefined'
     ? (() => {
-        const raw = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3000/store/api').replace(/\/+$/, '');
-        // Normalise: ensure it ends with /store/api
-        return raw.endsWith('/store/api') ? raw : `${raw.replace(/\/store\/api$/, '')}/store/api`;
+        const raw = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3000/api').replace(/\/+$/, '');
+        // Normalise: ensure it ends with /api
+        return raw.endsWith('/api') ? raw : `${raw.replace(/\\/api$/, '')}/api`;
       })()
-    : '/store/api';
+    : '/api';
 
 export interface Product {
   ID: number;
@@ -61,10 +61,10 @@ export interface Variation {
 // On the server (SSR) it hits Express directly
 const UPLOADS_ORIGIN =
   typeof window === 'undefined'
-    ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/store/api').replace('/store/api', '')
+    ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api').replace('/api', '')
     : '';
 
-export function getImageUrl(filePath: string | null | undefined, placeholder = '/store/images/dummy.jpg'): string {
+export function getImageUrl(filePath: string | null | undefined, placeholder = '/images/dummy.jpg'): string {
   if (!filePath) return placeholder;
   // Already a full URL — use as-is
   if (filePath.startsWith('http')) return filePath;

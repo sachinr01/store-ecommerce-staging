@@ -10,14 +10,14 @@
               <h4 class="page-title">Add Order</h4>
               <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="/store/admin/dashboard">Home</a></li>
-                  <li class="breadcrumb-item"><a href="/store/admin/orders">Orders</a></li>
+                  <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+                  <li class="breadcrumb-item"><a href="/admin/orders">Orders</a></li>
                   <li class="breadcrumb-item active">Add Order</li>
                 </ol>
               </nav>
             </div>
             <div class="col-5 align-self-center text-end">
-              <a href="/store/admin/orders" class="btn-view-product btn-view-product--inline na-view-all-btn">
+              <a href="/admin/orders" class="btn-view-product btn-view-product--inline na-view-all-btn">
                 <div class="d-flex align-items-center gap-1">
                   <i data-feather="arrow-left" class="feather-sm"></i> Back
                 </div>
@@ -36,7 +36,7 @@
             </div>
             <% } %>
 
-              <form action="/store/admin/orders/store" method="POST" id="orderForm">
+              <form action="/admin/orders" method="POST" id="orderForm">
                 <input type="hidden" name="customer_id" id="selectedCustomerId" value="0" />
 
                 <div class="row">
@@ -420,7 +420,7 @@
                               <i data-feather="save" class="feather-sm"></i> Create Order
                             </div>
                           </button>
-                          <a href="/store/admin/orders" class="btn btn-outline-secondary rounded-pill text-center">
+                          <a href="/admin/orders" class="btn btn-outline-secondary rounded-pill text-center">
                             Cancel
                           </a>
                         </div>
@@ -725,7 +725,7 @@
             document.getElementById('selectedProductId').value = productId;
             document.getElementById('selectedVariationId').value = '0';
 
-            fetch('/store/admin/api/product-variations/' + productId)
+            fetch('/admin/api/product-variations/' + productId)
               .then(function (r) { return r.json(); })
               .then(function (variations) {
                 if (variations && variations.length > 0) {

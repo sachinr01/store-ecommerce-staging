@@ -231,7 +231,7 @@ const showOrders = async (req, res) => {
 //       [id],
 //     );
 //     if (!order) {
-//       return res.redirect("/store/admin/orders?error=Order not found");
+//       return res.redirect("/admin/orders?error=Order not found");
 //     }
 
 //     const meta = await getOrderMeta(id);
@@ -354,7 +354,7 @@ const showOrder = async (req, res) => {
     );
 
     if (!order) {
-      return res.redirect("/store/admin/orders?error=Order not found");
+      return res.redirect("/admin/orders?error=Order not found");
     }
 
     // ─── Order Meta ───────────────────────────────────────────────────────────
@@ -521,11 +521,11 @@ const updateOrderStatus = async (req, res) => {
       "UPDATE tbl_orders SET order_status = ?, order_modified = NOW() WHERE order_id = ?",
       [status, id],
     );
-    res.redirect(`/store/admin/orders/${id}?success=Status updated`);
+    res.redirect(`/admin/orders/${id}?success=Status updated`);
   } catch (err) {
     console.error("updateOrderStatus error:", err.message);
     res.redirect(
-      `/store/admin/orders/${req.params.id}?error=` +
+      `/admin/orders/${req.params.id}?error=` +
         encodeURIComponent(err.message),
     );
   }
@@ -547,11 +547,11 @@ const deleteOrder = async (req, res) => {
     await db.query("DELETE FROM tbl_order_items WHERE order_id = ?", [id]);
     await db.query("DELETE FROM tbl_ordermeta WHERE order_id = ?", [id]);
     await db.query("DELETE FROM tbl_orders WHERE order_id = ?", [id]);
-    res.redirect("/store/admin/orders?success=Order deleted successfully");
+    res.redirect("/admin/orders?success=Order deleted successfully");
   } catch (err) {
     console.error("deleteOrder error:", err.message);
     res.redirect(
-      "/store/admin/orders?error=" + encodeURIComponent(err.message),
+      "/admin/orders?error=" + encodeURIComponent(err.message),
     );
   }
 };
@@ -870,13 +870,13 @@ const storeOrder = async (req, res) => {
 
     await conn.commit();
     res.redirect(
-      `/store/admin/orders/${orderId}?success=Order created successfully`,
+      `/admin/orders/${orderId}?success=Order created successfully`,
     );
   } catch (err) {
     await conn.rollback();
     console.error("storeOrder error:", err.message, err.stack);
     res.redirect(
-      "/store/admin/orders/add?error=" + encodeURIComponent(err.message),
+      "/admin/orders/add?error=" + encodeURIComponent(err.message),
     );
   } finally {
     conn.release();

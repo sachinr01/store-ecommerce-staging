@@ -10,7 +10,7 @@ interface SiteSettings {
   enable_ratings: string;
 }
 
-const DEFAULT_PLACEHOLDER = '/store/images/dummy.jpg';
+const DEFAULT_PLACEHOLDER = '/images/dummy.jpg';
 
 const defaults: SiteSettings = {
   placeholder_image: DEFAULT_PLACEHOLDER,
@@ -26,7 +26,7 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<SiteSettings>(defaults);
 
   useEffect(() => {
-    fetch('/store/api/site-settings', { headers: { Accept: 'application/json' } })
+    fetch('/api/site-settings', { headers: { Accept: 'application/json' } })
       .then(r => r.ok ? r.json() : null)
       .then(json => {
         if (json?.success && json.data) {

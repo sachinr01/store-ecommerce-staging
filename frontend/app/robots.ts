@@ -6,17 +6,17 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: '/store/',
+        allow: '/',
         disallow: [
-          '/store/cart',
-          '/store/checkout',
-          '/store/my-account',
-          '/store/orders',
-          '/store/wishlist',
-          '/store/reset-password',
+          '/cart',
+          '/checkout',
+          '/my-account',
+          '/orders',
+          '/wishlist',
+          '/reset-password',
         ],
       },
     ],
-    sitemap: `${SITE_URL}/store/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

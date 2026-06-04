@@ -13,14 +13,14 @@
               <div class="d-flex align-items-center">
                 <nav aria-label="breadcrumb">
                   <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/store/admin/dashboard">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
                     <li class="breadcrumb-item active">Coupons</li>
                   </ol>
                 </nav>
               </div>
             </div>
             <div class="col-5 align-self-center text-end">
-              <a href="/store/admin/coupons/add" class="btn-view-product btn-view-product--inline na-view-all-btn">
+              <a href="/admin/coupons/add" class="btn-view-product btn-view-product--inline na-view-all-btn">
                 <div class="d-flex align-items-center gap-1">
                   <i data-feather="plus-circle" class="feather-sm"></i>
                   Add New Coupon
@@ -51,21 +51,21 @@
                           <h4 class="card-title mb-0">Coupons</h4>
                           <!-- Status filter pills -->
                           <div class="d-flex align-items-center gap-1">
-                            <a href="/store/admin/coupons"
+                            <a href="/admin/coupons"
                               class="btn btn-sm <%= !locals.statusFilter ? 'btn-dark' : 'btn-outline-secondary' %> rounded-pill px-3">
                               All <span class="badge bg-secondary ms-1">
                                 <%= coupons.length %>
                               </span>
                             </a>
-                            <a href="/store/admin/coupons?status=publish"
+                            <a href="/admin/coupons?status=publish"
                               class="btn btn-sm <%= locals.statusFilter === 'publish' ? 'btn-success' : 'btn-outline-secondary' %> rounded-pill px-3">
                               Published
                             </a>
-                            <a href="/store/admin/coupons?status=draft"
+                            <a href="/admin/coupons?status=draft"
                               class="btn btn-sm <%= locals.statusFilter === 'draft' ? 'btn-warning' : 'btn-outline-secondary' %> rounded-pill px-3">
                               Draft
                             </a>
-                            <a href="/store/admin/coupons?status=expired"
+                            <a href="/admin/coupons?status=expired"
                               class="btn btn-sm <%= locals.statusFilter === 'expired' ? 'btn-danger' : 'btn-outline-secondary' %> rounded-pill px-3">
                               Expired
                             </a>
@@ -122,7 +122,7 @@
                                               style="width:14px;height:14px;"></i>
                                           </div>
                                           <div>
-                                            <a href="/store/admin/coupons/edit/<%= coupon.coupon_id %>"
+                                            <a href="/admin/coupons/edit/<%= coupon.coupon_id %>"
                                               class="fw-semibold text-dark text-decoration-none">
                                               <%= coupon.coupon_code.toUpperCase() %>
                                             </a>
@@ -199,7 +199,7 @@
                                       </td>
                                       <td>
                                         <div class="d-flex align-items-center gap-1">
-                                          <a href="/store/admin/coupons/edit/<%= coupon.coupon_id %>"
+                                          <a href="/admin/coupons/edit/<%= coupon.coupon_id %>"
                                             class="btn btn-sm btn-outline-primary rounded-pill px-3">
                                             <div class="d-flex align-items-center gap-1">
                                               <i data-feather="edit-2" class="feather-sm"></i> Edit
@@ -208,7 +208,7 @@
                                           <button class="btn btn-sm btn-outline-danger rounded-pill px-3 delete-btn"
                                             data-id="<%= coupon.coupon_id %>"
                                             data-name="Coupon '<%= coupon.coupon_code %>'"
-                                            data-url="/store/admin/coupons/delete/" data-title="Delete Coupon">
+                                            data-url="/admin/coupons/delete/" data-title="Delete Coupon">
 
                                             <div class="d-flex align-items-center gap-1">
                                               <i data-feather="trash-2" class="feather-sm"></i> Delete

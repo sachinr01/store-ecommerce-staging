@@ -101,7 +101,7 @@ const storeUser = async (req, res) => {
     );
     if (existing) {
       return res.redirect(
-        "/store/admin/users/add?error=" +
+        "/admin/users/add?error=" +
           encodeURIComponent("Username already exists"),
       );
     }
@@ -131,11 +131,11 @@ const storeUser = async (req, res) => {
     // Save all meta fields
     await saveMeta(userId, body);
 
-    res.redirect("/store/admin/users?success=User added successfully");
+    res.redirect("/admin/users?success=User added successfully");
   } catch (err) {
     console.error("storeUser error:", err.message);
     res.redirect(
-      "/store/admin/users/add?error=" + encodeURIComponent(err.message),
+      "/admin/users/add?error=" + encodeURIComponent(err.message),
     );
   }
 };
@@ -149,7 +149,7 @@ const showEditUser = async (req, res) => {
       id,
     ]);
     if (!user) {
-      return res.redirect("/store/admin/users?error=User not found");
+      return res.redirect("/admin/users?error=User not found");
     }
 
     const [userTypes] = await db.query(
@@ -235,11 +235,11 @@ const updateUser = async (req, res) => {
     // Save / update all meta fields
     await saveMeta(id, body);
 
-    res.redirect("/store/admin/users?success=User updated successfully");
+    res.redirect("/admin/users?success=User updated successfully");
   } catch (err) {
     console.error("updateUser error:", err.message);
     res.redirect(
-      `/store/admin/users/edit/${req.params.id}?error=` +
+      `/admin/users/edit/${req.params.id}?error=` +
         encodeURIComponent(err.message),
     );
   }
@@ -252,17 +252,17 @@ const deleteUser = async (req, res) => {
 
     if (String(id) === String(req.session.admin.id)) {
       return res.redirect(
-        "/store/admin/users?error=You cannot delete your own account",
+        "/admin/users?error=You cannot delete your own account",
       );
     }
 
     await db.query("DELETE FROM tbl_usermeta WHERE user_id = ?", [id]);
     await db.query("DELETE FROM tbl_users WHERE ID = ?", [id]);
 
-    res.redirect("/store/admin/users?success=User deleted successfully");
+    res.redirect("/admin/users?success=User deleted successfully");
   } catch (err) {
     console.error("deleteUser error:", err.message);
-    res.redirect("/store/admin/users?error=" + encodeURIComponent(err.message));
+    res.redirect("/admin/users?error=" + encodeURIComponent(err.message));
   }
 };
 

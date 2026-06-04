@@ -18,15 +18,15 @@
                 </h4>
                 <nav aria-label="breadcrumb">
                   <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/store/admin/dashboard">Home</a></li>
-                    <li class="breadcrumb-item"><a href="/store/admin/orders">Orders</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/orders">Orders</a></li>
                     <li class="breadcrumb-item active">#<%= order.order_id %>
                     </li>
                   </ol>
                 </nav>
               </div>
               <div class="col-5 align-self-center text-end">
-                <a href="/store/admin/orders" class="btn-view-product btn-view-product--inline na-view-all-btn">
+                <a href="/admin/orders" class="btn-view-product btn-view-product--inline na-view-all-btn">
                   <div class="d-flex align-items-center gap-1">
                     <i data-feather="arrow-left" class="feather-sm"></i> Back to Orders
                   </div>
@@ -290,7 +290,7 @@
                 <h5 class="card-title mb-3 pb-2 border-bottom">
                   <i data-feather="sliders" class="feather-sm me-2"></i>Order Status
                 </h5>
-                <form action="/store/admin/orders/<%= order.order_id %>/status" method="POST">
+                <form action="/admin/orders/<%= order.order_id %>/status" method="POST">
                   <div class="mb-3">
                     <select name="status" class="form-select">
                       <% statuses.forEach(function(s) { %>
@@ -401,7 +401,7 @@
               <i data-feather="trash-2" class="feather-sm me-2"></i>Delete Order
             </h5>
             <p class="small text-muted mb-3">This will permanently delete the order and all its data.</p>
-            <form action="/store/admin/orders/<%= order.order_id %>/delete" method="POST"
+            <form action="/admin/orders/<%= order.order_id %>/delete" method="POST"
               onsubmit="return confirm('Permanently delete order #<%= order.order_id %>? This cannot be undone.')">
               <div class="d-grid">
                 <button type="submit" class="btn btn-outline-danger rounded-pill">

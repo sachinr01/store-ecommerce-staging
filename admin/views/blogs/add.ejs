@@ -16,8 +16,8 @@
                 <div class="d-flex align-items-center">
                   <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                      <li class="breadcrumb-item"><a href="/store/admin/dashboard">Home</a></li>
-                      <li class="breadcrumb-item"><a href="/store/admin/blogs">Blogs</a></li>
+                      <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+                      <li class="breadcrumb-item"><a href="/admin/blogs">Blogs</a></li>
                       <li class="breadcrumb-item active">
                         <%= isEdit ? 'Edit' : 'Add' %>
                       </li>
@@ -26,7 +26,7 @@
                 </div>
               </div>
               <div class="col-5 align-self-center text-end">
-                <a href="/store/admin/blogs" class="btn-view-product btn-view-product--inline na-view-all-btn"
+                <a href="/admin/blogs" class="btn-view-product btn-view-product--inline na-view-all-btn"
                   title="Back to Blogs">
                   <div class="align-items-center">
                     <i data-feather="arrow-left" class="feather-sm me-1"></i> Back to Blogs
@@ -34,7 +34,7 @@
                 </a>
                 <% if (isEdit) { %>
                   <!-- View blog -->
-                  <a href="/store/blog/<%= blog.post_slug %>" target="_blank"
+                  <a href="/blog/<%= blog.post_slug %>" target="_blank"
                     class="btn-view-second btn-view-second--inline na-view-all-btn" title="View Blog">
                     <div class="align-items-center gap-3">
                       View Blog <i data-feather="external-link" class=" feather-sm"></i>
@@ -55,7 +55,7 @@
               </div>
               <% } %>
 
-                <form action="<%= isEdit ? '/store/admin/blogs/update/' + b.ID : '/store/admin/blogs/store' %>"
+                <form action="<%= isEdit ? '/admin/blogs/update/' + b.ID : '/admin/blogs' %>"
                   method="POST">
 
                   <div class="row">
@@ -76,7 +76,7 @@
                           <div class="mb-3">
                             <label class="form-label fw-semibold">Blog URL (Slug)</label>
                             <div class="input-group">
-                              <span class="input-group-text text-muted">/store/blog/</span>
+                              <span class="input-group-text text-muted">/blog/</span>
                               <input type="text" name="post_slug" id="postSlug" class="form-control"
                                 placeholder="auto-generated-slug" value="<%= isEdit ? b.post_slug : '' %>" />
                             </div>
@@ -175,7 +175,7 @@
                             <button type="submit" class="btn btn-primary rounded-pill">
                               <%= isEdit ? 'Update Blog' : 'Publish Blog' %>
                             </button>
-                            <a href="/store/admin/blogs" class="btn btn-outline-secondary rounded-pill">
+                            <a href="/admin/blogs" class="btn btn-outline-secondary rounded-pill">
                               Cancel
                             </a>
                           </div>

@@ -6,7 +6,7 @@ export type StaticPage = {
   date: string;
 };
 
-// Live data comes from /store/api/pages. This is a safe empty fallback.
+// Live data comes from /api/pages. This is a safe empty fallback.
 export const pages: StaticPage[] = [];
 
 export function getPageBySlug(slug: string): StaticPage | undefined {

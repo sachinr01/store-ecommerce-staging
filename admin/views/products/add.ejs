@@ -17,8 +17,8 @@
                 <div class="d-flex align-items-center">
                   <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                      <li class="breadcrumb-item"><a href="/store/admin/dashboard">Home</a></li>
-                      <li class="breadcrumb-item"><a href="/store/admin/products">Products</a></li>
+                      <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+                      <li class="breadcrumb-item"><a href="/admin/products">Products</a></li>
                       <li class="breadcrumb-item active">
                         <%= isEdit ? 'Edit' : 'Add' %>
                       </li>
@@ -27,14 +27,14 @@
                 </div>
               </div>
               <div class="col-5 align-self-center text-end">
-                <a href="/store/admin/products" class="btn-view-product btn-view-product--inline na-view-all-btn" title="Back to Products">
+                <a href="/admin/products" class="btn-view-product btn-view-product--inline na-view-all-btn" title="Back to Products">
                   <div class=" align-items-center">
                     <i data-feather="arrow-left" class="feather-sm me-1"></i> Back to Products
                   </div>
                 </a>
                <% if (isEdit) { %>
                 <!-- View Product -->
-                <a href="/store/shop/product/<%= product.product_url %>" target="_blank"
+                <a href="/shop/product/<%= product.product_url %>" target="_blank"
                   class="btn-view-second btn-view-second--inline na-view-all-btn" title="View Product">
                   <div class="d-flex align-items-center gap-2">
                     View Product Page <i data-feather="external-link" class=" feather-sm"></i>
@@ -55,7 +55,7 @@
               </div>
               <% } %>
 
-                <form action="<%= isEdit ? '/store/admin/products/update/' + p.ID : '/store/admin/products/store' %>"
+                <form action="<%= isEdit ? '/admin/products/update/' + p.ID : '/admin/products' %>"
                   method="POST" enctype="multipart/form-data" id="productForm">
 
                   <div class="row">
@@ -78,7 +78,7 @@
                           <div class="mb-3">
                             <label class="form-label fw-semibold">Product URL (Slug)</label>
                             <div class="input-group">
-                              <span class="input-group-text text-muted">/store/</span>
+                              <span class="input-group-text text-muted">/</span>
                               <input type="text" name="product_url" id="productUrl" class="form-control"
                                 placeholder="product-url-slug" value="<%= isEdit ? (p.product_url || '') : '' %>" />
                             </div>
@@ -913,7 +913,7 @@
                             </ul>
                           </div>
 
-                          <a href="/store/admin/products/categories" class="text-primary small mt-2 d-inline-block">+
+                          <a href="/admin/products/categories" class="text-primary small mt-2 d-inline-block">+
                             Add new category</a>
                         </div>
                       </div>

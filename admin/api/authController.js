@@ -236,7 +236,7 @@ function getFrontendBaseUrl() {
       );
     }
 
-    if (url.pathname === '/store' || url.pathname === '/store/') {
+    if (url.pathname === '' || url.pathname === '/') {
       url.pathname = '';
     }
     if (!isLocalhost && url.port === '3001') {
@@ -263,7 +263,7 @@ function getResetCheckoutBaseUrl() {
     } catch {
       if (process.env.NODE_ENV === 'production') {
         throw new Error(
-          `Invalid RESET_URL for production: ${rawResetUrl}. Set it to your public checkout URL, for example https://gaffis.org/store/checkout.`,
+          `Invalid RESET_URL for production: ${rawResetUrl}. Set it to your public checkout URL, for example https://gaffis.org/checkout.`,
         );
       }
       return rawResetUrl;
@@ -273,12 +273,12 @@ function getResetCheckoutBaseUrl() {
     if (process.env.NODE_ENV === 'production') {
       if (isLocalhost) {
         throw new Error(
-          `Invalid RESET_URL for production: ${rawResetUrl}. Set it to your public checkout URL, for example https://gaffis.org/store/checkout.`,
+          `Invalid RESET_URL for production: ${rawResetUrl}. Set it to your public checkout URL, for example https://gaffis.org/checkout.`,
         );
       }
       if (url.pathname === '/' || url.pathname === '') {
         throw new Error(
-          `RESET_URL must point to the checkout page in production. Example: https://gaffis.org/store/checkout.`,
+          `RESET_URL must point to the checkout page in production. Example: https://gaffis.org/checkout.`,
         );
       }
     }
@@ -288,11 +288,11 @@ function getResetCheckoutBaseUrl() {
 
   if (process.env.NODE_ENV === 'production') {
     throw new Error(
-      'RESET_URL is not configured. Set RESET_URL to your public checkout URL, for example https://gaffis.org/store/checkout.',
+      'RESET_URL is not configured. Set RESET_URL to your public checkout URL, for example https://gaffis.org/checkout.',
     );
   }
 
-  return `${getFrontendBaseUrl()}/store/checkout`;
+  return `${getFrontendBaseUrl()}/checkout`;
 }
 
 async function sendBrevoEmail({ toEmail, toName, subject, html }) {
@@ -447,7 +447,7 @@ async function verifyGoogleCredential(credential) {
   };
 }
 
-// POST /store/api/auth/register
+// POST /api/auth/register
 const register = async (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
@@ -509,7 +509,7 @@ const register = async (req, res) => {
   }
 };
 
-// POST /store/api/auth/login
+// POST /api/auth/login
 const login = async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -568,7 +568,7 @@ const login = async (req, res) => {
   }
 };
 
-// POST /store/api/auth/google
+// POST /api/auth/google
 const googleLogin = async (req, res) => {
   const { credential } = req.body || {};
   if (!credential) {
@@ -661,7 +661,7 @@ const googleLogin = async (req, res) => {
   }
 };
 
-// POST /store/api/auth/logout
+// POST /api/auth/logout
 const logout = async (req, res) => {
   try {
     await req.destroySession();
@@ -672,7 +672,7 @@ const logout = async (req, res) => {
   }
 };
 
-// GET /store/api/auth/me
+// GET /api/auth/me
 const me = async (req, res) => {
   const user = req.sessionData && req.sessionData.user;
   if (!user) {
@@ -708,7 +708,7 @@ const me = async (req, res) => {
   });
 };
 
-// PUT /store/api/auth/profile
+// PUT /api/auth/profile
 const updateProfile = async (req, res) => {
   const sessionUser = req.sessionData && req.sessionData.user;
   if (!sessionUser) {
@@ -808,7 +808,7 @@ const updateProfile = async (req, res) => {
   }
 };
 
-// POST /store/api/auth/forgot-password
+// POST /api/auth/forgot-password
 const requestPasswordReset = async (req, res) => {
   const identifier = String((req.body && req.body.identifier) || '').trim();
   if (!identifier) {
@@ -903,7 +903,7 @@ const requestPasswordReset = async (req, res) => {
   }
 };
 
-// POST /store/api/auth/reset-password
+// POST /api/auth/reset-password
 const resetPassword = async (req, res) => {
   const token = String((req.body && req.body.token) || '').trim();
   const password = String((req.body && req.body.password) || '');

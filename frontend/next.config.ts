@@ -1,20 +1,20 @@
 ﻿import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  basePath: '/store',
-  assetPrefix: '/store',
+  basePath: '',
+  assetPrefix: '',
   turbopack: {
     root: process.cwd(),
   },
   async rewrites() {
-    const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3000/store/api')
+    const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3000/api')
       .replace(/\/+$/, '')
-      .replace(/\/store\/api$/, '');
+      .replace(/\\/api$/, '');
 
     return [
       {
-        source: '/store/api/:path*',
-        destination: `${apiBase}/store/api/:path*`,
+        source: '/api/:path*',
+        destination: `${apiBase}/api/:path*`,
         basePath: false,
       },
       {
@@ -41,7 +41,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/',
-        destination: '/store',
+        destination: '',
         permanent: true,
         basePath: false,
       },

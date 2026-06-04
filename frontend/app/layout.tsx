@@ -42,11 +42,11 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/v4-shims.min.css" />
-        <link rel="stylesheet" type="text/css" href="/store/js/specific/revolution-slider/css/settings.css" media="screen" />
+        <link rel="stylesheet" type="text/css" href="/js/specific/revolution-slider/css/settings.css" media="screen" />
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:100,400,600,700,300" rel="stylesheet" type="text/css" />
         <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet" />
-        <link rel="shortcut icon" href="/store/images/favicon.png" type="image/x-icon" />
-        <link rel="apple-touch-icon" href="/store/images/favicon.png" type="image/x-icon" />
+        <link rel="shortcut icon" href="/images/favicon.png" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/images/favicon.png" type="image/x-icon" />
       </head>
       <body className="responsive" id="demo-shop" suppressHydrationWarning>
         <div className="all_content" suppressHydrationWarning>
@@ -62,14 +62,14 @@ export default function RootLayout({
         </div>
 
         {/* Load scripts in the same order as original */}
-        <script src="/store/js/core/jquery-2.1.1.min.js"></script>
-        <script src="/store/js/core/load.js"></script>
-        <script src="/store/js/core/jquery.easing.1.3.js"></script>
-        <script src="/store/js/core/modernizr-2.8.2.min.js"></script>
-        <script src="/store/js/core/imagesloaded.pkgd.min.js"></script>
-        <script src="/store/js/core/respond.src.js"></script>
-        <script src="/store/js/libs.js"></script>
-        <script src="/store/js/specific/bigvideo.js"></script>
+        <script src="/js/core/jquery-2.1.1.min.js"></script>
+        <script src="/js/core/load.js"></script>
+        <script src="/js/core/jquery.easing.1.3.js"></script>
+        <script src="/js/core/modernizr-2.8.2.min.js"></script>
+        <script src="/js/core/imagesloaded.pkgd.min.js"></script>
+        <script src="/js/core/respond.src.js"></script>
+        <script src="/js/libs.js"></script>
+        <script src="/js/specific/bigvideo.js"></script>
         <script dangerouslySetInnerHTML={{
           __html: `
             // Override any revolution slider calls to prevent errors
@@ -97,7 +97,7 @@ export default function RootLayout({
             }
           `
         }} />
-        <script src="/store/js/main.js"></script>
+        <script src="/js/main.js"></script>
       </body>
     </html>
   );

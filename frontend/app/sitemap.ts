@@ -5,13 +5,13 @@ import { getBlogs } from './blog/utils/getBlogs';
 
 // Static routes with their priorities and change frequencies
 const staticRoutes: MetadataRoute.Sitemap = [
-  { url: `${SITE_URL}/store`,            lastModified: new Date(), changeFrequency: 'daily',   priority: 1.0 },
-  { url: `${SITE_URL}/store/shop`,       lastModified: new Date(), changeFrequency: 'daily',   priority: 0.9 },
-  { url: `${SITE_URL}/store/blog`,       lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.8 },
-  { url: `${SITE_URL}/store/about-us`,   lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-  { url: `${SITE_URL}/store/contact-us`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-  { url: `${SITE_URL}/store/faqs`,       lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
-  { url: `${SITE_URL}/store/careers`,    lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
+  { url: `${SITE_URL}`,            lastModified: new Date(), changeFrequency: 'daily',   priority: 1.0 },
+  { url: `${SITE_URL}/shop`,       lastModified: new Date(), changeFrequency: 'daily',   priority: 0.9 },
+  { url: `${SITE_URL}/blog`,       lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.8 },
+  { url: `${SITE_URL}/about-us`,   lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+  { url: `${SITE_URL}/contact-us`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+  { url: `${SITE_URL}/faqs`,       lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
+  { url: `${SITE_URL}/careers`,    lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -19,7 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const productEntries: MetadataRoute.Sitemap = await getProducts()
     .then((products) =>
       products.map((p) => ({
-        url: `${SITE_URL}/store/shop/product/${p.slug}`,
+        url: `${SITE_URL}/shop/product/${p.slug}`,
         lastModified: p.date_added ? new Date(p.date_added) : new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const blogEntries: MetadataRoute.Sitemap = await getBlogs()
     .then((blogs) =>
       blogs.map((b) => ({
-        url: `${SITE_URL}/store/blog/${b.slug}`,
+        url: `${SITE_URL}/blog/${b.slug}`,
         lastModified: b.date ? new Date(b.date) : new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.7,

@@ -11,8 +11,8 @@ const POLL_INTERVAL_MS = 60_000; // 60 seconds
 // On server (SSR) fall back to the direct URL.
 const API_BASE =
   typeof window === 'undefined'
-    ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/store/api')
-    : '/store/api';
+    ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api')
+    : '/api';
 
 export interface CartItem {
   cartItemId: number;

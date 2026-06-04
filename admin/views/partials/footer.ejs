@@ -20,7 +20,7 @@
 
     // ✅ Load media from server
     function loadMedia() {
-      fetch('/store/admin/media')
+      fetch('/admin/media')
         .then(res => res.json())
         .then(images => {
           const grid = document.getElementById('mediaGrid');
@@ -138,7 +138,7 @@
       const formData = new FormData();
       for (let f of files) formData.append('files', f);
 
-      fetch('/store/admin/media/upload', { method: 'POST', body: formData })
+      fetch('/admin/media/upload', { method: 'POST', body: formData })
         .then(r => r.json())
         .then(data => {
           input.value = '';

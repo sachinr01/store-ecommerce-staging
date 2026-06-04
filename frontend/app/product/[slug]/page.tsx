@@ -7,7 +7,7 @@ import type { ProductDetail } from '../../lib/api';
 import { htmlToText } from '../../lib/helpers/html';
 import { productCanonicalUrl } from '../../lib/helpers/siteUrl';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/store/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
 
 async function fetchProduct(slug: string): Promise<ProductDetail | null> {
   try {
@@ -82,7 +82,7 @@ export async function generateMetadata({
     || '';
   // Relative path is correct here — Next.js resolves it against metadataBase from layout.tsx
   // If admin has set a custom seo_canonical_tag, use that (absoluteUrl handles relative or absolute)
-  const canonicalUrl    = product.seo_canonical_tag || `/store/shop/product/${slug}`;
+  const canonicalUrl    = product.seo_canonical_tag || `/shop/product/${slug}`;
   const shouldIndex     = (product.seo_meta_index || 'yes').toLowerCase() !== 'no';
   const ogImage         = product.thumbnail_url || null;
 

@@ -18,20 +18,20 @@ export const metadata: Metadata = {
 
 // Collection images mapped by category slug keywords
 const COLLECTION_IMAGE_MAP: [string, string][] = [
-  ["glassware",  "/store/images/category_images/CC_GLASSWARE.png"],
-  ["drinkware",  "/store/images/category_images/CC_DRINKWARE.png"],
-  ["tumbler",    "/store/images/category_images/CC_TUMBLERS.png"],
-  ["kitchen",    "/store/images/category_images/CC_KITCHEN_ORGANISERS.png"],
-  ["organiser",  "/store/images/category_images/CC_KITCHEN_ORGANISERS.png"],
-  ["jar",        "/store/images/category_images/CC_KITCHEN_ORGANISERS.png"],
-  ["bowl",       "/store/images/category_images/CC_BOWL_AND_PLATTERS.png"],
-  ["platter",    "/store/images/category_images/CC_BOWL_AND_PLATTERS.png"],
-  ["cup",        "/store/images/category_images/CC_CUP_AND_MUGS.png"],
-  ["mug",        "/store/images/category_images/CC_CUP_AND_MUGS.png"],
-  ["dinner",     "/store/images/category_images/CC_DINNER_SET.png"],
+  ["glassware",  "/images/category_images/CC_GLASSWARE.png"],
+  ["drinkware",  "/images/category_images/CC_DRINKWARE.png"],
+  ["tumbler",    "/images/category_images/CC_TUMBLERS.png"],
+  ["kitchen",    "/images/category_images/CC_KITCHEN_ORGANISERS.png"],
+  ["organiser",  "/images/category_images/CC_KITCHEN_ORGANISERS.png"],
+  ["jar",        "/images/category_images/CC_KITCHEN_ORGANISERS.png"],
+  ["bowl",       "/images/category_images/CC_BOWL_AND_PLATTERS.png"],
+  ["platter",    "/images/category_images/CC_BOWL_AND_PLATTERS.png"],
+  ["cup",        "/images/category_images/CC_CUP_AND_MUGS.png"],
+  ["mug",        "/images/category_images/CC_CUP_AND_MUGS.png"],
+  ["dinner",     "/images/category_images/CC_DINNER_SET.png"],
 ];
 
-const DEFAULT_COLLECTION_IMAGE = "/store/images/dummy.jpg";
+const DEFAULT_COLLECTION_IMAGE = "/images/dummy.jpg";
 
 function getCollectionImage(slug: string): string {
   const match = COLLECTION_IMAGE_MAP.find(([key]) => slug.includes(key));

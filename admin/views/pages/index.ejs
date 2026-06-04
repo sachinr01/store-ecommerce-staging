@@ -14,14 +14,14 @@
               <div class="d-flex align-items-center">
                 <nav aria-label="breadcrumb">
                   <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/store/admin/dashboard">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
                     <li class="breadcrumb-item active">Pages</li>
                   </ol>
                 </nav>
               </div>
             </div>
             <div class="col-5 align-self-center text-end">
-              <a href="/store/admin/pages/add" class="btn-view-product btn-view-product--inline na-view-all-btn">
+              <a href="/admin/pages/add" class="btn-view-product btn-view-product--inline na-view-all-btn">
                 <div class="d-flex align-items-center">
                   <i data-feather="plus" class="feather-sm me-1"></i> Add Page
                 </div>
@@ -79,11 +79,11 @@
                           </td>
                           <td>
                             <div class="d-flex gap-1">
-                              <a href="/store/admin/pages/edit/<%= p.ID %>" class="btn btn-sm btn-warning" title="Edit">
+                              <a href="/admin/pages/edit/<%= p.ID %>" class="btn btn-sm btn-warning" title="Edit">
                                 <i data-feather="edit-2" class="feather-sm"></i>
                               </a>
                               <button class="btn btn-sm btn-danger delete-btn" data-id="<%= p.ID %>"
-                                data-name="Page ID <%= p.ID %>" data-url="/store/admin/pages/delete/"
+                                data-name="Page ID <%= p.ID %>" data-url="/admin/pages/delete/"
                                 data-title="Delete Page" title="Delete">
 
                                 <i data-feather="trash-2" class="feather-sm"></i>
@@ -99,7 +99,7 @@
                                   <i data-feather="inbox" style="width:48px;height:48px;"
                                     class="text-muted mb-3 d-block mx-auto"></i>
                                   <p class="text-muted">No pages found</p>
-                                  <a href="/store/admin/pages/add" class="btn btn-sm btn-primary">
+                                  <a href="/admin/pages/add" class="btn btn-sm btn-primary">
                                     Create First Page
                                   </a>
                                 </div>

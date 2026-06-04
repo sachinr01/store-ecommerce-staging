@@ -16,8 +16,8 @@
                 <div class="d-flex align-items-center">
                   <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                      <li class="breadcrumb-item"><a href="/store/admin/dashboard">Home</a></li>
-                      <li class="breadcrumb-item"><a href="/store/admin/pages">Pages</a></li>
+                      <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+                      <li class="breadcrumb-item"><a href="/admin/pages">Pages</a></li>
                       <li class="breadcrumb-item active">
                         <%= isEdit ? 'Edit' : 'Add' %>
                       </li>
@@ -26,7 +26,7 @@
                 </div>
               </div>
               <div class="col-5 align-self-center text-end">
-                <a href="/store/admin/pages" class="btn-view-product btn-view-product--inline na-view-all-btn"
+                <a href="/admin/pages" class="btn-view-product btn-view-product--inline na-view-all-btn"
                   title="Back to Pages">
                   <div class=" align-items-center">
                     <i data-feather="arrow-left" class="feather-sm me-1"></i> Back to Pages
@@ -34,7 +34,7 @@
                 </a>
                 <% if (isEdit) { %>
                   <!-- View page -->
-                  <a href="/store/<%= page.post_slug %>" target="_blank"
+                  <a href="/<%= page.post_slug %>" target="_blank"
                     class="btn-view-second btn-view-second--inline na-view-all-btn" title="View Page">
                     <div class="align-items-center gap-2">
                       View Page <i data-feather="external-link" class=" feather-sm"></i>
@@ -55,7 +55,7 @@
               </div>
               <% } %>
 
-                <form action="<%= isEdit ? '/store/admin/pages/update/' + b.ID : '/store/admin/pages/store' %>"
+                <form action="<%= isEdit ? '/admin/pages/update/' + b.ID : '/admin/pages' %>"
                   method="POST">
 
                   <div class="row">
@@ -76,7 +76,7 @@
                           <div class="mb-3">
                             <label class="form-label fw-semibold">Page URL (Slug)</label>
                             <div class="input-group">
-                              <span class="input-group-text text-muted">/store/page/</span>
+                              <span class="input-group-text text-muted">/page/</span>
                               <input type="text" name="post_slug" id="postSlug" class="form-control"
                                 placeholder="auto-generated-slug" value="<%= isEdit ? b.post_slug : '' %>" />
                             </div>
@@ -175,7 +175,7 @@
                             <button type="submit" class="btn btn-primary rounded-pill">
                               <%= isEdit ? 'Update Page' : 'Publish Page' %>
                             </button>
-                            <a href="/store/admin/pages" class="btn btn-outline-secondary rounded-pill">
+                            <a href="/admin/pages" class="btn btn-outline-secondary rounded-pill">
                               Cancel
                             </a>
                           </div>

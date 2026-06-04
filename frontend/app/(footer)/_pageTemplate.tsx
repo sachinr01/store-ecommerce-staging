@@ -51,7 +51,7 @@ const shouldHideHeroTitle = (pageTitle: string, html: string) => {
 
 const fetchPage = async (slug: string): Promise<PageResult> => {
   try {
-    const res = await fetch(`${BASE_URL}/store/api/pages/slug/${slug}`, {
+    const res = await fetch(`${BASE_URL}/api/pages/slug/${slug}`, {
       cache: 'no-store',
     });
     if (res.status === 404) return { error: 'not-found' };

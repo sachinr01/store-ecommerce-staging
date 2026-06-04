@@ -105,7 +105,7 @@ async function withRetry(fn) {
     }
 }
 
-// GET /store/api/site-settings
+// GET /api/site-settings
 // Returns public-safe site settings (no secrets)
 const PUBLIC_SETTINGS_KEYS = [
     'placeholder_image',
@@ -313,7 +313,7 @@ async function queryProductList(extraWhere = '', orderBy = 'p.menu_order ASC', l
     return rows;
 }
 
-//  GET /store/api/products 
+//  GET /api/products 
 // All published parent products ordered by menu_order.
 // Query params: ?limit=N
 const getProducts = async (req, res) => {
@@ -413,7 +413,7 @@ const getProducts = async (req, res) => {
     }
 };
 
-//  GET /store/api/products/featured 
+//  GET /api/products/featured 
 // Top-selling products  used by NewArrivals section.
 // Query params: ?limit=N  (default 4)
 const getFeaturedProducts = async (req, res) => {
@@ -427,7 +427,7 @@ const getFeaturedProducts = async (req, res) => {
     }
 };
 
-//  GET /store/api/products/on-sale 
+//  GET /api/products/on-sale 
 // Products that have a valid sale price lower than the regular price.
 // Query params: ?limit=N
 const getOnSaleProducts = async (req, res) => {
@@ -634,7 +634,7 @@ const getBestSellerProducts = async (req, res) => {
     }
 };
 
-//  GET /store/api/products/:id 
+//  GET /api/products/:id 
 // Single product with full description, all variations, colors and sizes.
 const getProduct = async (req, res) => {
     const { id } = req.params;
@@ -829,7 +829,7 @@ const getProduct = async (req, res) => {
     }
 };
 
-//  GET /store/api/attributes/colors 
+//  GET /api/attributes/colors 
 // All distinct color attributes used across published products.
 const getColors = async (req, res) => {
     try {
@@ -853,7 +853,7 @@ const getColors = async (req, res) => {
     }
 };
 
-// GET /store/api/attributes/:taxonomy
+// GET /api/attributes/:taxonomy
 // Returns distinct attributes for the given taxonomy (pa_color, pa_material, pa_style, pa_occasion, pa_feature)
 const getAttributesByTaxonomy = async (req, res) => {
     const raw = String(req.params.taxonomy ?? '').toLowerCase().trim();
@@ -883,7 +883,7 @@ const getAttributesByTaxonomy = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error', ...(NODE_ENV !== 'production' ? { error: err.message || String(err), code: err.code || null } : {}) });
     }
 };
-// GET /store/api/attributes/all
+// GET /api/attributes/all
 // Returns ALL taxonomies that have at least one attribute linked to a published product.
 // Each entry: { taxonomy, label, options: [{ attr_id, attr_name, attr_slug }] }
 // Adding a new taxonomy to tbl_attributes_lookup automatically shows it here.
@@ -931,7 +931,7 @@ const getAllAttributeGroups = async (req, res) => {
     }
 };
 
-// GET /store/api/product-categories
+// GET /api/product-categories
 // Returns all categories with product_count via tbl_products_category_link (product_id column)
 const getProductCategories = async (req, res) => {
     try {
@@ -955,7 +955,7 @@ const getProductCategories = async (req, res) => {
     }
 };
 
-// GET /store/api/product-categories/search?q=term&limit=N
+// GET /api/product-categories/search?q=term&limit=N
 // Returns categories whose name matches the search term
 const searchProductCategories = async (req, res) => {
     try {
@@ -985,7 +985,7 @@ const searchProductCategories = async (req, res) => {
     }
 };
 
-// GET /store/api/product-categories/:slug/children
+// GET /api/product-categories/:slug/children
 // Returns child categories of a given slug with product_count
 const getCategoryChildren = async (req, res) => {
     try {
@@ -1019,7 +1019,7 @@ const getCategoryChildren = async (req, res) => {
     }
 };
 
-// GET /store/api/product-categories/:slug/products
+// GET /api/product-categories/:slug/products
 // Returns products linked via tbl_products_category_link.product_id → tbl_products.ID
 // Includes the category and its direct children
 const getCategoryProducts = async (req, res) => {
@@ -1129,7 +1129,7 @@ const getCategoryProducts = async (req, res) => {
     }
 };
 
-// GET /store/api/products/slug/:slug
+// GET /api/products/slug/:slug
 const getProductBySlug = async (req, res) => {
     const { slug } = req.params;
     try {
@@ -1195,7 +1195,7 @@ const clampBlogLimit = (value) => {
     return Math.min(parsed, MAX_BLOG_LIMIT);
 };
 
-// GET /store/api/blogs
+// GET /api/blogs
 const getBlogs = async (req, res) => {
     try {
         const limit = clampBlogLimit(req.query.limit);
@@ -1243,7 +1243,7 @@ const getBlogs = async (req, res) => {
     }
 };
 
-// GET /store/api/blog-categories
+// GET /api/blog-categories
 const getBlogCategories = async (req, res) => {
     try {
         const [rows] = await withRetry(() => db.query(`
@@ -1269,7 +1269,7 @@ const getBlogCategories = async (req, res) => {
     }
 };
 
-// GET /store/api/blogs/slug/:slug
+// GET /api/blogs/slug/:slug
 const getBlogBySlug = async (req, res) => {
     const { slug } = req.params;
     try {
@@ -1286,7 +1286,7 @@ const getBlogBySlug = async (req, res) => {
     }
 };
 
-// GET /store/api/pages
+// GET /api/pages
 const getPages = async (_req, res) => {
     try {
         const [rows] = await withRetry(() => db.query(`
@@ -1314,7 +1314,7 @@ const getPages = async (_req, res) => {
     }
 };
 
-// GET /store/api/pages/slug/:slug
+// GET /api/pages/slug/:slug
 const getPageBySlug = async (req, res) => {
     const { slug } = req.params;
     try {

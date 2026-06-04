@@ -290,7 +290,7 @@ export default function CheckoutPage() {
       const res = await authRegister(regUsername.trim(), regEmail.trim(), regPassword);
       if (res.success) {
         // Fetch the actual session user so AuthContext reflects the new login
-        const me = await fetch('/store/api/auth/me', { credentials: 'include' }).then(r => r.json());
+        const me = await fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json());
         if (me.success && me.data?.isLoggedIn && me.data.user) {
           setUser(me.data.user);
         }
@@ -701,7 +701,7 @@ export default function CheckoutPage() {
       }, 0);
 
       const response = await fetch(
-        '/store/api/shipping-rate',
+        '/api/shipping-rate',
         {
           method: 'POST',
           credentials: 'include',
@@ -791,7 +791,7 @@ export default function CheckoutPage() {
         company: resolvedBilling.company,
       };
 
-      const res = await fetch('/store/api/orders/place', {
+      const res = await fetch('/api/orders/place', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -822,7 +822,7 @@ export default function CheckoutPage() {
             razorpay_signature: string;
           }) {
 
-            const verifyRes = await fetch('/store/api/orders/place', {
+            const verifyRes = await fetch('/api/orders/place', {
               method: 'POST',
               credentials: 'include',
               headers: {

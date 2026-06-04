@@ -23,7 +23,7 @@ const normalize = (value: string) =>
 
 const fetchFooterPages = async (): Promise<FooterPage[]> => {
   try {
-    const res = await fetch('/store/api/pages?limit=25', { cache: 'no-store' });
+    const res = await fetch('/api/pages?limit=25', { cache: 'no-store' });
     if (!res.ok) return [];
     const data = await res.json();
     if (!data?.success || !Array.isArray(data.data)) return [];
@@ -35,7 +35,7 @@ const fetchFooterPages = async (): Promise<FooterPage[]> => {
 
 const fetchCategories = async (): Promise<FooterCategory[]> => {
   try {
-    const res = await fetch('/store/api/product-categories', { cache: 'no-store' });
+    const res = await fetch('/api/product-categories', { cache: 'no-store' });
     if (!res.ok) return [];
     const data = await res.json();
     if (!data?.success || !Array.isArray(data.data)) return [];
@@ -128,20 +128,20 @@ export default function Footer() {
               <li><a href="mailto:support@nestcase.in" className="link-faded">Email: support@nestcase.in</a></li>
               <li className="footer-social-list">
                 <a href="#" className="footer-social-icon footer-social-icon--instagram" aria-label="Instagram">
-                  <Image src="/store/images/icons/instagram.png" alt="Instagram" width={24} height={24} />
+                  <Image src="/images/icons/instagram.png" alt="Instagram" width={24} height={24} />
                 </a>
                 {/* https://wa.me/+919876543210 */}
                 <a href="#" className="footer-social-icon footer-social-icon--whatsapp" aria-label="WhatsApp">
-                  <Image src="/store/images/icons/whatsapp.png" alt="WhatsApp" width={24} height={24} />
+                  <Image src="/images/icons/whatsapp.png" alt="WhatsApp" width={24} height={24} />
                 </a>
                 <a href="mailto:support@nestcase.in" className="footer-social-icon footer-social-icon--email" aria-label="Email">
-                  <Image src="/store/images/icons/gmail.png" alt="Email" width={24} height={24} />
+                  <Image src="/images/icons/gmail.png" alt="Email" width={24} height={24} />
                 </a>
                 <a href="#" className="footer-social-icon footer-social-icon--pinterest" aria-label="pinterest">
-                  <Image src="/store/images/icons/pinterest.png" alt="pinterest" width={24} height={24} />
+                  <Image src="/images/icons/pinterest.png" alt="pinterest" width={24} height={24} />
                 </a>
                 <a href="https://www.linkedin.com/company/nestcase" className="footer-social-icon footer-social-icon--linkedin" aria-label="LinkedIn">
-                  <Image src="/store/images/icons/linkedin.png" alt="LinkedIn" width={24} height={24} />
+                  <Image src="/images/icons/linkedin.png" alt="LinkedIn" width={24} height={24} />
                 </a>
               </li>
             </ul>
@@ -186,16 +186,16 @@ export default function Footer() {
           <div className="footer-payment-row" aria-label="Accepted payment methods">
             <p>We Accept</p>
             <span className="footer-payment-badge footer-payment-image">
-              <Image src="/store/images/icons/visa.jpg" alt="Visa" width={42} height={22} />
+              <Image src="/images/icons/visa.jpg" alt="Visa" width={42} height={22} />
             </span>
             <span className="footer-payment-badge footer-payment-image">
-              <Image src="/store/images/icons/master-c.jpg" alt="Mastercard" width={42} height={22} />
+              <Image src="/images/icons/master-c.jpg" alt="Mastercard" width={42} height={22} />
             </span>
             <span className="footer-payment-badge footer-payment-image">
-              <Image src="/store/images/icons/rupay_icon.png" alt="rupay" width={42} height={22} />
+              <Image src="/images/icons/rupay_icon.png" alt="rupay" width={42} height={22} />
             </span>
             <span className="footer-payment-badge footer-payment-image">
-              <Image src="/store/images/icons/paytm_icon.png" alt="paytm" width={42} height={22} />
+              <Image src="/images/icons/paytm_icon.png" alt="paytm" width={42} height={22} />
             </span>
             {/* <p>and more..</p> */}
           </div>

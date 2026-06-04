@@ -35,5 +35,5 @@ export function absoluteUrl(path: string): string {
  */
 export function productCanonicalUrl(slug: string, seoCanonicalTag?: string | null): string {
   if (seoCanonicalTag) return absoluteUrl(seoCanonicalTag);
-  return absoluteUrl(`/store/shop/product/${slug}`);
+  return absoluteUrl(`/shop/product/${slug}`);
 }

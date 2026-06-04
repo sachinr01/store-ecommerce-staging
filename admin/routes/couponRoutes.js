@@ -8,7 +8,7 @@ router.get("/coupons",                isAuthenticated, couponController.index);
 
 // Add
 router.get("/coupons/add",            isAuthenticated, couponController.create);
-router.post("/coupons/store",         isAuthenticated, couponController.store);
+router.post("/coupons",         isAuthenticated, couponController.store);
 
 // Edit
 router.get("/coupons/edit/:id",       isAuthenticated, couponController.edit);

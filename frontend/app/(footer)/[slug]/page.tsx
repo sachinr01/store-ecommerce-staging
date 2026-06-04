@@ -18,7 +18,7 @@ export async function generateMetadata({
 
   const metaTitle       = page.seo_meta_title       || `${page.title}`;
   const metaDescription = page.seo_meta_description || page.summary || '';
-  const canonicalUrl    = page.seo_canonical_tag     || `/store/${slug}`;
+  const canonicalUrl    = page.seo_canonical_tag     || `/${slug}`;
   const shouldIndex     = (page.seo_meta_index || 'yes').toLowerCase() !== 'no';
 
   return {

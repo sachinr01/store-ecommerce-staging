@@ -7,7 +7,7 @@ export default function Slider() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
-    { image: "/store/images/ecommerce/Hero_Image.png" }
+    { image: "/images/ecommerce/Hero_Image.png" }
   ];
 
   useEffect(() => {

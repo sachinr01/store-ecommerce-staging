@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 
 const showLogin = (req, res) => {
     if (req.session && req.session.admin) {
-        return res.redirect('/store/admin/dashboard');
+        return res.redirect('/admin/dashboard');
     }
     res.render('auth/login', { error: null });
 };
@@ -42,7 +42,7 @@ const login = async (req, res) => {
             role:     role
         };
 
-        res.redirect('/store/admin/dashboard');
+        res.redirect('/admin/dashboard');
 
     } catch (error) {
         console.error('Login Error:', error.message);
@@ -52,7 +52,7 @@ const login = async (req, res) => {
 
 const logout = (req, res) => {
     req.session.destroy(() => {
-        res.redirect('/store/admin/login');
+        res.redirect('/admin/login');
     });
 };
 

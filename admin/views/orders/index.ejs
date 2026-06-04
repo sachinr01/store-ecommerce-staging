@@ -12,13 +12,13 @@
                 </span></h4>
               <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="/store/admin/dashboard">Home</a></li>
+                  <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
                   <li class="breadcrumb-item active">Orders</li>
                 </ol>
               </nav>
             </div>
             <div class="col-5 align-self-center text-end">
-              <a href="/store/admin/orders/add" class="btn-view-product btn-view-product--inline na-view-all-btn">
+              <a href="/admin/orders/add" class="btn-view-product btn-view-product--inline na-view-all-btn">
                 <div class="d-flex align-items-center gap-1">
                   <i data-feather="plus" class="feather-sm"></i> Add Order
                 </div>
@@ -42,12 +42,12 @@
               <div class="card mb-3">
                 <div class="card-body py-2">
                   <div class="d-flex gap-2 flex-wrap align-items-center">
-                    <a href="/store/admin/orders"
+                    <a href="/admin/orders"
                       class="btn btn-sm rounded-pill <%= !status ? 'btn-primary' : 'btn-outline-secondary' %>">
                       All
                     </a>
                     <% Object.entries(statusBadge).forEach(function(entry) { %>
-                      <a href="/store/admin/orders?status=<%= entry[0] %>"
+                      <a href="/admin/orders?status=<%= entry[0] %>"
                         class="btn btn-sm rounded-pill <%= status === entry[0] ? entry[1].class + ' text-white' : 'btn-outline-secondary' %>">
                         <%= entry[1].label %>
                       </a>
@@ -90,7 +90,7 @@
                                 %>
                                 <tr>
                                   <td>
-                                    <a href="/store/admin/orders/<%= o.order_id %>"
+                                    <a href="/admin/orders/<%= o.order_id %>"
                                       class="fw-semibold text-decoration-none">
                                       #<%= o.order_id %>
                                     </a>
@@ -132,14 +132,14 @@
                                   </td>
                                   <td>
                                     <div class="d-flex gap-1">
-                                      <a href="/store/admin/orders/<%= o.order_id %>"
+                                      <a href="/admin/orders/<%= o.order_id %>"
                                         class="btn btn-sm btn-outline-primary rounded-pill px-2 py-1"
                                         title="View Order">
                                         <i data-feather="eye" style="width:13px;height:13px;"></i>
                                       </a>
                                       <button class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1 delete-btn"
                                         data-id="<%= o.order_id %>" data-name="Order #<%= o.order_id %>"
-                                        data-url="/store/admin/orders/" data-title="Delete Order" title="Delete Order">
+                                        data-url="/admin/orders/" data-title="Delete Order" title="Delete Order">
 
                                         <i data-feather="trash-2" style="width:13px;height:13px;"></i>
                                       </button>

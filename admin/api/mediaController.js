@@ -37,7 +37,7 @@ function errRes(res, err, label) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GET /store/api/media/products
+// GET /api/media/products
 //
 // Returns every published parent product with its thumbnail + gallery images,
 // fully resolved from tbl_productmeta → tbl_media → tbl_mediameta.
@@ -117,7 +117,7 @@ const getProductsWithImages = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GET /store/api/media/product/:productId
+// GET /api/media/product/:productId
 //
 // Full image data for one product:
 //   - thumbnail  (from _thumbnail_id in tbl_productmeta)
@@ -213,7 +213,7 @@ const getProductMedia = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GET /store/api/media/:id
+// GET /api/media/:id
 //
 // Single media item with all its meta key/value pairs.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -268,7 +268,7 @@ const getMediaById = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GET /store/api/media/resolve?ids=1,2,3
+// GET /api/media/resolve?ids=1,2,3
 //
 // Batch-resolve media IDs → { media_id, url, file_path, ... }
 // Used by the frontend to resolve thumbnail_id / gallery_ids without

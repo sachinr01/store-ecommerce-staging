@@ -67,7 +67,7 @@ exports.store = async (req, res) => {
   } = req.body;
 
   if (!coupon_code) {
-    return res.redirect("/store/admin/coupons/add");
+    return res.redirect("/admin/coupons/add");
   }
 
   const now = new Date();
@@ -113,7 +113,7 @@ exports.store = async (req, res) => {
     ],
   );
 
-  res.redirect("/store/admin/coupons?success=Coupon added successfully");
+  res.redirect("/admin/coupons?success=Coupon added successfully");
 };
 
 // ── GET EDIT FORM
@@ -124,7 +124,7 @@ exports.edit = async (req, res) => {
     [id],
   );
 
-  if (!coupon) return res.redirect("/store/admin/coupons");
+  if (!coupon) return res.redirect("/admin/coupons");
 
   const [categories] = await db.query(
     "SELECT category_id, category_name FROM tbl_products_category ORDER BY category_name ASC",
@@ -216,12 +216,12 @@ exports.update = async (req, res) => {
     ],
   );
 
-  res.redirect("/store/admin/coupons?success=Coupon updated successfully");
+  res.redirect("/admin/coupons?success=Coupon updated successfully");
 };
 
 // ── GET DELETE
 exports.delete = async (req, res) => {
   const { id } = req.params;
   await db.query("DELETE FROM tbl_coupons WHERE coupon_id = ?", [id]);
-  res.redirect("/store/admin/coupons?success=Coupon deleted successfully");
+  res.redirect("/admin/coupons?success=Coupon deleted successfully");
 };

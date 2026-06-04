@@ -17,8 +17,8 @@
                 <div class="d-flex align-items-center">
                   <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                      <li class="breadcrumb-item"><a href="/store/admin/dashboard">Home</a></li>
-                      <li class="breadcrumb-item"><a href="/store/admin/coupons">Coupons</a></li>
+                      <li class="breadcrumb-item"><a href="/admin/dashboard">Home</a></li>
+                      <li class="breadcrumb-item"><a href="/admin/coupons">Coupons</a></li>
                       <li class="breadcrumb-item active">
                         <%= isEdit ? 'Edit' : 'Add New' %>
                       </li>
@@ -27,7 +27,7 @@
                 </div>
               </div>
               <div class="col-5 align-self-center text-end">
-                <a href="/store/admin/coupons" class="btn-view-product btn-view-product--inline na-view-all-btn">
+                <a href="/admin/coupons" class="btn-view-product btn-view-product--inline na-view-all-btn">
                   <div class="d-flex align-items-center gap-1">
                     <i data-feather="arrow-left" class="feather-sm"></i> Back to Coupons
                   </div>
@@ -47,7 +47,7 @@
               <% } %>
 
                 <form
-                  action="<%= isEdit ? '/store/admin/coupons/update/' + c.coupon_id : '/store/admin/coupons/store' %>"
+                  action="<%= isEdit ? '/admin/coupons/update/' + c.coupon_id : '/admin/coupons' %>"
                   method="POST" id="couponForm">
 
                   <div class="row">
@@ -382,7 +382,7 @@
                                   Save as Draft
                                 </button>
                                 <% if (isEdit) { %>
-                                  <a href="/store/admin/coupons/delete/<%= c.coupon_id %>"
+                                  <a href="/admin/coupons/delete/<%= c.coupon_id %>"
                                     class="btn btn-outline-danger rounded-pill"
                                     onclick="return confirm('Permanently delete this coupon?')">
                                     <div class="d-flex align-items-center justify-content-center gap-1">

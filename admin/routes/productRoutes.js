@@ -34,7 +34,7 @@ const upload = multer({ storage: storage });
 router.get("/products", isAuthenticated, showProducts);
 router.get("/products/add", isAuthenticated, showAddProduct);
 router.post(
-  "/products/store",
+  "/products",
  upload.any(),
   storeProduct,
 );

@@ -51,12 +51,12 @@ const saveSettings = async (req, res) => {
     }
 
     res.redirect(
-      `/store/admin/site-settings?tab=${tab}&success=Settings saved successfully`
+      `/admin/site-settings?tab=${tab}&success=Settings saved successfully`
     );
   } catch (err) {
     console.error("saveSettings error:", err.message);
     res.redirect(
-      `/store/admin/site-settings?tab=${req.query.tab || "general"}&error=` +
+      `/admin/site-settings?tab=${req.query.tab || "general"}&error=` +
         encodeURIComponent(err.message)
     );
   }
