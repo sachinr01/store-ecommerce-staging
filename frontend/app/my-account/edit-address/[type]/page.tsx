@@ -169,7 +169,7 @@ export default function EditAddressTypePage() {
                           <span>{'<-'}</span>
                           <span>Back to addresses</span>
                         </Link>
-                        <h1 className="account-address-title">{title}</h1>
+                        <h4 className="account-address-title">{title}</h4>
                         <p className="account-address-copy">{description}</p>
                       </div>
 

@@ -34,13 +34,13 @@ const getOrderItems = async (orderId) => {
 
 // ── Status badge config ───────────────────────────────────────────────────────
 const statusBadge = {
-  "wc-completed": { label: "Completed", class: "bg-success" },
-  "wc-processing": { label: "Processing", class: "bg-primary" },
-  "wc-pending": { label: "Pending", class: "bg-warning text-dark" },
-  "wc-on-hold": { label: "On Hold", class: "bg-info text-dark" },
-  "wc-cancelled": { label: "Cancelled", class: "bg-secondary" },
-  "wc-refunded": { label: "Refunded", class: "bg-danger" },
-  "wc-failed": { label: "Failed", class: "bg-dark" },
+  "completed":  { label: "Completed",  class: "bg-success" },
+  "processing": { label: "Processing", class: "bg-primary" },
+  "pending":    { label: "Pending",    class: "bg-warning text-dark" },
+  "on-hold":    { label: "On Hold",    class: "bg-info text-dark" },
+  "cancelled":  { label: "Cancelled",  class: "bg-secondary" },
+  "refunded":   { label: "Refunded",   class: "bg-danger" },
+  "failed":     { label: "Failed",     class: "bg-dark" },
 };
 
 // ─── LIST ORDERS ──────────────────────────────────────────────────────────────
@@ -755,7 +755,7 @@ const storeOrder = async (req, res) => {
         body.customer_id || 0,
         orderName,
         orderTitle,
-        body.order_status || "wc-pending",
+        body.order_status || "pending",
       ],
     );
     const orderId = orderResult.insertId;

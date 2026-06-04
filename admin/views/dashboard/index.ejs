@@ -281,14 +281,14 @@
 
                                                     <div id="orders-list">
                                                         <% latestOrders.forEach(order=> { %>
-                                                            <% const statusMap={ 'wc-completed' : 'bg-success'
-                                                                , 'wc-processing' : 'bg-primary' , 'wc-pending'
-                                                                : 'bg-warning text-dark' , 'wc-on-hold'
-                                                                : 'bg-info text-dark' , 'wc-cancelled' : 'bg-danger'
-                                                                , 'wc-refunded' : 'bg-secondary' , }; const
+                                                            <% const statusMap={ 'completed' : 'bg-success'
+                                                                , 'processing' : 'bg-primary' , 'pending'
+                                                                : 'bg-warning text-dark' , 'on-hold'
+                                                                : 'bg-info text-dark' , 'cancelled' : 'bg-danger'
+                                                                , 'refunded' : 'bg-secondary' , }; const
                                                                 statusClass=statusMap[order.order_status]
                                                                 || 'bg-secondary' ; const
-                                                                statusLabel=order.order_status.replace('wc-', '' );
+                                                                statusLabel=order.order_status;
                                                                 const customerName=order.customer_name || 'N/A' ; %>
                                                                 <div class="py-3 border-bottom">
                                                                     <div
@@ -589,20 +589,18 @@
                         }
 
                         if (type === 'orders') {
-
                             const statusMap = {
-                                'wc-completed': 'bg-success',
-                                'wc-processing': 'bg-primary',
-                                'wc-pending': 'bg-warning text-dark',
-                                'wc-on-hold': 'bg-info text-dark',
-                                'wc-cancelled': 'bg-danger',
-                                'wc-refunded': 'bg-secondary',
+                                'completed':  'bg-success',
+                                'processing': 'bg-primary',
+                                'pending':    'bg-warning text-dark',
+                                'on-hold':    'bg-info text-dark',
+                                'cancelled':  'bg-danger',
+                                'refunded':   'bg-secondary',
                             };
 
                             const cls = statusMap[d.order_status] || 'bg-secondary';
 
-                            const label = (d.order_status || '')
-                                .replace('wc-', '');
+                            const label = d.order_status || '';
 
                             const name = d.customer_name || 'N/A';
 

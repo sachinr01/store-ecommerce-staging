@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
 import { renderStaticPage, fetchPageForMeta } from '../_pageTemplate';
+import { buildAdminSeoMetadata } from '../../lib/helpers/seoMetadata';
+import { resolveOgImageUrl } from '../../lib/helpers/siteUrl';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,26 +18,28 @@ export async function generateMetadata({
   const page = await fetchPageForMeta(slug);
   if (!page) return {};
 
-  const metaTitle       = page.seo_meta_title       || `${page.title}`;
-  const metaDescription = page.seo_meta_description || page.summary || '';
-  const canonicalUrl    = page.seo_canonical_tag     || `/${slug}`;
-  const shouldIndex     = (page.seo_meta_index || 'yes').toLowerCase() !== 'no';
+  const seo = buildAdminSeoMetadata(
+    {
+      seo_meta_title: page.seo_meta_title,
+      seo_meta_description: page.seo_meta_description,
+      seo_canonical_tag: page.seo_canonical_tag,
+      fallbackTitle: page.title,
+    },
+    { absoluteTitle: true },
+  );
+  const shouldIndex = (page.seo_meta_index || 'yes').toLowerCase() !== 'no';
+  const ogImageUrl  = resolveOgImageUrl(page.image);
 
   return {
-    title: { absolute: metaTitle },
-    description: metaDescription,
+    ...seo,
     robots: {
       index:  shouldIndex,
       follow: shouldIndex,
     },
     openGraph: {
-      title:       metaTitle,
-      description: metaDescription,
-      url:         canonicalUrl,
-      type:        'website',
-      ...(page.image ? { images: [{ url: page.image, alt: page.title }] } : {}),
+      ...seo.openGraph,
+      ...(ogImageUrl ? { images: [{ url: ogImageUrl, alt: page.title }] } : {}),
     },
-    alternates: { canonical: canonicalUrl },
   };
 }
 

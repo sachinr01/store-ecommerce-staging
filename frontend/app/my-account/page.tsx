@@ -363,8 +363,8 @@ export default function MyAccountPage() {
                       <h4 className="box-titel">Login</h4>
                       <form className="form-small form" onSubmit={handleLogin} noValidate>
                         <div className="field">
-                          <label className="required">Username or Email</label>
-                          <input type="text" placeholder="Username or email" value={login.username} onChange={setL('username')} />
+                          <label className="required">Email</label>
+                          <input type="text" placeholder="Email" value={login.username} onChange={setL('username')} />
                         </div>
                         <div className="field">
                           <label className="required">Password</label>
@@ -402,10 +402,10 @@ export default function MyAccountPage() {
                     <div className="account-auth-card">
                       <h4 className="box-titel">Register</h4>
                       <form className="form-small form" onSubmit={handleRegister} noValidate>
-                        <div className="field">
+                        {/* <div className="field">
                           <label className="required">Username</label>
                           <input type="text" placeholder="Username" value={reg.username} onChange={setR('username')} />
-                        </div>
+                        </div> */}
                         <div className="field">
                           <label className="required">Email</label>
                           <input type="email" placeholder="Email" value={reg.email} onChange={setR('email')} />
@@ -463,9 +463,9 @@ export default function MyAccountPage() {
           <div className="register-modal">
             <button type="button" className="register-modal-close" onClick={closeForgotModal} aria-label="Close">&#x2715;</button>
             <p className="register-modal-title">Lost Password?</p>
-            <p className="register-modal-sub">Enter your username or email address and we&apos;ll send a secure reset link to your registered email.</p>
+            <p className="register-modal-sub">Enter your Email address and we&apos;ll send a secure reset link to your registered email.</p>
             <div className="register-modal-field">
-              <label className="register-modal-label">Username or Email <span>*</span></label>
+              <label className="register-modal-label">Email <span>*</span></label>
               <input
                 className="register-modal-input"
                 type="text"

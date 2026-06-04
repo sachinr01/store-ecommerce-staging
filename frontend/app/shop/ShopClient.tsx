@@ -410,13 +410,11 @@ function ShopInner({ heading, subheading }: { heading: string; subheading: strin
                     <input type="checkbox" className="nf-hidden-input" checked={checked}
                       onChange={() => {
                         setOpenFilters(p => ({ ...p, category: true }));
-                        setSelectedCategories(prev => {
-                          const next = prev.includes(cat.category_slug)
-                            ? prev.filter(c => c !== cat.category_slug)
-                            : [...prev, cat.category_slug];
-                          updateCategoryUrl(next);
-                          return next;
-                        });
+                        const next = selectedCategories.includes(cat.category_slug)
+                          ? selectedCategories.filter(c => c !== cat.category_slug)
+                          : [...selectedCategories, cat.category_slug];
+                        setSelectedCategories(next);
+                        updateCategoryUrl(next);
                       }}
                       aria-label={cat.category_name} />
                     <span className="nf-option-text" style={isChild ? { fontSize: 12, color: '#6b7280' } : undefined}>

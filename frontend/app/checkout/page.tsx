@@ -220,7 +220,7 @@ export default function CheckoutPage() {
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [notes, setNotes] = useState('');
-  const [loginUsername, setLoginUsername] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [shipForm, setShipForm] = useState<AddressFields>({ ...emptyAddress });
   const [billForm, setBillForm] = useState<AddressFields>({ ...emptyAddress });
@@ -236,7 +236,7 @@ export default function CheckoutPage() {
     setUser(payload ?? null);
     await refresh();
     setLoginError('');
-    setLoginUsername('');
+    setLoginEmail('');
     setLoginPassword('');
     setShowLogin(false);
   }, [refresh, setUser]);
@@ -263,12 +263,12 @@ export default function CheckoutPage() {
     setShowLogin(true);
     setShowForgotRecovery(true);
     setShowResetRecovery(false);
-    setForgotIdentifier(loginUsername.trim());
+    setForgotIdentifier(loginEmail.trim());
     setForgotError('');
     setForgotSuccess('');
     setResetError('');
     setResetSuccess('');
-  }, [loginUsername]);
+  }, [loginEmail]);
 
   const handleRegister = async () => {
     setRegError('');
@@ -316,7 +316,7 @@ export default function CheckoutPage() {
   const handleForgotRecovery = async () => {
     const value = forgotIdentifier.trim();
     if (!value) {
-      setForgotError('Please enter your username or email address.');
+      setForgotError('Please enter your email address.');
       return;
     }
 
@@ -382,8 +382,8 @@ export default function CheckoutPage() {
   };
 
   const handlePasswordLogin = async () => {
-    if (!loginUsername.trim() || !loginPassword.trim()) {
-      setLoginError('Please enter your username/email and password.');
+    if (!loginEmail.trim() || !loginPassword.trim()) {
+      setLoginError('Please enter your email and password.');
       return;
     }
 
@@ -391,7 +391,7 @@ export default function CheckoutPage() {
     setLoginError('');
 
     try {
-      const res = await authLogin(loginUsername.trim(), loginPassword);
+      const res = await authLogin(loginEmail.trim(), loginPassword);
       if (res.success && res.data) {
         await handleLoginSuccess(res.data);
       } else {
@@ -1037,11 +1037,11 @@ export default function CheckoutPage() {
 
               {showLogin && (
                 <div className="checkout-login-box checkout-box">
-                  <p>If you have shopped with us before, please enter your details below. If you are a new customer, continue to the billing and shipping section.</p>
+                  <p>If you have shopped with us before, please enter your email and password below. If you are a new customer, continue to the billing and shipping section.</p>
                   <div className="checkout-inline-row">
                     <div className="field">
-                      <label>Username or Email</label>
-                      <input type="text" placeholder="Username or email" value={loginUsername} onChange={(e) => setLoginUsername(e.target.value)} />
+                      <label>Email</label>
+                      <input type="email" placeholder="Email address" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} autoComplete="email" />
                     </div>
                     <div className="field">
                       <label>Password</label>
@@ -1518,17 +1518,17 @@ export default function CheckoutPage() {
           <div className="register-modal">
             <button type="button" className="register-modal-close" onClick={closeForgotRecovery} aria-label="Close">&#x2715;</button>
             <p className="register-modal-title">Lost Password?</p>
-            <p className="register-modal-sub">Enter your username or email address and we&apos;ll send a secure reset link to your registered email.</p>
+            <p className="register-modal-sub">Enter your email address and we&apos;ll send a secure reset link to your registered email.</p>
 
             <div className="register-modal-field">
-              <label className="register-modal-label">Username or Email <span>*</span></label>
+              <label className="register-modal-label">Email <span>*</span></label>
               <input
                 className="register-modal-input"
-                type="text"
-                placeholder="Username or email"
+                type="email"
+                placeholder="Email address"
                 value={forgotIdentifier}
                 onChange={(e) => setForgotIdentifier(e.target.value)}
-                autoComplete="username"
+                autoComplete="email"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') void handleForgotRecovery();
                 }}

@@ -1000,7 +1000,7 @@ const placeOrder = async (req, res) => {
       `INSERT INTO tbl_orders
        (parent_id, user_id, order_name, order_title, order_content,
         order_status, order_type, order_date, order_modified)
-       VALUES (0, ?, ?, ?, '', 'wc-pending', 'shop_order', NOW(), NOW())`,
+       VALUES (0, ?, ?, ?, '', 'pending', 'shop_order', NOW(), NOW())`,
       [userId, orderName, orderTitle],
     );
     const orderId = orderResult.insertId;
@@ -2243,13 +2243,13 @@ const updateOrderStatus = async (req, res) => {
   // Prevents arbitrary strings being written to order_status via a compromised
   // admin account, a bug, or a forged request.
   const VALID_STATUSES = [
-    "wc-pending",
-    "wc-processing",
-    "wc-on-hold",
-    "wc-completed",
-    "wc-cancelled",
-    "wc-refunded",
-    "wc-failed",
+    "pending",
+    "processing",
+    "on-hold",
+    "completed",
+    "cancelled",
+    "refunded",
+    "failed",
   ];
   if (!VALID_STATUSES.includes(status)) {
     return res
@@ -2257,7 +2257,7 @@ const updateOrderStatus = async (req, res) => {
       .json({ success: false, message: "Invalid order status." });
   }
 
-  const STOCK_RESTORE_STATUSES = ["wc-cancelled", "wc-refunded", "wc-failed"];
+  const STOCK_RESTORE_STATUSES = ["cancelled", "refunded", "failed"];
 
   const conn = await db.getConnection();
   try {
