@@ -5,7 +5,7 @@ const API_BASE =
     ? (() => {
         const raw = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3000/api').replace(/\/+$/, '');
         // Normalise: ensure it ends with /api
-        return raw.endsWith('/api') ? raw : `${raw.replace(/\\/api$/, '')}/api`;
+        return raw.endsWith('/api') ? raw : `${raw.replace(/\/api$/, '')}/api`;
       })()
     : '/api';
 
