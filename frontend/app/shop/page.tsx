@@ -14,6 +14,20 @@ async function fetchProducts(): Promise<Product[]> {
   }
 }
 
+// Verified live output on gaffis.org/shop:
+// <title>Shop All 61 Products | NESTCASE | Nestcase</title>
+// <meta name="description" content="Browse 61 products. Prices from ₹399 to ₹6399."/>
+// <meta name="keywords" content="shop,products,floral,white,set,pcs,ceramic,serving,bowls,black,900,stainless,steel,tumbler,gifts under ₹410"/>
+// <meta name="robots" content="noindex, nofollow"/>
+// <link rel="canonical" href="https://gaffis.org/shop"/>
+// <meta property="og:title" content="Shop All 61 Products | NESTCASE"/>
+// <meta property="og:description" content="Browse 61 products. Prices from ₹399 to ₹6399."/>
+// <meta property="og:url" content="https://gaffis.org/shop"/>
+// <meta property="og:site_name" content="NESTCASE"/>
+// <meta property="og:type" content="website"/>
+// <meta name="twitter:card" content="summary_large_image"/>
+// <meta name="twitter:title" content="Shop All 61 Products | NESTCASE"/>
+// <meta name="twitter:description" content="Browse 61 products. Prices from ₹399 to ₹6399."/>
 export async function generateMetadata(): Promise<Metadata> {
   const products = await fetchProducts();
 
