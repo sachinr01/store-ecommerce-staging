@@ -45,7 +45,7 @@ export const metadata: Metadata = {
       'Discover Nestcase premium bone-ash-free crockery, lead-free glassware, 304 food-grade stainless steel cutlery, bottles and bar accessories. Shop health-friendly dinnerware at Nestcase for a stylish and healthy lifestyle.',
     images: [`${SITE_URL}/images/nestcase-logo-optimized.png`],
   },
-  robots: { index: true, follow: true },
+  robots: { index: false, follow: false },
 };
 
 const jsonLd = {

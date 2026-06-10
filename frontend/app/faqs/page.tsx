@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   description:
     "Find answers to the most common questions about orders, shipping, returns, and more.",
   alternates: { canonical: `${SITE_URL}/faqs` },
+  robots: { index: false, follow: false },
 };
 
 const faqGroups = [

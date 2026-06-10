@@ -27,7 +27,7 @@ export async function generateMetadata({
     },
     { absoluteTitle: true },
   );
-  const shouldIndex = (page.seo_meta_index || 'yes').toLowerCase() !== 'no';
+  const shouldIndex = false;
   const ogImageUrl  = resolveOgImageUrl(page.image);
 
   return {

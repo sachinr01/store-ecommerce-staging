@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   description:
     "Premium drinkware, glassware and lifestyle essentials for hospitality, gifting, retail and modern spaces.",
   alternates: { canonical: `${SITE_URL}/b2b-connect` },
+  robots: { index: false, follow: false },
 };
 
 // Collection images mapped by category slug keywords

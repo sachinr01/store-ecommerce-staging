@@ -29,6 +29,7 @@ export async function generateMetadata({
       description:
         'Explore home decor tips, interior styling inspiration, and the latest updates from our team.',
       alternates: { canonical: '/blog' },
+      robots: { index: false, follow: false },
       openGraph: {
         title: 'Blog – Home Decor & Lifestyle',
         description:
@@ -53,7 +54,7 @@ export async function generateMetadata({
     },
     { openGraphType: 'article', overrideTwitter: true },
   );
-  const shouldIndex = (blog.seo_meta_index || 'yes').toLowerCase() !== 'no';
+  const shouldIndex = false;
   const ogImageUrl  = resolveOgImageUrl(blog.image);
 
   return {

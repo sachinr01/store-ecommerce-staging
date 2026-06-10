@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   description:
     "Contact Nestcase for product queries, order support, business enquiries, bulk orders, gifting and collaborations.",
   alternates: { canonical: `${SITE_URL}/contact-us` },
+  robots: { index: false, follow: false },
 };
 
 const supportItems = [

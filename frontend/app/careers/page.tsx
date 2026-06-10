@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   description:
     "Explore career opportunities at Nestcase and connect with our team.",
   alternates: { canonical: `${SITE_URL}/careers` },
+  robots: { index: false, follow: false },
 };
 
 export default function CareersPage() {

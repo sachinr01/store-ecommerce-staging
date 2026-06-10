@@ -86,7 +86,7 @@ export async function generateMetadata({
     },
     { absoluteTitle: true },
   );
-  const shouldIndex = (product.seo_meta_index || 'yes').toLowerCase() !== 'no';
+  const shouldIndex = false;
   const ogImageUrl  = resolveOgImageUrl(product.thumbnail_url);
 
   return {

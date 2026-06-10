@@ -58,7 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: { canonical: `${SITE_URL}/shop` },
     openGraph: { title, description, url: `${SITE_URL}/shop`, siteName: SITE_NAME, type: 'website' },
     twitter: { card: 'summary_large_image', title, description },
-    robots: { index: true, follow: true },
+    robots: { index: false, follow: false },
   };
 }
 

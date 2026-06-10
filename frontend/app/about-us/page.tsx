@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   description:
     "Discover the design philosophy behind Nestcase and the details that shape everyday living.",
   alternates: { canonical: `${SITE_URL}/about-us` },
+  robots: { index: false, follow: false },
 };
 
 const uspItems = [
